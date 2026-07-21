@@ -19,10 +19,11 @@
   2 GOV.UK calculator pages have no prose body (correctly skipped).
 
 ## Exact next step
-- Adversarial review workflow (run `wf_d4b042e5-b55`) was in flight at
-  session end — read its confirmed findings, fix, push. Then task list
-  items remaining from `docs/plans/2026-07-21-mvp-implementation-plan.md`:
-  all 12 tasks done except final review-fix loop.
+- NONE IN FLIGHT. Adversarial review (17 agents) DONE: 12 confirmed findings
+  ALL FIXED and pushed (93a7278) — incl. 4 real advice-boundary escapes now
+  in the red-team suite, coverage-poisoning fix, worked-example capping,
+  log untracking. 104 pytest + 7 vitest green; 37/37 live goldens.
+  All 12 plan tasks complete. Next session = user-directed (see queue).
 
 ## Needs-you queue
 1. Review the MVP scope decision (design doc §1 — shape A, extractive
