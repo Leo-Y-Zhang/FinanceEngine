@@ -1,6 +1,50 @@
 # SESSION_HANDOFF — Pistis
 
-**Updated:** 2026-07-21 (session: free compliance-review pass + manifest/Dependabot check)
+**Updated:** 2026-07-21 (session 2: fixed two gaps flagged by the compliance
+review — GDPR privacy notice + retention, and classifier hardening pass 2)
+
+## Session 2 (2026-07-21) — this session's changes (local commits only)
+
+User asked for two gaps from `docs/compliance-review-2026-07-21.md` to be
+fixed directly (not just flagged for a lawyer). Both done, tested, not
+pushed (push still on hold). Full addendum with details is appended to the
+bottom of `docs/compliance-review-2026-07-21.md` itself — summary here:
+
+1. **Finding #8 (no GDPR privacy notice) — closed.** Added a real, linked
+   privacy notice page: `web/src/components/PrivacyNotice.tsx`, reachable
+   at the `#/privacy` hash route (minimal hand-rolled routing in `App.tsx`,
+   no new dependency) and linked directly from the disclaimer banner —
+   covers what's logged, why, lawful basis (legitimate interests — accurate
+   for this pre-launch build), retention (30 days), user rights, and a
+   placeholder contact ("the site operator", no invented email/company).
+   Added the retention mechanism that didn't exist before:
+   `server/pistis/privacy/retention.py` (`purge_expired`), wired into
+   `create_app()` to run at server startup, also runnable standalone
+   (`python -m pistis.privacy.retention`). New tests:
+   `server/tests/test_retention.py` (6 tests) + 1 startup-integration test
+   in `test_api.py` + `web/src/__tests__/PrivacyNotice.test.tsx` (3 tests,
+   incl. axe) + 2 new cases in `App.test.tsx`.
+2. **Finding #1 (classifier false-negative tail) — narrowed, not closed
+   (not closable by construction; documented as such).** Adversarial
+   hardening pass 2 in `server/pistis/engine/classifier.py`: 5 new
+   paraphrase categories covered — third-person/on-behalf-of framing
+   ("my friend wants to know if she should..."), hypothetical
+   self-insertion ("if you were me...", "in my shoes..."), informal/slang
+   framing ("the move", "no-brainer", "good shout"), ESL-style polite
+   requests ("please suggest me...", "kindly advise..."), and broadened
+   comparative adjectives (smarter/safer/wiser). Each new fixture was
+   verified against the *pre-hardening* patterns first to confirm it was a
+   genuine escape, not a re-labelled existing catch. Red-team suite grew
+   27/13 → 44/17 (17 new positive, 4 new boundary-probe negative), all
+   green. The compliance-doc addendum is explicit that a residual,
+   irreducible gap remains by design of the regex approach — a future
+   small classifier model is the suggested durable fix, not in scope here.
+3. **Full suite green after both changes**: 137 pytest (was 109) + 12
+   vitest (was 7).
+
+---
+
+*(Session 1, same date, earlier — prior changes below)*
 
 ## State (local commits only — NOT pushed; see "Push status" below)
 - MVP BUILT AND VERIFIED END-TO-END: extractive gate-first engine over a
@@ -64,12 +108,12 @@ Nothing in this session was pushed to GreenPandaTech/Pistis. Push when
 the user says so.
 
 ## Exact next step
-- NONE IN FLIGHT. This session's work (compliance doc + manifest change +
-  Dependabot check) is committed locally, not pushed. Next session =
-  user-directed (see queue) — most likely either a real lawyer's pass
-  informed by `docs/compliance-review-2026-07-21.md`, or continuing to
-  build (e.g. MoneyHelper partnership integration, staleness policy,
-  GDPR privacy notice) ahead of that.
+- NONE IN FLIGHT. Session 2's work (privacy notice + retention purge +
+  classifier hardening pass 2) is committed locally, not pushed. Next
+  session = user-directed (see queue) — most likely either a real lawyer's
+  pass informed by `docs/compliance-review-2026-07-21.md` (now including
+  the 2026-07-21 addendum), or continuing to build (e.g. MoneyHelper
+  partnership integration, staleness policy, disclaimer visual prominence).
 
 ## Needs-you queue
 1. Give your own read/OK on the MVP scope decision (design doc §1 — shape
@@ -101,5 +145,10 @@ the user says so.
 ## How to run
 - Snapshot: `server/.venv/Scripts/python -m pistis.corpus.refresh`
 - API: `server/.venv/Scripts/python -m uvicorn --factory pistis.api.app:create_app --port 8000`
-- UI: `cd web && npm run dev` (proxies /api -> :8000)
+  (also purges expired `logs/ask.jsonl` entries on startup — see
+  `pistis/privacy/retention.py`)
+- UI: `cd web && npm run dev` (proxies /api -> :8000); privacy notice at
+  `#/privacy` or via the link in the disclaimer banner
 - Tests: `server/.venv/Scripts/python -m pytest` · `cd web && npm test`
+- Manual log purge (optional — startup already does this):
+  `server/.venv/Scripts/python -m pistis.privacy.retention`

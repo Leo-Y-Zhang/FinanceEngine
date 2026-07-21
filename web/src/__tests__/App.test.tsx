@@ -79,6 +79,7 @@ async function askQuestion(text: string) {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  window.location.hash = "";
 });
 
 describe("App", () => {
@@ -144,6 +145,30 @@ describe("App", () => {
     expect(
       screen.getByText(/do not cover this well enough/i),
     ).toBeInTheDocument();
+  });
+
+  it("links to a reachable privacy notice from the disclaimer banner", () => {
+    render(<App />);
+    const link = screen.getByRole("link", {
+      name: /privacy notice/i,
+    });
+    expect(link).toHaveAttribute("href", "#/privacy");
+  });
+
+  it("navigates to the privacy notice page and back via the hash route", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("link", { name: /privacy notice/i }));
+    expect(
+      screen.getByRole("heading", { name: /privacy notice/i }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/30 days/).length).toBeGreaterThan(0);
+    // no longer showing the ask form while on the privacy page
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("link", { name: /back to pistis/i }));
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
   });
 
   it("shows a recoverable error when the engine is unreachable", async () => {

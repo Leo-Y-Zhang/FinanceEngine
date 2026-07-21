@@ -7,6 +7,22 @@ their circumstances, about a specific investment. Two traps designed against:
 implicit suitability ("people like you choose X") and multi-factor
 personalised narrowing. Deliberately conservative — a false route is safe,
 a false answer is not.
+
+Regex classifiers have an inherent, unbounded false-negative tail for
+natural-language paraphrase — this cannot be made exhaustive by construction
+(see docs/compliance-review-2026-07-21.md finding #1, and the 2026-07-21
+addendum at the bottom of that document). The pattern set below has been
+through two rounds of adversarial hardening: an initial pass (2026-07-21,
+see the "escapes found by..." fixtures in tests/test_classifier.py) and a
+second pass the same day targeting five specific paraphrase categories that
+were still uncovered: (1) third-person / on-behalf-of framing ("my friend
+wants to know if she should..."), (2) hypothetical self-insertion ("if you
+were me...", "in my shoes..."), (3) informal/slang decision framing ("the
+move", "no-brainer", "good shout"), (4) ESL/non-native-English-style polite
+request phrasing ("please suggest me...", "kindly advise..."), and (5)
+broadened comparative/decision verbs ("what would you put/invest/open...").
+A residual gap remains by design of the regex approach — see the compliance
+doc for what a durable fix would look like (a small classifier model).
 """
 
 from __future__ import annotations
@@ -42,13 +58,15 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = tuple(
         # (transfer/move/switch/put) are the highest-stakes selection asks
         ("which-for-me", r"\bwhich\b[^?.]{0,60}\b(pick|choose|go\s+(for|with|into)|buy|get|open|invest|transfer|move|switch|put|pay\s+into|use)\b"),
         # Suitability framing: "best/right/good ... for me/my"
-        ("best-for-me", r"\b(best|right|good|better|ideal|suitable)\b[^?.]{0,60}\bfor\s+(me|my|us|our|someone\s+like\s+me)\b"),
-        ("right-for-me", r"\bfor\s+(me|my\s+situation|my\s+circumstances)\b[^?.]{0,40}\b(best|right|suitable|good\s+idea|worth)\b"),
+        ("best-for-me", r"\b(best|right|good|better|ideal|suitable|smarter|safer|wiser)\b[^?.]{0,60}\bfor\s+(me|my|us|our|someone\s+like\s+me)\b"),
+        ("right-for-me", r"\bfor\s+(me|my\s+situation|my\s+circumstances)\b[^?.]{0,40}\b(best|right|suitable|good\s+idea|worth|smarter|safer|wiser)\b"),
         # Product superlative without "for me": "what is the best ISA?" is a
         # selection ask. Lookahead excludes process phrasings ("best way to").
-        ("product-superlative", r"\b(best|better|ideal|top)\b(?!\s+(way|time|place|method)\b)[^?.]{0,30}\b(isa|lisa|jisa|sipp|pension|annuity|mortgage|fund|account|provider|platform)\b"),
-        # Explicit advice ask
-        ("recommend", r"\b(recommend|advise\s+me|advice\s+for\s+me|what\s+would\s+you\s+(do|pick|choose|buy))\b"),
+        ("product-superlative", r"\b(best|better|ideal|top|safest|smartest)\b(?!\s+(way|time|place|method)\b)[^?.]{0,30}\b(isa|lisa|jisa|sipp|pension|annuity|mortgage|fund|account|provider|platform)\b"),
+        # Explicit advice ask. Verb list broadened 2026-07-21 (hardening pass
+        # 2) beyond do/pick/choose/buy — "what would you put/invest/open/
+        # move/transfer/go for" are the same ask in different everyday verbs.
+        ("recommend", r"\b(recommend|advise\s+me|advice\s+for\s+me|what\s+would\s+you\s+(do|pick|choose|buy|put|invest|open|move|transfer|go\s+for))\b"),
         # "is it worth (it) (for me)" / "good idea to"
         ("worth-it", r"\b(is\s+it\s+worth|worthwhile|good\s+idea\s+(for\s+me\s+)?to)\b"),
         # Suitability verbs beyond "worth": smart/wise/sensible/makes sense/
@@ -63,6 +81,27 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = tuple(
         ("circumstances-narrowing", r"\bi\s+(have|earn|make|own|am|'m)\b[^?.]{0,80}\b(which|what|where)\b[^?.]{0,60}\b(isa|pension|mortgage|fund|account|invest|save|put)\b"),
         # Where should my money go
         ("where-money", r"\bwhere\b[^?.]{0,40}\b(put|invest|move)\b[^?.]{0,30}\b(money|savings|cash|pension|£)"),
+        # --- Hardening pass 2 (2026-07-21): five new paraphrase categories ---
+        # Third-person / on-behalf-of framing: the classic "asking for a
+        # friend" disguise. A suitability-shaped question about someone
+        # else's circumstances is still suitability-shaped — PERG 8.30B does
+        # not exempt it just because the pronoun changed. Matches either
+        # word order ("should she open" / "she should open").
+        ("should-third-person", r"\bshould\s+(he|she|they|my\s+\w+|his|her|their)\b|\b(he|she|they)\s+should\b"),
+        ("third-party-framing", r"\b(my|a|our)\s+(friend|mate|mum|mother|dad|father|sister|brother|colleague|cousin|partner|husband|wife|relative)\b[^?.]{0,80}\b(should|which|what)\b[^?.]{0,60}\b(isa|lisa|jisa|sipp|pension|mortgage|invest|savings?|transfer|withdraw|open|fund)\b"),
+        ("asking-for-a-friend", r"\basking\s+for\s+a\s+friend\b"),
+        # Hypothetical self-insertion: "if you were me" / "in my shoes" ask
+        # the composer to role-play a personalised recommendation without
+        # ever saying "should" or "recommend".
+        ("hypothetical-in-my-shoes", r"(\bif\s+you\s+were\s+me\b)|(\bwere\s+you\s+in\s+my\s+(shoes|position|situation)\b)|(\bin\s+my\s+(shoes|position|situation)\b[^?.]{0,30}\b(what|would)\b)"),
+        # ESL/non-native-English-style polite-request phrasing. UK users
+        # translating a request from another first language often phrase a
+        # suitability ask as a polite imperative rather than "should I".
+        ("suggest-me", r"\b(suggest\s+me|please\s+suggest|kindly\s+(advise|guide|suggest)|guide\s+me\b|what\s+(do\s+you|would\s+you)\s+suggest|your\s+suggestion|please\s+advise\s+me)\b"),
+        # Informal/slang decision framing: the same suitability ask in
+        # everyday slang that doesn't contain any of "best/right/should/
+        # smart/wise/sensible/worth".
+        ("slang-suitability", r"\b(the\s+move|(a\s+)?no[-\s]?brainer|(the\s+|a\s+)?smart\s+play|(a\s+)?good\s+shout|worth\s+it\s+or\s+not|worth\s+it\s+or\s+nah)\b"),
     ]
 )
 

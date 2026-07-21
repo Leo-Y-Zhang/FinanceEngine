@@ -427,3 +427,113 @@ I fixed finding #4 in the same session (small, low-risk, test-covered):
 tests in `server/tests/test_manifest.py`. I did **not** attempt to resolve
 findings #6, #8, #9, #10, #11, or #12 — those need either a lawyer's
 judgement or a product/design decision, not a unilateral code change.
+
+---
+
+## Update — 2026-07-21 (later same day): findings #1 and #8 closed out (partially / fully)
+
+The user asked for two of the findings above to be fixed directly. Both are
+done, tested, and committed locally (not pushed — push is still on hold).
+This addendum does not change anything above; it records what changed
+after the original review was written.
+
+### Finding #8 (GDPR privacy notice) — closed
+
+Added a real, linked privacy notice and a retention/purge mechanism for
+`logs/ask.jsonl`:
+
+- **`web/src/components/PrivacyNotice.tsx`** — a plain-English notice
+  covering what is logged (question text, outcome kind, timestamp — verified
+  against the actual `log_outcome()` code in `server/pistis/api/app.py`,
+  not assumed), why (classifier-miss review and general quality
+  improvement), lawful basis (UK GDPR Art 6(1)(f) legitimate interests —
+  accurate for a pre-launch, no-accounts, build-only product with no
+  consent flow; documented as needing re-review before any real launch),
+  retention (30 days, see below), user rights (access, erasure, objection),
+  and a contact point (deliberately "the site operator" — no real
+  email/company invented, per instruction, since none exists yet).
+  Reachable via a real route: `App.tsx` now has minimal hash-based routing
+  (`#/privacy`, no new dependency) and a link is placed directly in the
+  disclaimer banner — the one place a user is already looking, and the
+  natural home for it per the original finding's own reasoning.
+- **`server/pistis/privacy/retention.py`** (`purge_expired`) — there was no
+  retention/purge mechanism at all before this change (confirmed: neither
+  `refresh.py` nor `app.py` had one). Added a small, pragmatic one: entries
+  older than `RETENTION_DAYS = 30` are dropped from `ask.jsonl`, malformed
+  lines are treated as expired rather than crashing the purge, and a
+  missing file is a no-op. Wired into `create_app()` so it runs once at
+  server startup — no scheduler needed for a single-machine, pre-launch
+  build. Also runnable standalone: `python -m pistis.privacy.retention`.
+- Tests: `server/tests/test_retention.py` (6 tests: no-op on missing file,
+  keeps recent entries, removes stale entries, empty-file-not-missing-file
+  edge case, malformed-line handling, retention constant sanity) plus a
+  startup-integration test in `test_api.py`
+  (`test_create_app_purges_expired_log_entries_on_startup`). Frontend:
+  `web/src/__tests__/PrivacyNotice.test.tsx` (content + axe) and two new
+  cases in `App.test.tsx` (link is reachable from the banner; navigation to
+  and back from the page works). All green (137 pytest, 12 vitest).
+
+This closes the concrete gap identified in finding #8. It does not replace
+the lawyer's eventual review of the lawful-basis choice once Pistis has
+real, public users and (potentially) a consent-capable collection point —
+that re-review is called out in the notice itself and remains an open item
+for launch.
+
+### Finding #1 (classifier false-negative tail) — narrowed, not closed
+
+This finding is **not fully closable by construction** — a regex classifier
+has an unbounded tail of paraphrases it cannot enumerate in advance, and
+that remains true after this pass. What changed is a genuine best-effort
+adversarial hardening round targeting five specific paraphrase categories
+identified as gaps in the existing 14-pattern set plus provider list
+(`server/pistis/engine/classifier.py`):
+
+1. **Third-person / on-behalf-of framing** — "my friend wants to know if
+   she should...", "asking for a friend...". PERG 8.30B doesn't stop
+   applying just because the pronoun changes; this was a real, verified
+   gap (confirmed by running the old pattern set against these phrasings
+   before adding coverage — all 6 fixtures in this category previously
+   returned `is_personal_rec=False`). New patterns: `should-third-person`,
+   `third-party-framing`, `asking-for-a-friend`.
+2. **Hypothetical self-insertion** — "if you were me...", "in my shoes,
+   what would you...", role-playing the composer into a personalised
+   recommendation without using "should" or "recommend". New pattern:
+   `hypothetical-in-my-shoes`; also broadened the `recommend` pattern's verb
+   list ("what would you put/invest/open/move/transfer/go for", previously
+   only do/pick/choose/buy).
+3. **Informal/slang decision framing** — "the move", "no-brainer", "good
+   shout", "worth it or nah" — everyday UK slang containing none of the
+   words ("best/right/should/smart/wise/sensible/worth") the pre-hardening
+   patterns looked for. New pattern: `slang-suitability`.
+4. **ESL/non-native-English-style polite-request phrasing** — "please
+   suggest me...", "kindly advise/guide...", "what do you suggest" — a
+   UK user translating a request pattern from another first language.
+   New pattern: `suggest-me`.
+5. **Comparative framing** — broadened `best-for-me`/`right-for-me`/
+   `product-superlative` to include `smarter`/`safer`/`wiser`/`safest`/
+   `smartest` alongside the existing best/right/good/better/ideal/suitable
+   set.
+
+**Verification method**: each of the 17 new positive fixtures was checked
+against the *pre-hardening* pattern set first, confirming it was a genuine
+escape (not already caught by an existing pattern under a different name)
+before adding coverage — this wasn't just "add patterns and hope." Four new
+boundary-probe negative fixtures were added alongside the positive ones,
+specifically targeting surface-level overlap with the new patterns (a
+relative mentioned in a factual question, "if you" in a non-hypothetical
+sense, "people" in a general-statistics sense) to check the broadened
+patterns don't sweep up genuine guidance questions. All 13 original
+negative fixtures plus the 4 new ones still pass. Total red-team suite is
+now 44 positive / 17 negative (up from 27/13), all green.
+
+**What this update does not claim**: it does not claim the false-negative
+tail is closed, bounded, or "solved" — that is not achievable with a regex
+approach, and framing it that way would misrepresent the residual risk to
+whoever reads this document next (including a future lawyer). A sixth or
+sixtieth paraphrase category will eventually surface that isn't covered
+here either. The durable fix, if the false-negative rate needs to go lower
+than adversarial regex hardening can reach, is the one already suggested in
+the original finding: a small classifier model (not a rewrite of the
+gate-first architecture, just a stronger first gate) plus the
+misses-review process the original finding recommended as a condition of
+launch. Neither is in scope for this pass.

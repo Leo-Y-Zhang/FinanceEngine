@@ -67,6 +67,44 @@ body {
   margin: 1.1rem 0 1.6rem;
 }
 
+.privacy-link {
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* Privacy notice page */
+.back-link {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin: 1.1rem 0 1rem;
+  text-underline-offset: 2px;
+}
+
+.privacy-notice h2 {
+  font-size: 1.02rem;
+  margin: 1.6rem 0 0.5rem;
+}
+
+.privacy-notice p,
+.privacy-notice li {
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.privacy-notice ul,
+.privacy-notice ol {
+  padding-left: 1.4rem;
+}
+
+.privacy-notice code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--verified-tint);
+  padding: 0.05rem 0.3rem;
+}
+
 /* Ask form */
 .ask-form {
   display: flex;

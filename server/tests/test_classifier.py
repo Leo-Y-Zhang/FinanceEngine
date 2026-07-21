@@ -37,6 +37,34 @@ PERSONAL_REC_QUESTIONS = [
     "Tell me whether to overpay my mortgage",
     "What is the best ISA?",
     "Which is the better pension option, drawdown or an annuity?",
+    # Hardening pass 2 (2026-07-21) — five new paraphrase categories found by
+    # adversarial review of docs/compliance-review-2026-07-21.md finding #1.
+    # (1) Third-person / on-behalf-of framing — the "asking for a friend"
+    # disguise. A suitability-shaped question about someone else's
+    # circumstances is still suitability-shaped.
+    "My friend wants to know if she should open a Lifetime ISA",
+    "Asking for a friend, should she overpay her mortgage?",
+    "My mum is wondering whether she should transfer her pension into drawdown",
+    "A colleague of mine wants to know if he should pick a Lifetime ISA",
+    "My brother earns £35,000, what should he do with his savings?",
+    "Should my partner switch her mortgage to a fixed rate?",
+    # (2) Hypothetical self-insertion — role-playing the composer into a
+    # personalised recommendation without saying "should" or "recommend".
+    "Were you in my shoes, would you open a Lifetime ISA or a SIPP?",
+    "In my position, what would you invest in?",
+    "What would you put your money into, a pension or an ISA?",
+    # (3) Informal/slang decision framing — none of these contain "best/
+    # right/should/smart/wise/sensible/worth", the words the pre-hardening
+    # patterns looked for.
+    "LISA or SIPP for retirement — no-brainer or nah?",
+    "Is a SIPP a no-brainer for a higher earner like me?",
+    "Overpaying my mortgage — good shout or not?",
+    "Everyone says overpay your mortgage first — is that the move?",
+    # (4) ESL/non-native-English-style polite-request phrasing.
+    "Please suggest me an approach for my Lifetime ISA withdrawal",
+    "Kindly advise on my pension options",
+    "Guide me on my pension options",
+    "What do you suggest for my pension contributions?",
 ]
 
 GUIDANCE_QUESTIONS = [
@@ -53,6 +81,15 @@ GUIDANCE_QUESTIONS = [
     "What is the best way to check my State Pension forecast?",
     "Do people pay tax on ISA interest?",
     "How many people get the full State Pension?",
+    # Boundary probes added alongside the 2026-07-21 hardening-pass-2
+    # patterns (third-party framing, hypothetical self-insertion) — these
+    # are genuinely factual/guidance questions that share surface features
+    # (a relative, "if you", "people") with the new positive patterns, and
+    # must NOT be swept up by them.
+    "My sister already gets Child Benefit — does that change how much I can claim?",
+    "What would happen to my Help to Buy ISA bonus if I change jobs?",
+    "Is it common for people to switch pension providers when they change jobs?",
+    "If you already have a Lifetime ISA, can you also pay into a Help to Buy ISA in the same tax year?",
 ]
 
 

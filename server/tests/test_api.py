@@ -1,9 +1,12 @@
+import json
+import time
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
 from pistis.api.app import create_app
+from pistis.privacy.retention import RETENTION_SECONDS
 
 FIXTURE_SNAPSHOT = Path(__file__).parent / "fixtures" / "snapshot.json"
 
@@ -64,3 +67,22 @@ def test_ask_logs_outcomes(tmp_path):
 def test_ask_validates_question_length(client):
     assert client.post("/ask", json={"question": ""}).status_code == 422
     assert client.post("/ask", json={"question": "x" * 501}).status_code == 422
+
+
+def test_create_app_purges_expired_log_entries_on_startup(tmp_path):
+    """Retention policy (privacy notice: 30 days) is enforced at startup."""
+    log = tmp_path / "ask.jsonl"
+    now = time.time()
+    stale = {"ts": now - RETENTION_SECONDS - 3600, "question": "old question", "kind": "answer"}
+    fresh = {"ts": now - 60, "question": "fresh question", "kind": "answer"}
+    log.write_text(
+        json.dumps(stale) + "\n" + json.dumps(fresh) + "\n",
+        encoding="utf-8",
+    )
+
+    create_app(snapshot_path=FIXTURE_SNAPSHOT, log_path=log)
+
+    lines = log.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 1
+    assert "fresh question" in lines[0]
+    assert "old question" not in log.read_text(encoding="utf-8")

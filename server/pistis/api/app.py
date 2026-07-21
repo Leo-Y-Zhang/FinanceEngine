@@ -2,7 +2,14 @@
 
 Serves read-only over a corpus snapshot. Every question and outcome is
 appended to a local JSONL log (spec §4F monitoring). No accounts, no
-cookies, nothing leaves the machine — the MVP collects nothing.
+cookies, nothing leaves the machine.
+
+The question log can contain personal (occasionally special-category)
+data by virtue of free-text question content — see the privacy notice
+(`web/src/components/PrivacyNotice.tsx`, linked from the app's disclaimer
+banner) for what is logged, why, and the retention period. Retention is
+enforced by `pistis.privacy.retention.purge_expired`, run once at app
+startup below.
 """
 
 from __future__ import annotations
@@ -19,6 +26,7 @@ from pydantic import BaseModel, Field
 from pistis.corpus.store import load_snapshot
 from pistis.engine.answer import Engine
 from pistis.index.bm25 import Bm25Index
+from pistis.privacy.retention import purge_expired
 
 DEFAULT_SNAPSHOT = Path(__file__).parents[3] / "data" / "corpus" / "snapshot.json"
 DEFAULT_LOG = Path(__file__).parents[3] / "logs" / "ask.jsonl"
@@ -39,6 +47,12 @@ def create_app(
         )
     passages = load_snapshot(snapshot_path)
     engine = Engine(Bm25Index(passages))
+
+    if log_path is not None:
+        # Enforce the retention period promised in the privacy notice before
+        # serving any traffic. Cheap and safe to run on every startup: a
+        # no-op when the file is missing or already within the window.
+        purge_expired(log_path)
 
     app = FastAPI(title="Pistis", version="0.1.0")
     app.add_middleware(

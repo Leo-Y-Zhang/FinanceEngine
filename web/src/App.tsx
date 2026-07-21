@@ -1,6 +1,7 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { ask } from "./api";
 import { AnswerLedger } from "./components/AnswerLedger";
+import { PrivacyNotice } from "./components/PrivacyNotice";
 import { RefusalCard } from "./components/RefusalCard";
 import type { AskResponse } from "./types";
 
@@ -15,9 +16,34 @@ type Status =
   | { state: "error"; message: string }
   | { state: "done"; response: AskResponse };
 
+// Minimal hash-based routing — no router dependency needed for one extra
+// page. "#/privacy" is a real, bookmarkable, back-button-friendly route
+// (see PrivacyNotice.tsx), not a modal or hidden panel.
+function useHashRoute(): string {
+  const [hash, setHash] = useState(() => window.location.hash);
+  useEffect(() => {
+    const onHashChange = () => setHash(window.location.hash);
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+  return hash;
+}
+
 export default function App() {
+  const route = useHashRoute();
   const [question, setQuestion] = useState("");
   const [status, setStatus] = useState<Status>({ state: "idle" });
+
+  useEffect(() => {
+    document.title =
+      route === "#/privacy"
+        ? "Privacy notice — Pistis"
+        : "Pistis — UK money questions, answered only when provable";
+  }, [route]);
+
+  if (route === "#/privacy") {
+    return <PrivacyNotice />;
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -46,7 +72,10 @@ export default function App() {
       </header>
 
       <p className="disclaimer-banner">
-        {status.state === "done" ? status.response.disclaimer : DISCLAIMER}
+        {status.state === "done" ? status.response.disclaimer : DISCLAIMER}{" "}
+        <a className="privacy-link" href="#/privacy">
+          How we handle your questions (privacy notice)
+        </a>
       </p>
 
       <form className="ask-form" onSubmit={onSubmit}>
