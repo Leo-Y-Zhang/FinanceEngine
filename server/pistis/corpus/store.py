@@ -33,6 +33,8 @@ class Document:
 
 def split_sentences(text: str) -> list[str]:
     cleaned = re.sub(r"\s+", " ", text).strip()
+    # HTML extraction leaves spaces before punctuation ("Lifetime ISA .")
+    cleaned = re.sub(r"\s+([.,;:!?])", r"\1", cleaned)
     if not cleaned:
         return []
     return [s.strip() for s in _SENTENCE_END.split(cleaned) if s.strip()]

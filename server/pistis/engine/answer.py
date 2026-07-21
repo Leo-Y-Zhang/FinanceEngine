@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pistis.engine.classifier import classify
 from pistis.engine.gate import decide
-from pistis.engine.routing import default_routing
+from pistis.engine.routing import abstain_routing, default_routing
 from pistis.index.bm25 import Bm25Index
 from pistis.models import Abstention, AnswerCard, Response, RoutingEvent
 
@@ -23,7 +23,7 @@ class Engine:
             return Abstention(
                 question=question,
                 reason="Ask a question about UK personal finance.",
-                routing=default_routing(),
+                routing=abstain_routing(),
             )
 
         verdict = classify(question)
@@ -40,7 +40,7 @@ class Engine:
             return Abstention(
                 question=question,
                 reason=decision.reason,
-                routing=default_routing(),
+                routing=abstain_routing(),
             )
 
         return AnswerCard(question=question, claims=decision.claims)

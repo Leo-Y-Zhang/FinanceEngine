@@ -18,6 +18,12 @@ ROUTING_MESSAGE = (
     "next."
 )
 
+ABSTAIN_MESSAGE = (
+    "Pistis answers only what it can verify against its trusted UK sources — "
+    "guessing is how money answers go wrong. These official services can help "
+    "instead."
+)
+
 ROUTING_LINKS: tuple[RoutingLink, ...] = (
     RoutingLink(
         label="MoneyHelper — free, government-backed money guidance",
@@ -36,3 +42,7 @@ ROUTING_LINKS: tuple[RoutingLink, ...] = (
 
 def default_routing() -> Routing:
     return Routing(message=ROUTING_MESSAGE, links=ROUTING_LINKS)
+
+
+def abstain_routing() -> Routing:
+    return Routing(message=ABSTAIN_MESSAGE, links=ROUTING_LINKS)
