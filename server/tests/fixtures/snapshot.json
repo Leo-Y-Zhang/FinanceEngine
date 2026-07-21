@@ -1,0 +1,76 @@
+{
+  "documents": [
+    {
+      "doc_id": "isa-overview",
+      "title": "Individual Savings Accounts (ISAs)",
+      "org": "GOVUK",
+      "url": "https://www.gov.uk/individual-savings-accounts",
+      "fetched_at": "2026-07-21",
+      "last_updated": "2026-04-06",
+      "text": "You can save up to £20,000 in Individual Savings Accounts (ISAs) in the 2026 to 2027 tax year. There are 4 types of ISA: cash ISA, stocks and shares ISA, innovative finance ISA and Lifetime ISA. You do not pay tax on interest, income or capital gains from money held in an ISA. You can open ISAs with more than one provider in the same tax year, but your payments must stay within the overall annual allowance. If you move abroad you cannot pay into an ISA after the tax year you move, unless you are a Crown employee. You must be 18 or over to open an ISA."
+    },
+    {
+      "doc_id": "lifetime-isa",
+      "title": "Lifetime ISA",
+      "org": "GOVUK",
+      "url": "https://www.gov.uk/lifetime-isa",
+      "fetched_at": "2026-07-21",
+      "last_updated": "2026-04-06",
+      "text": "You can use a Lifetime ISA to buy your first home or save for later life. You must be 18 or over but under 40 to open a Lifetime ISA. You can put in up to £4,000 each year until you are 50, and this counts towards your annual ISA allowance. The government adds a 25% bonus to your savings, up to a maximum of £1,000 per year. You can withdraw money to buy your first home costing £450,000 or less, or from age 60, or if you are terminally ill. If you withdraw money for any other reason you pay a 25% withdrawal charge, which recovers the government bonus and applies a small penalty."
+    },
+    {
+      "doc_id": "new-state-pension",
+      "title": "The new State Pension",
+      "org": "GOVUK",
+      "url": "https://www.gov.uk/new-state-pension",
+      "fetched_at": "2026-07-21",
+      "last_updated": "2026-04-06",
+      "text": "The full rate of the new State Pension is £230.25 per week in the 2026 to 2027 tax year. You usually need at least 10 qualifying years on your National Insurance record to get any new State Pension. You need 35 qualifying years to receive the full amount if you have no contracted-out history. You can check your State Pension forecast online to see how much you could get and when you can claim it. The amount you receive depends on your National Insurance record, and gaps can sometimes be filled by paying voluntary contributions. You may be able to increase your State Pension by deferring your claim."
+    },
+    {
+      "doc_id": "workplace-pensions",
+      "title": "Workplace pensions",
+      "org": "GOVUK",
+      "url": "https://www.gov.uk/workplace-pensions",
+      "fetched_at": "2026-07-21",
+      "last_updated": "2026-04-06",
+      "text": "Your employer must automatically enrol you into a workplace pension scheme if you are aged between 22 and State Pension age and earn at least £10,000 per year. A minimum of 8% of your qualifying earnings goes into the scheme, with at least 3% coming from your employer. You can opt out of the scheme, but you lose the employer contribution if you do. Your pension pot is usually invested for you by the scheme provider. When you change jobs your pension pot still belongs to you, and you can usually leave it where it is or transfer it to another scheme."
+    },
+    {
+      "doc_id": "sdlt",
+      "title": "Stamp Duty Land Tax",
+      "org": "HMRC",
+      "url": "https://www.gov.uk/stamp-duty-land-tax",
+      "fetched_at": "2026-07-21",
+      "last_updated": "2026-04-06",
+      "text": "You pay Stamp Duty Land Tax (SDLT) when you buy a residential property in England or Northern Ireland over the current threshold. First-time buyers may be able to claim relief that reduces the amount due. The rate you pay depends on the portion of the purchase price that falls within each band. If you buy an additional property you usually pay a surcharge on top of the standard rates. You must send an SDLT return to HMRC and pay the tax within 14 days of completion in most cases."
+    },
+    {
+      "doc_id": "income-tax",
+      "title": "Income Tax rates and Personal Allowances",
+      "org": "HMRC",
+      "url": "https://www.gov.uk/income-tax-rates",
+      "fetched_at": "2026-07-21",
+      "last_updated": "2026-04-06",
+      "text": "The standard Personal Allowance is £12,570, which is the amount of income you do not have to pay tax on. The basic rate of Income Tax is 20% on taxable income above the Personal Allowance up to the higher-rate threshold. Your Personal Allowance goes down by £1 for every £2 that your adjusted net income is above £100,000. Income Tax bands are different if you live in Scotland. Your tax code tells your employer how much Income Tax to take from your pay."
+    },
+    {
+      "doc_id": "moneyhelper-budgeting",
+      "title": "How to set a budget",
+      "org": "MoneyHelper",
+      "url": "https://www.moneyhelper.org.uk/en/everyday-money/budgeting/beginners-guide-to-managing-your-money",
+      "fetched_at": "2026-07-21",
+      "last_updated": null,
+      "text": "A budget is a plan for your money that helps you see what is coming in and what is going out. Start by listing your income and all your regular spending, including bills, food and travel. If you spend more than you earn, look for costs you can reduce and check whether you are getting all the support you are entitled to. Free debt guidance is available if you are struggling, and acting early gives you more options. Setting aside even a small emergency fund can help you cope with unexpected costs."
+    },
+    {
+      "doc_id": "fca-scamsmart",
+      "title": "ScamSmart — avoid investment and pension scams",
+      "org": "FCA",
+      "url": "https://www.fca.org.uk/scamsmart",
+      "fetched_at": "2026-07-21",
+      "last_updated": null,
+      "text": "Investment scams are often sophisticated and difficult to spot. Check the Financial Services Register to see whether a firm is authorised by the FCA before you deal with it. If a firm is not authorised, you are unlikely to be covered by the Financial Ombudsman Service or the FSCS if things go wrong. Be wary of pressure to act quickly, promises of high returns with low risk, and contact out of the blue. You can check the FCA Warning List for firms to avoid."
+    }
+  ]
+}
