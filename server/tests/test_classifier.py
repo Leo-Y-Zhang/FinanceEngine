@@ -24,6 +24,19 @@ PERSONAL_REC_QUESTIONS = [
     "I earn £45,000, which ISA should I open?",
     "Shall I move my pension into drawdown?",
     "Is it a good idea to overpay my mortgage?",
+    # Escapes found by the 2026-07-21 adversarial review — must stay routed
+    "What do most people earning £60,000 do with their pension contributions?",
+    "Do people usually open a Lifetime ISA or a Help to Buy ISA for a first home?",
+    "What do people like me do with their savings?",
+    "Is it smart to open a Lifetime ISA?",
+    "Is it wise to pay voluntary National Insurance?",
+    "Does a Lifetime ISA make sense for a first time buyer?",
+    "For my first home, is a Lifetime ISA the way to go?",
+    "Which ISA do I transfer my cash savings into?",
+    "Tell me to open a Lifetime ISA",
+    "Tell me whether to overpay my mortgage",
+    "What is the best ISA?",
+    "Which is the better pension option, drawdown or an annuity?",
 ]
 
 GUIDANCE_QUESTIONS = [
@@ -37,6 +50,9 @@ GUIDANCE_QUESTIONS = [
     "What is the Personal Allowance?",
     "How do people check whether a firm is FCA authorised?",
     "What are the warning signs of an investment scam?",
+    "What is the best way to check my State Pension forecast?",
+    "Do people pay tax on ISA interest?",
+    "How many people get the full State Pension?",
 ]
 
 

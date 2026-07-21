@@ -37,6 +37,11 @@ _DEPENDS = re.compile(
 )
 _FACTUAL = re.compile(r"(£[\d,]+|\b\d{1,3}(,\d{3})*\b|\b\d+(\.\d+)?%|\b20\d{2}\b)")
 
+# GOV.UK worked examples appear as an "Example." heading followed by
+# hypothetical arithmetic. Those figures are illustrative, not rules — they
+# must not be emitted as 'established' facts nor win the factual boost.
+_EXAMPLE_MARK = re.compile(r"(?:^|\.\s)Example[\s.:]")
+
 
 @dataclass(frozen=True)
 class GateDecision:
@@ -61,6 +66,7 @@ def _sentence_claims(question: str, hits: list[Hit]) -> list[Claim]:
     candidates: list[tuple[float, str, str, Claim]] = []
     seen_texts: set[str] = set()
     for hit in hits:
+        in_example = bool(_EXAMPLE_MARK.search(hit.passage.text))
         for sentence in _SENTENCE_END.split(hit.passage.text):
             sentence = sentence.strip()
             if len(sentence) < 20:
@@ -71,18 +77,20 @@ def _sentence_claims(question: str, hits: list[Hit]) -> list[Claim]:
             overlap = len(q_terms & s_terms) / len(q_terms)
             if overlap < MIN_SENTENCE_OVERLAP:
                 continue
-            normalized = " ".join(s_terms) or sentence.lower()
+            normalized = " ".join(sorted(s_terms)) or sentence.lower()
             if normalized in seen_texts:
                 continue
             seen_texts.add(normalized)
             claim = Claim(
                 text=sentence,
                 citation=Citation.from_passage(hit.passage),
-                confidence=_confidence_for(sentence, hit.passage),
+                confidence="uncertain" if in_example else _confidence_for(sentence, hit.passage),
             )
             # Sentences carrying checkable figures (£, %, years) are the ones
-            # users came to verify — nudge them up the ledger.
-            rank = overlap * (1 + hit.score / 10) * (1.15 if _FACTUAL.search(sentence) else 1.0)
+            # users came to verify — nudge them up the ledger. Never boost
+            # worked-example arithmetic.
+            boost = 1.15 if _FACTUAL.search(sentence) and not in_example else 1.0
+            rank = overlap * (1 + hit.score / 10) * boost
             candidates.append((rank, sentence, hit.passage.id, claim))
     candidates.sort(key=lambda c: (-c[0], c[2], c[1]))
     return [c[3] for c in candidates[:MAX_CLAIMS]]

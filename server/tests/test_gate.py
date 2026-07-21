@@ -12,6 +12,7 @@ from pistis.models import Passage, SourceOrg
 
 ANSWERABLE = [
     "How does a Lifetime ISA work?",
+    "How does a LISA bonus work?",
     "What is the annual ISA allowance?",
     "How much is the full new State Pension per week?",
     "What is Stamp Duty Land Tax?",
@@ -81,3 +82,35 @@ def test_confidence_established_for_dated_figure():
 def test_confidence_uncertain_for_undated_unfigured():
     s = "Investment scams are often sophisticated and difficult to spot."
     assert _confidence_for(s, make_passage(last_updated=None)) == "uncertain"
+
+
+def test_worked_example_claims_capped_and_not_boosted(passages):
+    # A GOV.UK-style worked example must not be emitted as 'established'
+    # fact, and its arithmetic must not win the figure boost over a real rule.
+    from pistis.corpus.store import Document, passages_for
+    from pistis.index.bm25 import Bm25Index
+
+    rule = Document(
+        doc_id="rule", title="Tax on savings interest", org=SourceOrg.HMRC,
+        url="https://www.gov.uk/rule", fetched_at="2026-07-21",
+        last_updated="2026-04-06",
+        text="Your personal savings allowance for interest is £1,000 for basic rate taxpayers. "
+             "Savings interest above the personal savings allowance is taxed at your usual rate. "
+             "The personal savings allowance applies to interest from banks and building societies.",
+    )
+    example = Document(
+        doc_id="ex", title="Tax on savings interest", org=SourceOrg.HMRC,
+        url="https://www.gov.uk/ex", fetched_at="2026-07-21",
+        last_updated="2026-04-06",
+        text="Example. You earn £20,000 of wages and get £1,500 of savings interest over your personal savings allowance. "
+             "You would pay tax on £500 of savings interest in this example. "
+             "Your total taxable savings interest would be £500.",
+    )
+    index = Bm25Index(list(passages) + passages_for(rule) + passages_for(example))
+    decision = decide("What is the personal savings allowance for interest?", index)
+    assert decision.answerable
+    example_claims = [c for c in decision.claims if c.citation.url.endswith("/ex")]
+    assert example_claims, "example sentences can still be cited"
+    assert all(c.confidence == "uncertain" for c in example_claims)
+    # the un-boosted example must not outrank the real rule
+    assert decision.claims[0].citation.url.endswith("/rule")

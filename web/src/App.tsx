@@ -22,7 +22,7 @@ export default function App() {
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     const trimmed = question.trim();
-    if (!trimmed) return;
+    if (!trimmed || status.state === "loading") return;
     setStatus({ state: "loading" });
     try {
       setStatus({ state: "done", response: await ask(trimmed) });
@@ -45,7 +45,9 @@ export default function App() {
         </p>
       </header>
 
-      <p className="disclaimer-banner">{DISCLAIMER}</p>
+      <p className="disclaimer-banner">
+        {status.state === "done" ? status.response.disclaimer : DISCLAIMER}
+      </p>
 
       <form className="ask-form" onSubmit={onSubmit}>
         <label htmlFor="question" className="sr-only" hidden>
@@ -64,7 +66,7 @@ export default function App() {
         <button
           className="ask-button"
           type="submit"
-          disabled={status.state === "loading" || !question.trim()}
+          aria-disabled={status.state === "loading" || !question.trim()}
         >
           {status.state === "loading" ? "Checking…" : "Ask"}
         </button>
@@ -72,7 +74,7 @@ export default function App() {
 
       <div aria-live="polite">
         {status.state === "loading" && (
-          <div className="skeleton" aria-label="Checking sources">
+          <div className="skeleton" role="status" aria-label="Checking sources">
             <div className="skeleton-row" />
             <div className="skeleton-row" />
             <div className="skeleton-row" />

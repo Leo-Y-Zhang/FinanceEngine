@@ -9,9 +9,18 @@ def test_tokenize_drops_stopwords_keeps_figures():
 def test_tokenize_expands_uk_finance_synonyms():
     tokens = tokenize("How does a LISA work?")
     assert "lifetime" in tokens and "isa" in tokens
+    # The abbreviation is REPLACED, not kept: a raw 'lisa' token is
+    # out-of-vocabulary for official sources and would poison IDF-weighted
+    # coverage into wrongly abstaining (2026-07-21 review finding).
+    assert "lisa" not in tokens
     tokens = tokenize("When do I pay CGT?")
     # plural fold normalises "gains" -> "gain" on both query and corpus side
     assert "capital" in tokens and "gain" in tokens
+
+
+def test_abbreviation_query_coverage_not_poisoned(index):
+    q = "How does a LISA bonus work?"
+    assert index.coverage(q, index.search(q)) >= 0.6
 
 
 def test_isa_query_ranks_isa_passage_first(index):

@@ -35,16 +35,18 @@ def _fold(token: str) -> str:
     return token
 
 # Token-level expansions for UK-finance abbreviations users actually type.
-# The abbreviation itself is kept so documents using it still match.
+# The expansion REPLACES the abbreviation: official sources spell terms out,
+# so keeping the raw abbreviation would leave an out-of-vocabulary token in
+# the query that IDF-weighted coverage() counts as maximally uncovered —
+# making well-covered abbreviation queries wrongly abstain.
 SYNONYMS: dict[str, tuple[str, ...]] = {
-    "lisa": ("lisa", "lifetime", "isa"),
-    "jisa": ("jisa", "junior", "isa"),
-    "sipp": ("sipp", "self", "invested", "personal", "pension"),
-    "ni": ("ni", "national", "insurance"),
-    "cgt": ("cgt", "capital", "gains", "tax"),
-    "sdlt": ("sdlt", "stamp", "duty", "land", "tax"),
-    "fscs": ("fscs", "compensation", "protection"),
-    "avc": ("avc", "additional", "voluntary", "contribution", "pension"),
+    "lisa": ("lifetime", "isa"),
+    "jisa": ("junior", "isa"),
+    "sipp": ("self", "invested", "personal", "pension"),
+    "ni": ("national", "insurance"),
+    "cgt": ("capital", "gains", "tax"),
+    "sdlt": ("stamp", "duty", "land", "tax"),
+    "avc": ("additional", "voluntary", "contribution", "pension"),
 }
 
 
@@ -123,6 +125,9 @@ class Bm25Index:
             return 0.0
         best = 0.0
         for h in hits[:top_n]:
-            available = set(tokenize(h.passage.text))
+            # A passage's vocabulary includes its document title: chunking
+            # strips the subject name from later passages ("the 25% bonus"
+            # passage of the Lifetime ISA guide), but the citation names it.
+            available = set(tokenize(h.passage.text)) | set(tokenize(h.passage.doc_title))
             best = max(best, sum(weight(t) for t in terms if t in available) / total)
         return best

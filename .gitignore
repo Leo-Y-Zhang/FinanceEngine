@@ -18,6 +18,9 @@ web/dist/
 # Corpus snapshots (rebuildable; fixtures live in server/tests/fixtures)
 data/
 
+# Ask logs stay local — never commit user questions
+logs/
+
 # Env / secrets — never commit
 .env
 .env.*

@@ -32,7 +32,7 @@ const ANSWER: AskResponse = {
       confidence: "depends",
     },
   ],
-  disclaimer: "Pistis provides information and guidance, not regulated financial advice.",
+  disclaimer: "SERVER DISCLAIMER SENTINEL — guidance, not advice.",
 };
 
 const ROUTING: AskResponse = {
@@ -104,6 +104,20 @@ describe("App", () => {
     expect(
       screen.getByText("Depends on your situation"),
     ).toBeInTheDocument();
+    // the API's disclaimer is the source of truth once a response arrives
+    expect(
+      screen.getByText(/SERVER DISCLAIMER SENTINEL/),
+    ).toBeInTheDocument();
+  });
+
+  it("announces the loading state and stays axe-clean while checking", async () => {
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
+    const { container } = render(<App />);
+    await askQuestion("What is an ISA?");
+    expect(
+      screen.getByRole("status", { name: /checking sources/i }),
+    ).toBeInTheDocument();
+    expect(await axe(container)).toHaveNoViolations();
   });
 
   it("renders a routing event as a refusal with adviser links", async () => {

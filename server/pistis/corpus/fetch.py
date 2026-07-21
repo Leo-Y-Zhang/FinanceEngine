@@ -117,16 +117,24 @@ def govuk_text(payload: dict) -> tuple[str, str | None]:
     return strip_html("\n".join(chunks)), (updated[:10] if updated else None)
 
 
-def _get(url: str) -> bytes:
+def _get(url: str, allowed_prefixes: tuple[str, ...]) -> bytes:
     request = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(request, timeout=30) as response:
+        # Redirects are followed automatically — re-check the FINAL host so a
+        # compromised or misconfigured source can't bounce the fetch off the
+        # allowlist.
+        final = response.geturl()
+        if not final.startswith(allowed_prefixes):
+            raise ValueError(f"redirected outside the allowed hosts: {final}")
         return response.read()
 
 
 def fetch_entry_text(kind: str, locator: str) -> tuple[str, str | None]:
     """Fetch one manifest entry. Returns (text, last_updated)."""
+    from pistis.corpus.manifest import ALLOWED_HTML_HOSTS
+
     time.sleep(FETCH_DELAY_SECONDS)
     if kind == "govuk":
-        payload = json.loads(_get(f"{GOVUK_API}{locator}").decode("utf-8"))
-        return govuk_text(payload)
-    return strip_html(_get(locator).decode("utf-8", errors="replace")), None
+        raw = _get(f"{GOVUK_API}{locator}", ("https://www.gov.uk/",))
+        return govuk_text(json.loads(raw.decode("utf-8")))
+    return strip_html(_get(locator, ALLOWED_HTML_HOSTS).decode("utf-8", errors="replace")), None

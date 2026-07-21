@@ -103,7 +103,7 @@ body {
   cursor: pointer;
 }
 
-.ask-button:disabled {
+.ask-button[aria-disabled="true"] {
   opacity: 0.45;
   cursor: default;
 }
