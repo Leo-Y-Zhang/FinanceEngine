@@ -1,0 +1,625 @@
+{
+  "entries": [
+    {
+      "id": "savings_isas-isa-overview",
+      "domain": "savings_isas",
+      "title": "Individual Savings Accounts (ISAs)",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/individual-savings-accounts",
+      "why": "Official multi-part guide: 2026/27 £20,000 allowance, four ISA types, eligibility, withdrawals, transfers, inherited allowance"
+    },
+    {
+      "id": "savings_isas-lifetime-isa",
+      "domain": "savings_isas",
+      "title": "Lifetime ISA",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/lifetime-isa",
+      "why": "Official LISA rules: £4,000/yr limit, 25% bonus (max £1,000/yr), age 18-39 to open, 25% withdrawal charge and exemptions"
+    },
+    {
+      "id": "savings_isas-junior-isa",
+      "domain": "savings_isas",
+      "title": "Junior Individual Savings Accounts (ISA)",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/junior-individual-savings-accounts",
+      "why": "Official Junior ISA rules: £9,000 2026/27 limit, under-18 UK-resident eligibility, cash + stocks-and-shares types, access at 18"
+    },
+    {
+      "id": "savings_isas-tax-on-savings-interest",
+      "domain": "savings_isas",
+      "title": "Tax on savings interest",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/apply-tax-free-interest-on-savings",
+      "why": "Definitive Personal Savings Allowance figures (£1,000/£500/£0 by band), £5,000 starting rate for savings, reporting and reclaim rules"
+    },
+    {
+      "id": "savings_isas-help-to-save",
+      "domain": "savings_isas",
+      "title": "Get help with savings if you're on a low income (Help to Save)",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/get-help-savings-low-income",
+      "why": "Official Help to Save scheme: 50p-per-£1 bonus (max £1,200 over 4 years), £1-£50/month, Universal Credit eligibility, benefits interaction"
+    },
+    {
+      "id": "savings_isas-children-savings-interest",
+      "domain": "savings_isas",
+      "title": "Interest on savings for children",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/savings-for-children",
+      "why": "Official rule that >£100/yr interest on parental gifts is taxed as the parent's, with Junior ISA/CTF exemptions"
+    },
+    {
+      "id": "savings_isas-child-trust-fund",
+      "domain": "savings_isas",
+      "title": "Child Trust Fund",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/child-trust-funds",
+      "why": "Official CTF rules for 2002-2011 cohort: £9,000/yr limit, tax-free status, maturity at 18, transfer to Junior ISA or adult ISA"
+    },
+    {
+      "id": "savings_isas-mh-isa-tax-efficient-overview",
+      "domain": "savings_isas",
+      "title": "ISAs and other tax-efficient ways to save or invest",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/savings/types-of-savings/isas-and-other-tax-efficient-ways-to-save-or-invest",
+      "why": "Government-backed MaPS consumer overview comparing all ISA types and tax-efficient savings options with current allowances"
+    },
+    {
+      "id": "savings_isas-mh-cash-isas",
+      "domain": "savings_isas",
+      "title": "What are Cash ISAs?",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/savings/types-of-savings/cash-isas",
+      "why": "MaPS consumer explainer on how cash ISAs work: eligibility, allowance, transfers, flexible ISAs, when a cash ISA suits"
+    },
+    {
+      "id": "savings_isas-mh-stocks-shares-isas",
+      "domain": "savings_isas",
+      "title": "Stocks and shares ISAs",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/savings/investing/stocks-and-shares-isas",
+      "why": "MaPS consumer explainer on investment ISAs: how they work, charges, risk, tax treatment, transfers"
+    },
+    {
+      "id": "savings_isas-mh-lifetime-isas",
+      "domain": "savings_isas",
+      "title": "Lifetime ISAs",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/savings/types-of-savings/a-guide-to-lifetime-isas",
+      "why": "MaPS LISA guide adding practical detail to GOV.UK: £450,000 first-home price cap, 12-month rule, cash vs investment LISA, age-60 access"
+    },
+    {
+      "id": "savings_isas-mh-fscs-savings-protection",
+      "domain": "savings_isas",
+      "title": "How safe are my savings if my bank goes bust?",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/money-troubles/money-problems-and-complaints/compensation-if-your-bank-or-building-society-goes-bust",
+      "why": "MaPS page with current FSCS deposit protection facts: £120,000 per firm (from 1 Dec 2025), £240,000 joint, £1.4m temporary high balance, shared-licence caveat; chosen because FCA's own deposit-protection consumer pages now redirect to fscs.org.uk (disallowed org)"
+    },
+    {
+      "id": "pensions-workplace-pensions",
+      "domain": "pensions",
+      "title": "Workplace pensions",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/workplace-pensions",
+      "why": "Canonical GOV.UK guide on workplace pensions and auto-enrolment: joining, contribution rules, tax relief, protections, opting out and re-enrolment."
+    },
+    {
+      "id": "pensions-new-state-pension",
+      "domain": "pensions",
+      "title": "The new State Pension",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/new-state-pension",
+      "why": "Authoritative source for new State Pension eligibility (10 qualifying NI years) and current amount (full rate £241.30/week from April 2026), claiming, deferral and inheritance rules."
+    },
+    {
+      "id": "pensions-tax-on-private-pension",
+      "domain": "pensions",
+      "title": "Tax on your private pension contributions",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/tax-on-your-private-pension",
+      "why": "HMRC-owned rules on pension tax relief, the £60,000 annual allowance (incl. taper and MPAA), and the lump sum allowance (£268,275) that replaced the lifetime allowance."
+    },
+    {
+      "id": "pensions-state-pension-age",
+      "domain": "pensions",
+      "title": "Check your State Pension age",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/state-pension-age",
+      "why": "Official tool/page for State Pension age and Pension Credit qualifying age — the factual anchor for any 'when can I get it' question."
+    },
+    {
+      "id": "pensions-check-state-pension-forecast",
+      "domain": "pensions",
+      "title": "Check your State Pension forecast",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/check-state-pension",
+      "why": "Official service for a personal State Pension forecast: how much, when, and how to increase it (incl. filling NI gaps); BR19/Future Pension Centre alternatives."
+    },
+    {
+      "id": "pensions-voluntary-ni-contributions",
+      "domain": "pensions",
+      "title": "Voluntary National Insurance",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/voluntary-national-insurance-contributions",
+      "why": "Authoritative rules and rates for paying voluntary Class 2/3 NI to fill record gaps and top up State Pension, including the 6-year deadline rules."
+    },
+    {
+      "id": "pensions-personal-pensions",
+      "domain": "pensions",
+      "title": "Personal pensions",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/personal-pensions-your-rights",
+      "why": "Canonical GOV.UK guide to personal/stakeholder (defined contribution) pensions: choosing one, taking money (25% tax-free lump sum, annuity, flexi-access drawdown), help and complaints."
+    },
+    {
+      "id": "pensions-plan-retirement-income",
+      "domain": "pensions",
+      "title": "Plan your retirement income",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/plan-retirement-income",
+      "why": "GOV.UK overview tying together State, workplace and personal pension options with current rates (basic £184.90 / new £241.30 weekly from April 2026) and working-past-pension-age rules."
+    },
+    {
+      "id": "pensions-pension-wise",
+      "domain": "pensions",
+      "title": "Pension Wise: learn how you can take your pension",
+      "org": "PensionWise",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/pensions-and-retirement/pension-wise",
+      "why": "Official Pension Wise service page (government-backed, via MoneyHelper): free guidance for over-50s with defined contribution pensions on their options for taking money."
+    },
+    {
+      "id": "pensions-drawdown-explained",
+      "domain": "pensions",
+      "title": "Take money from your pension when you need it: pension drawdown explained",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/pensions-and-retirement/taking-your-pension/what-is-flexible-retirement-income-pension-drawdown",
+      "why": "MoneyHelper (government-backed MaPS) explainer of flexi-access drawdown — how it works, tax treatment, risks — the consumer-facing home FCA now redirects retirement-income queries to."
+    },
+    {
+      "id": "pensions-annuities-explained",
+      "domain": "pensions",
+      "title": "Take your pension as a guaranteed income: annuities explained",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/pensions-and-retirement/taking-your-pension/guaranteed-retirement-income-annuities-explained",
+      "why": "MoneyHelper explainer of annuities (guaranteed retirement income) — the authoritative consumer counterpart to drawdown for the drawdown-vs-annuity decision."
+    },
+    {
+      "id": "pensions-fca-pension-scams",
+      "domain": "pensions",
+      "title": "Pension scams",
+      "org": "FCA",
+      "kind": "html",
+      "locator": "https://www.fca.org.uk/consumers/pension-scams",
+      "why": "FCA consumer page on spotting and avoiding pension scams and checking the FS Register — the regulator's own guidance; FCA's general retirement-income consumer page now redirects to MoneyHelper, so this is its remaining pensions consumer anchor."
+    },
+    {
+      "id": "mortgages-sdlt-guide",
+      "domain": "mortgages",
+      "title": "Stamp Duty Land Tax",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/stamp-duty-land-tax",
+      "why": "HMRC's canonical multi-part SDLT guide with current thresholds (£125k residential, £300k first-time buyer relief up to £500k), rate bands 0-12%, surcharges, shared-ownership treatment, payment and refunds"
+    },
+    {
+      "id": "mortgages-support-for-mortgage-interest",
+      "domain": "mortgages",
+      "title": "Support for Mortgage Interest (SMI)",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/support-for-mortgage-interest",
+      "why": "Official SMI guide with concrete rules: qualifying benefits, loan caps (£200k / £100k Pension Credit), 4.5% repayment interest rate, repayment triggers and application process"
+    },
+    {
+      "id": "mortgages-shared-ownership",
+      "domain": "mortgages",
+      "title": "Shared ownership homes: buying, improving and selling",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/shared-ownership-scheme",
+      "why": "Official first-home scheme guide with hard eligibility figures (10-75% share, £80k/£90k London income caps), staircasing rules and rent calculation caps (RPI/CPI-linked)"
+    },
+    {
+      "id": "mortgages-first-homes-scheme",
+      "domain": "mortgages",
+      "title": "First Homes scheme: first-time buyer's guide",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/first-homes-scheme",
+      "why": "Official First Homes guide with concrete facts: 30-50% discount, £80k/£90k income caps, post-discount price caps (£250k / £420k London), mortgage-for-half requirement, resale rules"
+    },
+    {
+      "id": "mortgages-mortgage-charter",
+      "domain": "mortgages",
+      "title": "Mortgage Charter",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/government/publications/mortgage-charter",
+      "why": "The authoritative source text of the Mortgage Charter itself — signatory lender commitments (temporary interest-only switch, term extension, repossession forbearance) agreed with HM Treasury and the FCA"
+    },
+    {
+      "id": "mortgages-help-to-buy-equity-loan",
+      "domain": "mortgages",
+      "title": "Help to Buy: Equity Loan",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/help-to-buy-equity-loan",
+      "why": "Official page confirming the scheme is closed to new applicants in England, with exact rules for existing loans: 5 interest-free years, 1.75% then CPI+2% annual uplift, £1/month fee, 10% minimum part-repayment"
+    },
+    {
+      "id": "mortgages-fca-payment-support",
+      "domain": "mortgages",
+      "title": "Support available for mortgages as interest rates rise",
+      "org": "FCA",
+      "kind": "html",
+      "locator": "https://www.fca.org.uk/consumers/financial-impact-rising-costs-living/support-mortgages-interest-rates",
+      "why": "FCA consumer page setting out regulator-backed options struggling borrowers can ask lenders for (term extension, temporary interest-only, new deals) and credit-file implications"
+    },
+    {
+      "id": "mortgages-repayment-vs-interest-only",
+      "domain": "mortgages",
+      "title": "Interest only and repayment mortgages explained",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/homes/buying-a-home/mortgage-repayment-options",
+      "why": "Government-backed MoneyHelper explainer directly covering the repayment vs interest-only decision, including the borrower's responsibility for a capital repayment plan"
+    },
+    {
+      "id": "mortgages-interest-only-repayment-plans",
+      "domain": "mortgages",
+      "title": "Ways of repaying an interest-only mortgage",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/homes/buying-a-home/ways-of-repaying-an-interest-only-mortgage",
+      "why": "Concrete MoneyHelper guidance on capital repayment vehicles and options for interest-only borrowers approaching end of term"
+    },
+    {
+      "id": "mortgages-interest-rate-options",
+      "domain": "mortgages",
+      "title": "Understanding mortgages and interest rates",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/homes/buying-a-home/mortgage-interest-rate-options",
+      "why": "MoneyHelper how-mortgages-work explainer: fixed vs variable vs tracker rates, terms, deposits and how interest is charged — the core mechanics of a mortgage"
+    },
+    {
+      "id": "mortgages-help-with-payments",
+      "domain": "mortgages",
+      "title": "Help with mortgage payments",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/homes/buying-a-home/government-help-if-you-cant-pay-your-mortgage",
+      "why": "MoneyHelper roundup of government help when you cannot pay your mortgage (SMI and related support), complementing the GOV.UK SMI page with practical steps"
+    },
+    {
+      "id": "tax-income-tax-rates",
+      "domain": "tax",
+      "title": "Income Tax rates and Personal Allowances",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/income-tax-rates",
+      "why": "Canonical HMRC guide with current 2026/27 Personal Allowance (£12,570) and tax bands (20%/40%/45%)"
+    },
+    {
+      "id": "tax-income-tax-overview",
+      "domain": "tax",
+      "title": "Income Tax: introduction",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/income-tax",
+      "why": "Official overview of what income is taxable, tax-free allowances, and how Income Tax is paid"
+    },
+    {
+      "id": "tax-national-insurance-overview",
+      "domain": "tax",
+      "title": "National Insurance: introduction",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/national-insurance",
+      "why": "Official guide to what NI is, contribution classes, eligibility, and what contributions qualify you for"
+    },
+    {
+      "id": "tax-ni-rates-categories",
+      "domain": "tax",
+      "title": "National Insurance rates and categories",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/national-insurance-rates-letters",
+      "why": "Authoritative 2026/27 employee and employer NI contribution rate tables by category letter"
+    },
+    {
+      "id": "tax-self-employed-ni-rates",
+      "domain": "tax",
+      "title": "Self-employed National Insurance rates",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/self-employed-national-insurance-rates",
+      "why": "Current 2026/27 Class 2 and Class 4 rates and profit thresholds for the self-employed"
+    },
+    {
+      "id": "tax-capital-gains",
+      "domain": "tax",
+      "title": "Capital Gains Tax: what you pay it on, rates and allowances",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/capital-gains-tax",
+      "why": "Canonical CGT guide with Annual Exempt Amount (£3,000), 18%/24% rates, and taxable-asset rules"
+    },
+    {
+      "id": "tax-dividends",
+      "domain": "tax",
+      "title": "Tax on dividends",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/tax-on-dividends",
+      "why": "Official guide with the £500 dividend allowance and 2026/27 dividend tax rates by band"
+    },
+    {
+      "id": "tax-marriage-allowance",
+      "domain": "tax",
+      "title": "Marriage Allowance",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/marriage-allowance",
+      "why": "Official rules for transferring £1,260 of Personal Allowance to a spouse/civil partner, with eligibility criteria"
+    },
+    {
+      "id": "tax-self-assessment",
+      "domain": "tax",
+      "title": "Self Assessment tax returns",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/self-assessment-tax-returns",
+      "why": "Canonical guide to who must file, deadlines, penalties, and corrections for Self Assessment"
+    },
+    {
+      "id": "tax-self-assessment-register",
+      "domain": "tax",
+      "title": "Check how to register for Self Assessment",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/register-for-self-assessment",
+      "why": "Official registration paths for self-employed, partners, and others who must send a return"
+    },
+    {
+      "id": "tax-tax-codes",
+      "domain": "tax",
+      "title": "Tax codes",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/tax-codes",
+      "why": "Official explanation of tax code numbers/letters, emergency codes, and the standard 1257L code"
+    },
+    {
+      "id": "budgeting-debt-options",
+      "domain": "budgeting",
+      "title": "Options for dealing with your debts",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/options-for-dealing-with-your-debts",
+      "why": "Official multi-part GOV.UK guide covering breathing space, debt management plans, administration orders, IVAs and DROs with eligibility rules"
+    },
+    {
+      "id": "budgeting-breathing-space",
+      "domain": "budgeting",
+      "title": "Debt Respite Scheme (Breathing Space) guidance for creditors",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/government/publications/debt-respite-scheme-breathing-space-guidance/debt-respite-scheme-breathing-space-guidance-for-creditors",
+      "why": "Insolvency Service statutory guidance with the concrete scheme rules: 60-day standard moratorium, mental-health-crisis moratorium duration (treatment + 30 days), interest/charge freezes"
+    },
+    {
+      "id": "budgeting-benefits-calculators",
+      "domain": "budgeting",
+      "title": "Benefits calculators",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/benefits-calculators",
+      "why": "GOV.UK's official list of independent free benefits calculators (Policy in Practice, entitledto, Turn2us) plus who can and cannot use them"
+    },
+    {
+      "id": "budgeting-check-benefits-support",
+      "domain": "budgeting",
+      "title": "Check benefits and financial support you can get",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/check-benefits-financial-support",
+      "why": "Official GOV.UK smart-answer tool for entitlements overview based on circumstances (location, employment, disability, caring, finances)"
+    },
+    {
+      "id": "budgeting-budgeting-loans",
+      "domain": "budgeting",
+      "title": "Budgeting Loans",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/budgeting-help-benefits",
+      "why": "Official rules and current figures for Social Fund Budgeting Loans: £100 minimum, £348/£464/£812 caps, 6-month qualifying-benefit rule, UC claimants directed to Budgeting Advance"
+    },
+    {
+      "id": "budgeting-council-tax-reduction",
+      "domain": "budgeting",
+      "title": "Apply for Council Tax Reduction",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/apply-council-tax-reduction",
+      "why": "Official eligibility and application route for Council Tax Reduction (up to 100% off) — core cost-of-living support for low-income households"
+    },
+    {
+      "id": "budgeting-budget-planner",
+      "domain": "budgeting",
+      "title": "Budget Planner",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/everyday-money/budgeting/budget-planner",
+      "why": "Government-backed MoneyHelper free budget planning tool — the canonical impartial UK budgeting starting point"
+    },
+    {
+      "id": "budgeting-debt-help",
+      "domain": "budgeting",
+      "title": "Help if you're struggling with debt",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/money-troubles/dealing-with-debt/help-if-youre-struggling-with-debt",
+      "why": "MoneyHelper's impartial overview of priority debts, debt solutions and routes to free regulated debt advice"
+    },
+    {
+      "id": "budgeting-debt-advice-locator",
+      "domain": "budgeting",
+      "title": "Debt Advice Locator",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/money-troubles/dealing-with-debt/debt-advice-locator",
+      "why": "Official MoneyHelper tool for finding free, regulated debt advice services — the referral endpoint guidance answers should point to"
+    },
+    {
+      "id": "budgeting-managing-money",
+      "domain": "budgeting",
+      "title": "Beginner's guide to managing your money",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/everyday-money/budgeting/beginners-guide-to-managing-your-money",
+      "why": "MoneyHelper's foundational how-to on building a budget, tracking spending and prioritising bills — impartial government-backed budgeting method guidance"
+    },
+    {
+      "id": "budgeting-cost-of-living-support",
+      "domain": "budgeting",
+      "title": "Help and support with the cost of living",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/money-troubles/cost-of-living",
+      "why": "MoneyHelper's cost-of-living hub aggregating official support schemes, bill help and money-troubles guidance in one impartial place"
+    },
+    {
+      "id": "budgeting-fca-cost-of-living",
+      "domain": "budgeting",
+      "title": "Dealing with the financial impact of rising costs of living",
+      "org": "FCA",
+      "kind": "html",
+      "locator": "https://www.fca.org.uk/consumers/financial-impact-rising-costs-living",
+      "why": "Regulator's consumer page on what support lenders must give borrowers struggling with mortgage/credit repayments — authoritative on firms' obligations"
+    },
+    {
+      "id": "scams_protection-fca-protect-yourself-scams",
+      "domain": "scams_protection",
+      "title": "Protect yourself from scams (FCA)",
+      "org": "FCA",
+      "kind": "html",
+      "locator": "https://www.fca.org.uk/consumers/protect-yourself-scams",
+      "why": "FCA's core consumer scam-protection page (successor to ScamSmart): warning signs, Firm Checker, Warning List, reporting routes."
+    },
+    {
+      "id": "scams_protection-fca-warning-list",
+      "domain": "scams_protection",
+      "title": "FCA Warning List of unauthorised firms",
+      "org": "FCA",
+      "kind": "html",
+      "locator": "https://www.fca.org.uk/consumers/warning-list-unauthorised-firms",
+      "why": "The regulator's own daily-updated warning list (18,347 entries at fetch) and the fact that unauthorised-firm dealings lose FOS/FSCS protection."
+    },
+    {
+      "id": "scams_protection-fca-firm-checker",
+      "domain": "scams_protection",
+      "title": "FCA Firm Checker (Financial Services Register)",
+      "org": "FCA",
+      "kind": "html",
+      "locator": "https://www.fca.org.uk/consumers/fca-firm-checker",
+      "why": "Official tool/page for verifying a firm is FCA-authorised with permission for the specific service — the canonical authorised-firm check."
+    },
+    {
+      "id": "scams_protection-fca-how-to-complain",
+      "domain": "scams_protection",
+      "title": "How to complain (FCA — firm complaints and the Financial Ombudsman)",
+      "org": "FCA",
+      "kind": "html",
+      "locator": "https://www.fca.org.uk/consumers/how-complain",
+      "why": "Authoritative FOS-route facts: 6-year/3-year complaint window, 8-week firm response deadline, 15/35 business days for payment firms, 6 months to go to FOS."
+    },
+    {
+      "id": "scams_protection-fca-claim-compensation-firm-fails",
+      "domain": "scams_protection",
+      "title": "How to claim compensation if a firm fails (FCA/FSCS)",
+      "org": "FCA",
+      "kind": "html",
+      "locator": "https://www.fca.org.uk/consumers/claim-compensation-firm-fails",
+      "why": "Regulator's step-by-step FSCS claim process when an authorised firm fails — the consumer-protection backstop for this domain."
+    },
+    {
+      "id": "scams_protection-govuk-report-internet-scams-phishing",
+      "domain": "scams_protection",
+      "title": "Avoid and report internet scams and phishing",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/report-suspicious-emails-websites-phishing",
+      "why": "Official GOV.UK guide with the concrete reporting channels for suspicious emails, texts, websites and adverts (multi-part guide)."
+    },
+    {
+      "id": "scams_protection-hmrc-genuine-contacts",
+      "domain": "scams_protection",
+      "title": "Check a list of genuine HMRC contacts",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/government/collections/check-a-list-of-genuine-hmrc-contacts",
+      "why": "HMRC's canonical collection for verifying whether an email, call, letter or text claiming to be HMRC is genuine — key anti-tax-scam check."
+    },
+    {
+      "id": "scams_protection-moneyhelper-spot-pension-scam",
+      "domain": "scams_protection",
+      "title": "How to spot a pension scam (MoneyHelper)",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/money-troubles/scams/how-to-spot-a-pension-scam",
+      "why": "Government-backed MaPS guidance on pension-scam red flags and what to do if targeted; complements the FCA pension-scams page."
+    },
+    {
+      "id": "scams_protection-moneyhelper-spot-investment-scam",
+      "domain": "scams_protection",
+      "title": "How to spot an investment scam (MoneyHelper)",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/money-troubles/scams/how-to-spot-an-investment-scam",
+      "why": "MaPS-backed concrete checklist for spotting investment scams (clone firms, crypto, high-return promises) and where to check/report."
+    },
+    {
+      "id": "scams_protection-moneyhelper-beginners-guide-scams",
+      "domain": "scams_protection",
+      "title": "Am I being scammed? A beginner's guide to scams (MoneyHelper)",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/money-troubles/scams/a-beginners-guide-to-scams",
+      "why": "Government-backed overview of common scam types, tell-tale signs and reporting routes — good grounding for general scam queries."
+    },
+    {
+      "id": "scams_protection-moneyhelper-identity-theft-liability",
+      "domain": "scams_protection",
+      "title": "Identity theft and scams: reclaiming your money (MoneyHelper)",
+      "org": "MoneyHelper",
+      "kind": "html",
+      "locator": "https://www.moneyhelper.org.uk/en/everyday-money/credit/identity-theft-and-scams-what-you-are-liable-for",
+      "why": "Concrete consumer-liability and money-reclaim rules after fraud/identity theft — what victims can get back and from whom."
+    }
+  ]
+}
