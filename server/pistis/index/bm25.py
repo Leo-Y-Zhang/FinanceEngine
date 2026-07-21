@@ -22,8 +22,17 @@ _TOKEN = re.compile(r"[a-z0-9£]+(?:/[0-9]+)?")
 STOPWORDS = frozenset(
     """a an and are as at be but by can do does for from has have how i if in
     into is it its me my of on or that the their there these this to was what
-    when where which who will with you your""".split()
+    when where which who will with you your
+    us we our ours get got much many people whether need use like also work
+    works""".split()
 )
+
+
+def _fold(token: str) -> str:
+    """Light plural fold so 'contributions' matches 'contribution'."""
+    if len(token) > 3 and token.endswith("s") and not token.endswith(("ss", "is", "us")):
+        return token[:-1]
+    return token
 
 # Token-level expansions for UK-finance abbreviations users actually type.
 # The abbreviation itself is kept so documents using it still match.
@@ -43,7 +52,7 @@ def tokenize(text: str) -> list[str]:
     out: list[str] = []
     for t in _TOKEN.findall(text.lower()):
         out.extend(SYNONYMS.get(t, (t,)))
-    return [t for t in out if t not in STOPWORDS]
+    return [_fold(t) for t in out if t not in STOPWORDS]
 
 
 @dataclass(frozen=True)
@@ -92,17 +101,28 @@ class Bm25Index:
         scored.sort(key=lambda h: (-h.score, h.passage.id))
         return scored[:k]
 
-    def coverage(self, query: str, hits: list[Hit], top_n: int = 3) -> float:
-        """Fraction of the query's content terms present in the top passages.
+    def coverage(self, query: str, hits: list[Hit], top_n: int = 4) -> float:
+        """Best single-passage IDF-weighted coverage of the query's terms.
 
-        The gate's second signal: BM25 score alone can be inflated by one
-        rare term, while coverage catches questions the corpus only
-        half-addresses.
+        The gate's second signal, with two deliberate properties. IDF
+        weighting: rare, meaningful terms dominate, so a question can't pass
+        because generic words happen to appear somewhere, and a term the
+        corpus has never seen gets maximum weight and counts as uncovered —
+        the strongest abstain signal there is. Best-single-passage: the
+        terms must be covered *together* by one source passage; a union
+        over passages would reward scattered incidental mentions from
+        unrelated documents, which is not grounding.
         """
         terms = set(tokenize(query))
         if not terms:
             return 0.0
-        available: set[str] = set()
+        max_idf = max(self._idf.values(), default=1.0)
+        weight = lambda t: self._idf.get(t, max_idf)  # noqa: E731
+        total = sum(weight(t) for t in terms)
+        if not total:
+            return 0.0
+        best = 0.0
         for h in hits[:top_n]:
-            available.update(tokenize(h.passage.text))
-        return len(terms & available) / len(terms)
+            available = set(tokenize(h.passage.text))
+            best = max(best, sum(weight(t) for t in terms if t in available) / total)
+        return best

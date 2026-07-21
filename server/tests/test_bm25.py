@@ -10,7 +10,8 @@ def test_tokenize_expands_uk_finance_synonyms():
     tokens = tokenize("How does a LISA work?")
     assert "lifetime" in tokens and "isa" in tokens
     tokens = tokenize("When do I pay CGT?")
-    assert "capital" in tokens and "gains" in tokens
+    # plural fold normalises "gains" -> "gain" on both query and corpus side
+    assert "capital" in tokens and "gain" in tokens
 
 
 def test_isa_query_ranks_isa_passage_first(index):

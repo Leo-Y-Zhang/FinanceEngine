@@ -19,7 +19,7 @@ from pistis.models import Citation, Claim, Confidence, Passage
 
 # Answerability thresholds (both must pass).
 MIN_TOP_SCORE = 2.0
-MIN_COVERAGE = 0.45
+MIN_COVERAGE = 0.6
 
 # Per-sentence emission threshold: fraction of the sentence-relevant query
 # terms a sentence must contain to be emitted as a claim.
@@ -80,7 +80,10 @@ def _sentence_claims(question: str, hits: list[Hit]) -> list[Claim]:
                 citation=Citation.from_passage(hit.passage),
                 confidence=_confidence_for(sentence, hit.passage),
             )
-            candidates.append((overlap * (1 + hit.score / 10), sentence, hit.passage.id, claim))
+            # Sentences carrying checkable figures (£, %, years) are the ones
+            # users came to verify — nudge them up the ledger.
+            rank = overlap * (1 + hit.score / 10) * (1.15 if _FACTUAL.search(sentence) else 1.0)
+            candidates.append((rank, sentence, hit.passage.id, claim))
     candidates.sort(key=lambda c: (-c[0], c[2], c[1]))
     return [c[3] for c in candidates[:MAX_CLAIMS]]
 
