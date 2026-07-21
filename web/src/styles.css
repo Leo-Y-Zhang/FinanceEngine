@@ -1,0 +1,304 @@
+:root {
+  --paper: #fcfbf7;
+  --ink: #1a1a18;
+  --ink-soft: #4c4c47;
+  --rule: #d8d5cc;
+  --verified: #0b6b5d;
+  --verified-tint: #e7f2ef;
+  --depends: #7a4d00;
+  --depends-tint: #f6ecdb;
+  --uncertain: #5c5c56;
+  --uncertain-tint: #ebeae5;
+  --refusal: #a33b2e;
+  --refusal-tint: #f7e9e6;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+  --sans: system-ui, "Segoe UI", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.55;
+}
+
+.shell {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 0 1.25rem 5rem;
+}
+
+/* Masthead: heavy top rule, wordmark, register line — official-paper texture */
+.masthead {
+  border-top: 6px solid var(--ink);
+  padding-top: 1.1rem;
+  margin-bottom: 0.4rem;
+}
+
+.wordmark {
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.register-line {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  margin: 0.15rem 0 0;
+  letter-spacing: 0.04em;
+}
+
+.disclaimer-banner {
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--ink);
+  background: #fff;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  padding: 0.55rem 0.8rem;
+  margin: 1.1rem 0 1.6rem;
+}
+
+/* Ask form */
+.ask-form {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+
+.ask-input {
+  flex: 1;
+  font: inherit;
+  font-size: 1.02rem;
+  padding: 0.7rem 0.85rem;
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  background: #fff;
+  color: var(--ink);
+}
+
+.ask-input::placeholder {
+  color: #8a8a83;
+}
+
+.ask-button {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.7rem 1.3rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.ask-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+:is(.ask-input, .ask-button, a):focus-visible {
+  outline: 3px solid var(--verified);
+  outline-offset: 2px;
+}
+
+/* Result heading */
+.question-echo {
+  font-size: 1.25rem;
+  font-weight: 650;
+  margin: 0 0 1rem;
+}
+
+.result-kind {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 0.3rem;
+}
+
+/* The claim ledger — the signature element */
+.ledger {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 2px solid var(--ink);
+}
+
+.ledger-row {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.9rem 0 0.9rem 0.9rem;
+  border-left: 4px solid var(--uncertain);
+}
+
+.ledger-row[data-confidence="established"] {
+  border-left-color: var(--verified);
+}
+
+.ledger-row[data-confidence="depends"] {
+  border-left-color: var(--depends);
+}
+
+.claim-text {
+  margin: 0 0 0.45rem;
+}
+
+.receipt {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.org-badge {
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid currentColor;
+  color: var(--verified);
+  background: var(--verified-tint);
+}
+
+.receipt a {
+  color: var(--verified);
+  text-underline-offset: 2px;
+}
+
+.confidence-chip {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.45rem;
+  border: 1px solid transparent;
+}
+
+.confidence-chip[data-confidence="established"] {
+  color: var(--verified);
+  background: var(--verified-tint);
+  border-color: var(--verified);
+}
+
+.confidence-chip[data-confidence="depends"] {
+  color: var(--depends);
+  background: var(--depends-tint);
+  border-color: var(--depends);
+}
+
+.confidence-chip[data-confidence="uncertain"] {
+  color: var(--uncertain);
+  background: var(--uncertain-tint);
+  border-color: var(--uncertain);
+}
+
+/* Abstain + routing: the refusal is the brand */
+.refusal-card {
+  border: 2px solid var(--refusal);
+  background: var(--refusal-tint);
+  padding: 1.2rem 1.3rem;
+}
+
+.refusal-stamp {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--refusal);
+  border: 2px solid var(--refusal);
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  transform: rotate(-1.5deg);
+  margin-bottom: 0.8rem;
+}
+
+.refusal-reason {
+  margin: 0 0 1rem;
+  font-size: 1.02rem;
+}
+
+.routing-list {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+}
+
+.routing-list li {
+  margin-bottom: 0.45rem;
+  font-size: 0.92rem;
+}
+
+.routing-list a {
+  color: var(--ink);
+  text-underline-offset: 2px;
+}
+
+.routing-message {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+/* Skeleton loading */
+.skeleton {
+  border-top: 2px solid var(--ink);
+}
+
+.skeleton-row {
+  height: 3.4rem;
+  border-bottom: 1px solid var(--rule);
+  background: linear-gradient(90deg, #f1efe8 25%, #faf9f4 50%, #f1efe8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.error-note {
+  border: 2px solid var(--depends);
+  background: var(--depends-tint);
+  padding: 0.8rem 1rem;
+  font-size: 0.92rem;
+}
+
+.result-enter {
+  animation: rise 0.25s ease-out;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-row,
+  .result-enter {
+    animation: none;
+  }
+}
+
+@media (max-width: 30rem) {
+  .ask-form {
+    flex-direction: column;
+  }
+}
