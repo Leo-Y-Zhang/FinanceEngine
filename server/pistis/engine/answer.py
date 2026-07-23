@@ -10,7 +10,7 @@ from pistis.engine.classifier import classify
 from pistis.engine.gate import decide
 from pistis.engine.routing import abstain_routing, default_routing
 from pistis.index.bm25 import Bm25Index
-from pistis.models import Abstention, AnswerCard, Response, RoutingEvent
+from pistis.models import Abstention, AnswerCard, Response, RoutingEvent, TrustReport
 
 
 class Engine:
@@ -43,4 +43,8 @@ class Engine:
                 routing=abstain_routing(),
             )
 
-        return AnswerCard(question=question, claims=decision.claims)
+        return AnswerCard(
+            question=question,
+            claims=decision.claims,
+            trust_report=TrustReport.from_verdicts(decision.verdicts),
+        )

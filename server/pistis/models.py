@@ -92,6 +92,44 @@ class Claim:
     confidence: Confidence
 
 
+Verdict = Literal["grounded", "partial", "unsupported"]
+
+
+@dataclass(frozen=True)
+class ClaimVerdict:
+    """Whether a claim's text is supported by the source passage it was drawn
+    from, and where. The evidence behind the product's core promise."""
+
+    verdict: Verdict
+    score: float  # 0..1 grounding strength
+    passage_id: str
+    span: tuple[int, int] | None = None  # (start, end) char offsets in the source passage
+
+
+@dataclass(frozen=True)
+class TrustReport:
+    """Per-answer faithfulness summary over its claims, in claim order."""
+
+    verdicts: tuple[ClaimVerdict, ...]
+    grounded: int
+    total: int
+    all_grounded: bool
+
+    @classmethod
+    def from_verdicts(
+        cls, verdicts: "tuple[ClaimVerdict, ...] | list[ClaimVerdict]"
+    ) -> "TrustReport":
+        vs = tuple(verdicts)
+        grounded = sum(1 for v in vs if v.verdict == "grounded")
+        total = len(vs)
+        return cls(
+            verdicts=vs,
+            grounded=grounded,
+            total=total,
+            all_grounded=total > 0 and grounded == total,
+        )
+
+
 @dataclass(frozen=True)
 class RoutingLink:
     label: str
@@ -110,6 +148,7 @@ class AnswerCard:
     claims: tuple[Claim, ...]
     disclaimer: str = DISCLAIMER
     kind: Literal["answer"] = "answer"
+    trust_report: TrustReport | None = None
 
     def __post_init__(self) -> None:
         # Structural invariant of the entire product: no uncited claims.
@@ -118,6 +157,16 @@ class AnswerCard:
         for c in self.claims:
             if not c.citation.url or not c.citation.fetched_at:
                 raise ValueError("every claim must carry a dated, linked citation")
+        # Faithfulness invariant: an attached trust report must cover every
+        # claim and show each grounded in its source. An ungrounded claim in a
+        # shipped answer is a construction-time error (defence behind the gate).
+        if self.trust_report is not None:
+            if self.trust_report.total != len(self.claims):
+                raise ValueError("trust_report must cover every claim")
+            if not self.trust_report.all_grounded:
+                raise ValueError(
+                    "every claim in a shipped answer must be grounded in its cited source"
+                )
 
 
 @dataclass(frozen=True)

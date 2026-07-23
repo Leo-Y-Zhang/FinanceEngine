@@ -14,8 +14,9 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from pistis.engine.faithfulness import verify
 from pistis.index.bm25 import Bm25Index, Hit, tokenize
-from pistis.models import Citation, Claim, Confidence, Passage
+from pistis.models import Citation, Claim, ClaimVerdict, Confidence, Passage
 
 # Answerability thresholds (both must pass).
 MIN_TOP_SCORE = 2.0
@@ -48,6 +49,7 @@ class GateDecision:
     answerable: bool
     reason: str
     claims: tuple[Claim, ...] = ()
+    verdicts: tuple[ClaimVerdict, ...] = ()
     top_score: float = 0.0
     coverage: float = 0.0
 
@@ -61,9 +63,9 @@ def _confidence_for(sentence: str, passage: Passage) -> Confidence:
     return "established"
 
 
-def _sentence_claims(question: str, hits: list[Hit]) -> list[Claim]:
+def _sentence_claims(question: str, hits: list[Hit]) -> list[tuple[Claim, ClaimVerdict]]:
     q_terms = set(tokenize(question))
-    candidates: list[tuple[float, str, str, Claim]] = []
+    candidates: list[tuple[float, str, str, Claim, ClaimVerdict]] = []
     seen_texts: set[str] = set()
     for hit in hits:
         in_example = bool(_EXAMPLE_MARK.search(hit.passage.text))
@@ -81,6 +83,12 @@ def _sentence_claims(question: str, hits: list[Hit]) -> list[Claim]:
             if normalized in seen_texts:
                 continue
             seen_texts.add(normalized)
+            # Faithfulness guard: a sentence must be grounded in the passage it
+            # is drawn from, or it is never emitted as a claim (same posture as
+            # the overlap threshold above). This also guards a future composer.
+            verdict = verify(sentence, hit.passage)
+            if verdict.verdict != "grounded":
+                continue
             claim = Claim(
                 text=sentence,
                 citation=Citation.from_passage(hit.passage),
@@ -91,9 +99,9 @@ def _sentence_claims(question: str, hits: list[Hit]) -> list[Claim]:
             # worked-example arithmetic.
             boost = 1.15 if _FACTUAL.search(sentence) and not in_example else 1.0
             rank = overlap * (1 + hit.score / 10) * boost
-            candidates.append((rank, sentence, hit.passage.id, claim))
+            candidates.append((rank, sentence, hit.passage.id, claim, verdict))
     candidates.sort(key=lambda c: (-c[0], c[2], c[1]))
-    return [c[3] for c in candidates[:MAX_CLAIMS]]
+    return [(c[3], c[4]) for c in candidates[:MAX_CLAIMS]]
 
 
 def decide(question: str, index: Bm25Index, k: int = 8) -> GateDecision:
@@ -115,8 +123,8 @@ def decide(question: str, index: Bm25Index, k: int = 8) -> GateDecision:
             top_score=top,
             coverage=cov,
         )
-    claims = _sentence_claims(question, hits)
-    if not claims:
+    pairs = _sentence_claims(question, hits)
+    if not pairs:
         return GateDecision(
             answerable=False,
             reason=(
@@ -129,7 +137,8 @@ def decide(question: str, index: Bm25Index, k: int = 8) -> GateDecision:
     return GateDecision(
         answerable=True,
         reason="grounded",
-        claims=tuple(claims),
+        claims=tuple(c for c, _ in pairs),
+        verdicts=tuple(v for _, v in pairs),
         top_score=top,
         coverage=cov,
     )

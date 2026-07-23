@@ -43,6 +43,20 @@ def test_ask_answer_card(client):
     assert "not regulated financial advice" in body["disclaimer"]
 
 
+def test_ask_answer_includes_trust_report(client):
+    body = client.post("/ask", json={"question": "How does a Lifetime ISA work?"}).json()
+    assert body["kind"] == "answer"
+    tr = body["trust_report"]
+    assert tr is not None
+    assert tr["total"] == len(body["claims"])
+    assert tr["grounded"] == tr["total"]
+    assert tr["all_grounded"] is True
+    assert len(tr["verdicts"]) == len(body["claims"])
+    for v in tr["verdicts"]:
+        assert v["verdict"] == "grounded"
+        assert v["passage_id"]
+
+
 def test_ask_routing_event(client):
     body = client.post("/ask", json={"question": "Which ISA should I open?"}).json()
     assert body["kind"] == "routing"
