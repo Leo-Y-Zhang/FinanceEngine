@@ -57,6 +57,15 @@ def test_ask_answer_includes_trust_report(client):
         assert v["passage_id"]
 
 
+def test_ask_answer_includes_freshness(client):
+    body = client.post("/ask", json={"question": "How does a Lifetime ISA work?"}).json()
+    assert body["kind"] == "answer"
+    fr = body["freshness"]
+    assert fr is not None
+    assert len(fr["per_claim"]) == len(body["claims"])
+    assert fr["overall"] in ("current", "aging", "stale")
+
+
 def test_ask_routing_event(client):
     body = client.post("/ask", json={"question": "Which ISA should I open?"}).json()
     assert body["kind"] == "routing"

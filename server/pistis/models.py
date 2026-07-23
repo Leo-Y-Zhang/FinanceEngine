@@ -130,6 +130,44 @@ class TrustReport:
         )
 
 
+FreshnessVerdict = Literal["current", "aging", "stale"]
+
+_FRESHNESS_ORDER = {"current": 0, "aging": 1, "stale": 2}
+
+
+@dataclass(frozen=True)
+class Freshness:
+    """Whether a claim is still current: a claim that names a PAST UK tax year,
+    or comes from an aged snapshot, is flagged rather than presented as fresh.
+    Complements grounding — faithful to the source, but is the source current?"""
+
+    verdict: FreshnessVerdict
+    snapshot_age_days: int
+    tax_year: str | None = None  # e.g. "2026-27" if the claim names one
+    tax_year_current: bool | None = None  # is that tax year the current one?
+
+
+@dataclass(frozen=True)
+class FreshnessReport:
+    """Per-answer freshness summary over its claims, in claim order."""
+
+    per_claim: tuple[Freshness, ...]
+    overall: FreshnessVerdict
+    stale_count: int
+
+    @classmethod
+    def from_items(
+        cls, items: "tuple[Freshness, ...] | list[Freshness]"
+    ) -> "FreshnessReport":
+        items = tuple(items)
+        overall: FreshnessVerdict = "current"
+        for f in items:
+            if _FRESHNESS_ORDER[f.verdict] > _FRESHNESS_ORDER[overall]:
+                overall = f.verdict
+        stale = sum(1 for f in items if f.verdict == "stale")
+        return cls(per_claim=items, overall=overall, stale_count=stale)
+
+
 @dataclass(frozen=True)
 class RoutingLink:
     label: str
@@ -149,6 +187,7 @@ class AnswerCard:
     disclaimer: str = DISCLAIMER
     kind: Literal["answer"] = "answer"
     trust_report: TrustReport | None = None
+    freshness: FreshnessReport | None = None
 
     def __post_init__(self) -> None:
         # Structural invariant of the entire product: no uncited claims.
