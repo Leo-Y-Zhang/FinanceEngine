@@ -1,9 +1,15 @@
-import type { AnswerCard, Claim } from "../types";
+import type { AnswerCard, Claim, ClaimVerdict } from "../types";
 
 const CONFIDENCE_LABEL: Record<Claim["confidence"], string> = {
   established: "Established",
   depends: "Depends on your situation",
   uncertain: "Uncertain",
+};
+
+const VERDICT_LABEL: Record<ClaimVerdict["verdict"], string> = {
+  grounded: "Grounded in source",
+  partial: "Partial support",
+  unsupported: "Unsupported",
 };
 
 const ORG_LABEL: Record<Claim["citation"]["org"], string> = {
@@ -14,7 +20,7 @@ const ORG_LABEL: Record<Claim["citation"]["org"], string> = {
   PensionWise: "Pension Wise",
 };
 
-function Receipt({ claim }: { claim: Claim }) {
+function Receipt({ claim, verdict }: { claim: Claim; verdict?: ClaimVerdict }) {
   const { citation } = claim;
   return (
     <p className="receipt">
@@ -30,26 +36,43 @@ function Receipt({ claim }: { claim: Claim }) {
       >
         {CONFIDENCE_LABEL[claim.confidence]}
       </span>
+      {verdict && (
+        <span
+          className="grounding-chip"
+          data-verdict={verdict.verdict}
+          title={`Faithfulness ${Math.round(verdict.score * 100)}% against source passage ${verdict.passage_id}`}
+        >
+          {VERDICT_LABEL[verdict.verdict]}
+        </span>
+      )}
     </p>
   );
 }
 
 export function AnswerLedger({ card }: { card: AnswerCard }) {
+  const report = card.trust_report;
   return (
     <section className="result-enter" aria-label="Answer">
       <p className="result-kind">
         Answer · every statement below is cited to its source
       </p>
       <h2 className="question-echo">{card.question}</h2>
+      {report && (
+        <p className="trust-summary" data-all-grounded={report.all_grounded}>
+          {report.grounded} of {report.total}{" "}
+          {report.total === 1 ? "statement" : "statements"} grounded in their
+          cited source
+        </p>
+      )}
       <ul className="ledger">
-        {card.claims.map((claim) => (
+        {card.claims.map((claim, i) => (
           <li
             className="ledger-row"
             data-confidence={claim.confidence}
             key={claim.text}
           >
             <p className="claim-text">{claim.text}</p>
-            <Receipt claim={claim} />
+            <Receipt claim={claim} verdict={report?.verdicts[i]} />
           </li>
         ))}
       </ul>

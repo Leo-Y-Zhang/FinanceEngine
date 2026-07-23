@@ -16,6 +16,22 @@ export interface Claim {
   confidence: Confidence;
 }
 
+export type Verdict = "grounded" | "partial" | "unsupported";
+
+export interface ClaimVerdict {
+  verdict: Verdict;
+  score: number;
+  passage_id: string;
+  span: [number, number] | null;
+}
+
+export interface TrustReport {
+  verdicts: ClaimVerdict[];
+  grounded: number;
+  total: number;
+  all_grounded: boolean;
+}
+
 export interface RoutingLink {
   label: string;
   url: string;
@@ -31,6 +47,7 @@ export interface AnswerCard {
   question: string;
   claims: Claim[];
   disclaimer: string;
+  trust_report?: TrustReport | null;
 }
 
 export interface Abstention {

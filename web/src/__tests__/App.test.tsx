@@ -33,6 +33,15 @@ const ANSWER: AskResponse = {
     },
   ],
   disclaimer: "SERVER DISCLAIMER SENTINEL — guidance, not advice.",
+  trust_report: {
+    verdicts: [
+      { verdict: "grounded", score: 1.0, passage_id: "lifetime-isa#3", span: [0, 52] },
+      { verdict: "grounded", score: 1.0, passage_id: "lifetime-isa#5", span: null },
+    ],
+    grounded: 2,
+    total: 2,
+    all_grounded: true,
+  },
 };
 
 const ROUTING: AskResponse = {
@@ -109,6 +118,17 @@ describe("App", () => {
     expect(
       screen.getByText(/SERVER DISCLAIMER SENTINEL/),
     ).toBeInTheDocument();
+  });
+
+  it("surfaces the trust report and per-claim grounding verdicts", async () => {
+    mockAsk(ANSWER);
+    render(<App />);
+    await askQuestion("How does a Lifetime ISA work?");
+    await waitFor(() => expect(screen.getByRole("list")).toBeInTheDocument());
+    expect(
+      screen.getByText(/2 of 2 statements grounded in their cited source/i),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Grounded in source")).toHaveLength(2);
   });
 
   it("announces the loading state and stays axe-clean while checking", async () => {

@@ -243,6 +243,67 @@ body {
   border-color: var(--uncertain);
 }
 
+/* Faithfulness: the per-claim grounding verdict and the answer's trust summary
+   are the visible proof that every statement is backed by its cited source. */
+.grounding-chip {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 2px;
+}
+
+.grounding-chip[data-verdict="grounded"] {
+  color: var(--verified);
+  background: var(--verified-tint);
+  border-color: var(--verified);
+}
+
+.grounding-chip[data-verdict="grounded"]::before {
+  content: "\2713\00a0";
+}
+
+.grounding-chip[data-verdict="partial"] {
+  color: var(--depends);
+  background: var(--depends-tint);
+  border-color: var(--depends);
+}
+
+.grounding-chip[data-verdict="unsupported"] {
+  color: var(--refusal);
+  background: var(--refusal-tint);
+  border-color: var(--refusal);
+}
+
+.trust-summary {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--verified);
+  background: var(--verified-tint);
+  border: 1px solid var(--verified);
+  border-radius: 2px;
+  padding: 0.3rem 0.6rem;
+  margin: 0.4rem 0 0.8rem;
+}
+
+.trust-summary::before {
+  content: "\2713\00a0";
+}
+
+.trust-summary[data-all-grounded="false"] {
+  color: var(--depends);
+  background: var(--depends-tint);
+  border-color: var(--depends);
+}
+
+.trust-summary[data-all-grounded="false"]::before {
+  content: "";
+}
+
 /* Abstain + routing: the refusal is the brand */
 .refusal-card {
   border: 2px solid var(--refusal);
