@@ -1,4 +1,11 @@
-import type { AnswerCard, Claim, ClaimVerdict } from "../types";
+import type { AnswerCard, Claim, ClaimVerdict, Freshness } from "../types";
+
+function freshnessLabel(f: Freshness): string {
+  if (f.tax_year && f.tax_year_current === false) {
+    return `${f.tax_year} tax year — check current figure`;
+  }
+  return "Source may be dated";
+}
 
 const CONFIDENCE_LABEL: Record<Claim["confidence"], string> = {
   established: "Established",
@@ -20,7 +27,15 @@ const ORG_LABEL: Record<Claim["citation"]["org"], string> = {
   PensionWise: "Pension Wise",
 };
 
-function Receipt({ claim, verdict }: { claim: Claim; verdict?: ClaimVerdict }) {
+function Receipt({
+  claim,
+  verdict,
+  freshness,
+}: {
+  claim: Claim;
+  verdict?: ClaimVerdict;
+  freshness?: Freshness;
+}) {
   const { citation } = claim;
   return (
     <p className="receipt">
@@ -45,12 +60,18 @@ function Receipt({ claim, verdict }: { claim: Claim; verdict?: ClaimVerdict }) {
           {VERDICT_LABEL[verdict.verdict]}
         </span>
       )}
+      {freshness && freshness.verdict !== "current" && (
+        <span className="freshness-chip" data-freshness={freshness.verdict}>
+          {freshnessLabel(freshness)}
+        </span>
+      )}
     </p>
   );
 }
 
 export function AnswerLedger({ card }: { card: AnswerCard }) {
   const report = card.trust_report;
+  const fresh = card.freshness;
   return (
     <section className="result-enter" aria-label="Answer">
       <p className="result-kind">
@@ -64,6 +85,12 @@ export function AnswerLedger({ card }: { card: AnswerCard }) {
           cited source
         </p>
       )}
+      {fresh && fresh.overall === "stale" && (
+        <p className="freshness-caveat" role="note">
+          Some statements reference a past tax year or an aged source — check the
+          current figure before relying on it.
+        </p>
+      )}
       <ul className="ledger">
         {card.claims.map((claim, i) => (
           <li
@@ -72,7 +99,11 @@ export function AnswerLedger({ card }: { card: AnswerCard }) {
             key={claim.text}
           >
             <p className="claim-text">{claim.text}</p>
-            <Receipt claim={claim} verdict={report?.verdicts[i]} />
+            <Receipt
+              claim={claim}
+              verdict={report?.verdicts[i]}
+              freshness={fresh?.per_claim[i]}
+            />
           </li>
         ))}
       </ul>

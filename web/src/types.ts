@@ -32,6 +32,21 @@ export interface TrustReport {
   all_grounded: boolean;
 }
 
+export type FreshnessVerdict = "current" | "aging" | "stale";
+
+export interface Freshness {
+  verdict: FreshnessVerdict;
+  snapshot_age_days: number;
+  tax_year: string | null;
+  tax_year_current: boolean | null;
+}
+
+export interface FreshnessReport {
+  per_claim: Freshness[];
+  overall: FreshnessVerdict;
+  stale_count: number;
+}
+
 export interface RoutingLink {
   label: string;
   url: string;
@@ -48,6 +63,7 @@ export interface AnswerCard {
   claims: Claim[];
   disclaimer: string;
   trust_report?: TrustReport | null;
+  freshness?: FreshnessReport | null;
 }
 
 export interface Abstention {

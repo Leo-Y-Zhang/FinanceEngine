@@ -304,6 +304,38 @@ body {
   content: "";
 }
 
+/* Freshness: a claim can be faithful to its source yet name a past tax year or
+   come from an aged snapshot — surfaced as an amber caution, never hidden. */
+.freshness-chip {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.45rem;
+  border: 1px solid var(--depends);
+  border-radius: 2px;
+  color: var(--depends);
+  background: var(--depends-tint);
+}
+
+.freshness-chip[data-freshness="stale"] {
+  color: var(--refusal);
+  background: var(--refusal-tint);
+  border-color: var(--refusal);
+}
+
+.freshness-caveat {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--depends);
+  background: var(--depends-tint);
+  border: 1px solid var(--depends);
+  border-left: 4px solid var(--depends);
+  border-radius: 2px;
+  padding: 0.4rem 0.6rem;
+  margin: 0 0 0.8rem;
+}
+
 /* Abstain + routing: the refusal is the brand */
 .refusal-card {
   border: 2px solid var(--refusal);

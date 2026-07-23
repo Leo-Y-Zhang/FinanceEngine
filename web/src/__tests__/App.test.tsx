@@ -42,6 +42,46 @@ const ANSWER: AskResponse = {
     total: 2,
     all_grounded: true,
   },
+  freshness: {
+    per_claim: [
+      { verdict: "current", snapshot_age_days: 2, tax_year: "2026-27", tax_year_current: true },
+      { verdict: "current", snapshot_age_days: 2, tax_year: null, tax_year_current: null },
+    ],
+    overall: "current",
+    stale_count: 0,
+  },
+};
+
+const STALE_ANSWER: AskResponse = {
+  kind: "answer",
+  question: "What was the ISA allowance?",
+  claims: [
+    {
+      text: "In the 2024 to 2025 tax year the ISA allowance was £20,000.",
+      citation: {
+        org: "GOVUK",
+        title: "ISA",
+        url: "https://www.gov.uk/isa",
+        fetched_at: "2026-07-21",
+        last_updated: "2024-04-06",
+      },
+      confidence: "established",
+    },
+  ],
+  disclaimer: "Guidance, not advice.",
+  trust_report: {
+    verdicts: [{ verdict: "grounded", score: 1.0, passage_id: "isa#0", span: [0, 10] }],
+    grounded: 1,
+    total: 1,
+    all_grounded: true,
+  },
+  freshness: {
+    per_claim: [
+      { verdict: "stale", snapshot_age_days: 2, tax_year: "2024-25", tax_year_current: false },
+    ],
+    overall: "stale",
+    stale_count: 1,
+  },
 };
 
 const ROUTING: AskResponse = {
@@ -129,6 +169,19 @@ describe("App", () => {
       screen.getByText(/2 of 2 statements grounded in their cited source/i),
     ).toBeInTheDocument();
     expect(screen.getAllByText("Grounded in source")).toHaveLength(2);
+  });
+
+  it("flags stale figures with a past-tax-year chip and a caveat", async () => {
+    mockAsk(STALE_ANSWER);
+    render(<App />);
+    await askQuestion("What was the ISA allowance?");
+    await waitFor(() => expect(screen.getByRole("list")).toBeInTheDocument());
+    expect(
+      screen.getByText(/2024-25 tax year — check current figure/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("note")).toHaveTextContent(
+      /past tax year or an aged source/i,
+    );
   });
 
   it("announces the loading state and stays axe-clean while checking", async () => {
