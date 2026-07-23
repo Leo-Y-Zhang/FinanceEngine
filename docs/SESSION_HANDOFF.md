@@ -1,7 +1,46 @@
 # SESSION_HANDOFF — Pistis
 
-**Updated:** 2026-07-21 (session 2: fixed two gaps flagged by the compliance
-review — GDPR privacy notice + retention, and classifier hardening pass 2)
+**Updated:** 2026-07-23 (session 3: Provenance & Faithfulness Layer — built,
+tested, verified end-to-end, pushed; all green)
+
+## Session 3 (2026-07-23) — Provenance & Faithfulness Layer
+
+Standout feature making the thesis *software that proves its own claims*
+literal, visible, and measurable. Built autonomously (owner offline, under the
+standing autonomous-work directive); pushed to GreenPandaTech/Pistis, each
+increment green. Design spec:
+`docs/superpowers/specs/2026-07-23-provenance-faithfulness-design.md`.
+
+**What shipped (commits on main):**
+1. `docs:` design spec — `5b9a0cf`.
+2. `feat:` per-claim faithfulness verifier + trust report — `68d93dc`.
+   `engine/faithfulness.py` grounds each claim's text against its source
+   passage (verdict + score + char span). The gate now EMITS ONLY GROUNDED
+   claims (new emission guard). `AnswerCard` gains an optional `trust_report`
+   plus a strengthened invariant — an ungrounded claim cannot be constructed.
+   `models.py` adds `ClaimVerdict` / `TrustReport`; the API surfaces it via
+   `asdict` (additive, no schema break, existing tests unaffected).
+3. `feat:` reproducible honesty-eval CLI `python -m pistis.eval` — `0fe08ff`.
+   Over `server/tests/fixtures/golden.json` (21 questions): 100% answerability,
+   41/41 claims grounded, 0 unsupported → PASS. Deterministic + offline;
+   `--snapshot` to evaluate the live corpus; `--json` for a machine record.
+4. `feat:` web trust-report UI — `72df5e9`. Per-claim "grounded in source" chip
+   + overall "N of N statements grounded in their cited source" summary in the
+   claim ledger; `web/src/types.ts` mirrors the new shapes; matching CSS.
+
+**Verification:** server **154 pytest** (was 137) + web **13 vitest** (was 12),
+all green; web `tsc` + `vite build` clean; **END-TO-END over real HTTP**
+(uvicorn + curl on the fixture snapshot): an answer returns `trust_report` with
+per-claim grounded verdicts + source spans, while routing/abstain carry none.
+Pistis GitHub Actions are disabled (no CI trigger); pushes are safe (not an
+auto-deploy repo).
+
+**Next options:** run the eval against the live corpus for a production honesty
+number; add the LLM composer behind `providers/` (the verifier already guards
+its output); staleness policy; MoneyHelper partnership integration.
+
+---
+*(Sessions 2 and 1 below — unchanged.)*
 
 ## Session 2 (2026-07-21) — this session's changes (local commits only)
 

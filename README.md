@@ -44,6 +44,38 @@ answer card: claims, each with named + dated citation, confidence tier
   routing events (MoneyHelper + FCA-authorised adviser), per the FSMA / Art 53
   RAO bright line.
 
+## Proving the claims — faithfulness layer
+
+Every answer carries a **trust report** that proves, claim by claim, that what
+Pistis asserts is grounded in the source it cites — the literal expression of
+the project's thesis, *software that proves its own claims*.
+
+- **Faithfulness verifier** (`server/pistis/engine/faithfulness.py`) — a
+  deterministic, keyless check that grounds each claim's text against the exact
+  source passage it was drawn from, returning a verdict (`grounded` / `partial`
+  / `unsupported`), a score, and the char **span** of the backing text. It runs
+  as an **emission guard** in the grounding gate: a statement that is not
+  grounded in its passage is never emitted as a claim (same posture as the
+  overlap threshold), which also guards any future LLM composer.
+- **Trust report on every answer** — the `/ask` answer includes a
+  `trust_report` (`grounded / total`, `all_grounded`, and a per-claim verdict
+  with its source span). `AnswerCard` enforces this structurally: an answer
+  whose report is not fully grounded cannot be constructed. The web claim-ledger
+  surfaces it as a per-claim "grounded in source" chip and an overall
+  "N of N statements grounded in their cited source" summary.
+- **Reproducible honesty eval** — quantifies the promise over a golden set:
+
+  ```bash
+  cd server && python -m pistis.eval        # human-readable report
+  python -m pistis.eval --json              # machine-readable record
+  ```
+
+  Reports answerability accuracy (answer/abstain/route vs expected), citation
+  completeness, and the headline faithfulness metric — every asserted claim
+  grounded, zero unsupported. Deterministic and network-free over the committed
+  fixture corpus (point `--snapshot` at the live corpus for production).
+  Design: `docs/superpowers/specs/2026-07-23-provenance-faithfulness-design.md`.
+
 ## Layout
 
 | Path | What |
