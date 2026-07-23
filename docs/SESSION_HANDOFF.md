@@ -27,8 +27,27 @@ increment green. Design spec:
 4. `feat:` web trust-report UI — `72df5e9`. Per-claim "grounded in source" chip
    + overall "N of N statements grounded in their cited source" summary in the
    claim ledger; `web/src/types.ts` mirrors the new shapes; matching CSS.
+5. `docs:` README + this handoff — `47f007f`.
+6. `feat:` **source-staleness policy** — `fbf215a`. `engine/freshness.py` — a
+   keyless, deterministic check that flags a claim naming a PAST UK tax year
+   (finance is tax-year-bound) or from an aged snapshot, against a reference
+   date (today in prod, pinned in tests). `models.py` adds `Freshness` /
+   `FreshnessReport`; `Engine.ask(question, reference_date=None)` attaches a
+   `freshness` report to every answer; API auto-serialises it.
+7. `feat:` web freshness UI — `87b308d`. Per-claim past-tax-year / aged-source
+   chip + a stale-answer caveat.
 
-**Verification:** server **154 pytest** (was 137) + web **13 vitest** (was 12),
+**Live-corpus production honesty number (2026-07-23):** rebuilt the live
+snapshot (`python -m pistis.corpus.refresh` → 46 docs, gitignored) and ran
+`python -m pistis.eval --snapshot ...` → **21/21 answerability, 42/42 claims
+grounded, 0 unsupported → PASS** on real GOV.UK/HMRC/FCA data. End-to-end over
+real HTTP confirmed both layers: an answer returns `trust_report` (6/6 grounded)
++ `freshness` (overall current, tax-year 2026-27 detected + recognised current,
+0 false positives). LLM composer left for later — it needs an ANTHROPIC_API_KEY
+via the credential-handoff process (the faithfulness verifier already guards its
+output). Add via `providers/` when the key is supplied.
+
+**Verification:** server **165 pytest** (was 137) + web **14 vitest** (was 12),
 all green; web `tsc` + `vite build` clean; **END-TO-END over real HTTP**
 (uvicorn + curl on the fixture snapshot): an answer returns `trust_report` with
 per-claim grounded verdicts + source spans, while routing/abstain carry none.

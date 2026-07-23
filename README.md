@@ -76,6 +76,19 @@ the project's thesis, *software that proves its own claims*.
   fixture corpus (point `--snapshot` at the live corpus for production).
   Design: `docs/superpowers/specs/2026-07-23-provenance-faithfulness-design.md`.
 
+### Freshness — is the source still current?
+
+Faithfulness proves a claim is *in* its source; freshness asks whether that
+source is still current. A deterministic, keyless check
+(`server/pistis/engine/freshness.py`) flags any claim that names a **past UK
+tax year** (finance figures are tax-year-bound) or comes from an aged snapshot,
+assessed against a reference date (today in production, pinned in tests). Every
+answer carries a `freshness` report; the ledger shows a
+"2024-25 tax year — check current figure" chip per claim and, when anything is
+stale, an answer-level caveat. On the live corpus today this reads *current*
+with zero false positives — and the same 2026-27 figure will auto-flag next
+April.
+
 ## Layout
 
 | Path | What |
