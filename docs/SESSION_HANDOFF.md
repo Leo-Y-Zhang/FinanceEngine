@@ -1,7 +1,53 @@
 # SESSION_HANDOFF — Pistis
 
-**Updated:** 2026-07-24 (session 4: closed compliance findings #3 + #5;
-re-verified Dependabot 0 open; all green, pushed)
+**Updated:** 2026-07-24 (session 5: shipped the explainable-refusal layer —
+the abstain path now proves itself like an answer; all green, pushed)
+
+## Session 5 (2026-07-24) — Explainable Refusal
+
+Standout feature completing the thesis's other half: Pistis already *proved its
+answers* (trust report + freshness); now it *proves its refusals* too. Built
+autonomously under the standing directive; pushed to GreenPandaTech/Pistis,
+each increment green. Design spec:
+`docs/superpowers/specs/2026-07-24-explainable-refusal-design.md`.
+
+**What shipped (commits on main):**
+1. `feat:` explainable-refusal server layer — `332f20b`. Every refusal carries
+   an `AbstentionReport` (models.py: `SignalCheck` + `AbstentionReport`,
+   `Abstention.report` optional/additive): the gate stage that fired
+   (`no_source` / `weak_coverage` / `no_groundable_statement` /
+   `empty_question`), each answerability signal vs its threshold, and the
+   specific query terms no trusted source covers. `bm25.py` gains
+   `Bm25Index.uncovered_terms` (query words whose every token is absent from the
+   top passages, rarest-first) with shared `_passage_vocab`/`_query_words`
+   helpers; `coverage()` refactored onto the same vocab. Gate builds the report
+   in all three refusal branches (existing `reason` strings unchanged). `eval.py`
+   adds **refusals-explained** as a first-class honesty metric folded into PASS.
+2. `feat:` explainable-refusal web UI — `8b2696e`. `RefusalCard` shows the
+   report explanation as the specific reason plus uncovered-concept chips and
+   per-signal meters (value/threshold, pass/fail) in the trust/freshness chip
+   language; `types.ts` mirrors the shapes.
+3. `docs:` README section + design spec + this handoff.
+
+**Safety property (verified):** strictly additive — touches only the refusal
+paths, never answer emission, the thresholds, or the faithfulness verifier, so
+it cannot turn a refusal into an answer. Confirmed end-to-end: an answer
+response carries no `report` key at all.
+
+**Verification:** server **165 -> 179 pytest** green; honesty eval **PASS,
+refusals explained 4/4**; web **15 -> 16 vitest** green; `tsc` + `vite build`
+clean; **END-TO-END over real HTTP** (uvicorn + JSON on the fixture snapshot):
+`no_source` and `weak_coverage` refusals serialise their report, an answer
+carries none. Pistis GitHub Actions are disabled; pushes are safe (not an
+auto-deploy repo).
+
+**Next options (unchanged, all still gated / need a human decision):** MVP-scope
+sign-off, lawyer sign-off (FCA reuse #6), the Claude-composer build (needs an
+API key), the MoneyHelper partnership. New optional idea: run `uncovered_terms`
+telemetry over the ask log to surface the most-requested *uncovered* concepts —
+a keyless, privacy-safe backlog of what to add to the corpus next.
+
+---
 
 ## Session 4 (2026-07-24) — compliance close-out (autonomous, non-legal)
 

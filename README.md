@@ -89,6 +89,34 @@ stale, an answer-level caveat. On the live corpus today this reads *current*
 with zero false positives — and the same 2026-27 figure will auto-flag next
 April.
 
+## Explaining the refusal — proving a refusal, not just an answer
+
+Pistis's thesis is that **refusal is a feature, not a failure mode** — but a
+refusal is only credible if it can show its working, the way an answer does. So
+every refusal now carries an **abstention report**, symmetric with the trust
+report on an answer:
+
+- **The gate stage that fired** — `no_source` (nothing retrieved),
+  `weak_coverage` (retrieved, but the answerability signals fell short),
+  `no_groundable_statement` (matched well, but no single sentence was citable),
+  or `empty_question`.
+- **Each answerability signal against its threshold** — retrieval strength and
+  source coverage, with the value, the bar, and pass/fail, so you can see *how
+  close* it was rather than a black-box "not enough".
+- **The specific concepts no trusted source covers** —
+  `Bm25Index.uncovered_terms` returns the query's own words whose every token is
+  absent from the top passages (rarest-first). A `passport` question refuses
+  with *"No trusted source covers: passport, renew"*, not a generic shrug.
+
+It is **keyless and deterministic**, and strictly additive: it enriches only
+the refusal paths, never answer emission, the thresholds, or the faithfulness
+verifier — so it can never turn a refusal into an answer. The web
+`RefusalCard` surfaces it as uncovered-concept chips and per-signal meters, and
+the honesty eval now scores **refusals explained** as a first-class metric
+folded into `PASS`: a silent refusal is a regression, exactly like an
+ungrounded claim. Design:
+`docs/superpowers/specs/2026-07-24-explainable-refusal-design.md`.
+
 ## Layout
 
 | Path | What |
