@@ -1,7 +1,8 @@
 # SESSION_HANDOFF — Pistis
 
 **Updated:** 2026-07-24 (session 5: shipped the explainable-refusal layer —
-the abstain path now proves itself like an answer; all green, pushed)
+the abstain path now proves itself like an answer — plus an adversarial review
+(honesty-posture lens clean) whose 7 findings were all fixed; all green, pushed)
 
 ## Session 5 (2026-07-24) — Explainable Refusal
 
@@ -28,14 +29,24 @@ each increment green. Design spec:
    per-signal meters (value/threshold, pass/fail) in the trust/freshness chip
    language; `types.ts` mirrors the shapes.
 3. `docs:` README section + design spec + this handoff.
+4. `fix:` adversarial-review fixes — `6d06b99`. An 11-agent four-lens review
+   (correctness / honesty-posture / web-a11y / test-quality), each finding
+   verified. **Honesty-posture lens found nothing** (the additive-safety
+   invariant held under attack). 7 confirmed findings all fixed: one real
+   display bug (a SignalCheck showed `round(value)` while deriving `passed` from
+   the raw score, so a 0.599 coverage could render "0.6 / 0.6 needed" yet marked
+   failed — the shown value can now never contradict its marker), one web nit
+   (empty diagnostics container on a stopword-only refusal), five test-coverage
+   gaps closed (the untested `no_groundable_statement` stage + both-signals path;
+   `_phrase_terms` overflow; the signal invariant; a self-fulfilling test).
 
 **Safety property (verified):** strictly additive — touches only the refusal
 paths, never answer emission, the thresholds, or the faithfulness verifier, so
 it cannot turn a refusal into an answer. Confirmed end-to-end: an answer
 response carries no `report` key at all.
 
-**Verification:** server **165 -> 179 pytest** green; honesty eval **PASS,
-refusals explained 4/4**; web **15 -> 16 vitest** green; `tsc` + `vite build`
+**Verification:** server **165 -> 185 pytest** green; honesty eval **PASS,
+refusals explained 4/4**; web **15 -> 17 vitest** green; `tsc` + `vite build`
 clean; **END-TO-END over real HTTP** (uvicorn + JSON on the fixture snapshot):
 `no_source` and `weak_coverage` refusals serialise their report, an answer
 carries none. Pistis GitHub Actions are disabled; pushes are safe (not an

@@ -1,7 +1,8 @@
 # Explainable Refusal — design
 
 **Date:** 2026-07-24
-**Status:** implemented (server `332f20b`, web `8b2696e`)
+**Status:** implemented (server `332f20b`, web `8b2696e`, docs `1718b59`,
+adversarial-review fixes `6d06b99`)
 
 ## Problem
 
@@ -77,8 +78,23 @@ answer — verified end-to-end: an answer response carries no `report` key at al
 
 ## Verification
 
-- Server: 165 → 179 pytest green (new coverage in bm25/gate/engine/api/eval).
+- Server: 165 → **185** pytest green (new coverage in bm25/gate/engine/api/eval,
+  including the three refusal stages and the signal value/pass invariant).
 - Honesty eval: `PASS`, **refusals explained 4/4** over the golden set.
-- Web: 15 → 16 vitest green; `tsc` + `vite build` clean; refusal state axe-clean.
+- Web: 15 → **17** vitest green; `tsc` + `vite build` clean; refusal state axe-clean.
 - End-to-end over real HTTP (uvicorn + JSON): `no_source` and `weak_coverage`
   refusals serialize their report; an answer carries none.
+
+## Adversarial review
+
+An 11-agent, four-lens review (correctness, honesty-posture, web/a11y,
+test-quality), each finding independently verified. The **honesty-posture lens
+found nothing** — the additive-safety invariant held under attack. Seven
+findings were confirmed and all fixed (`6d06b99`): one real display bug (a
+`SignalCheck` showed `round(value)` while deriving `passed` from the raw score,
+so a 0.599 coverage could render as "0.6 / 0.6 needed" yet be marked failed —
+now the shown value can never contradict its marker), one cosmetic web nit
+(empty diagnostics container on a stopword-only refusal), and five test-coverage
+gaps (the `no_groundable_statement` stage and both-signals-passed path were
+untested; the `_phrase_terms` overflow, the signal invariant, and a
+self-fulfilling uncovered-terms test were all strengthened).
