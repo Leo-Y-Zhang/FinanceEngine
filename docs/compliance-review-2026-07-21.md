@@ -405,9 +405,9 @@ given the intended audience.
 |---|---|---|---|---|
 | 1 | FCA perimeter | Rule-based classifier has an inherent, unbounded false-negative tail; no defined red-team-coverage bar or ongoing misses-review process | Medium — architecture is sound, coverage is a judgement call | Needs lawyer + product decision on acceptable coverage/monitoring |
 | 2 | FCA perimeter | Verbatim second-person source text sits in the answer ledger; visual framing as "quotation" should be lawyer-checked | Low–Medium | Needs lawyer read |
-| 3 | FCA perimeter | Design doc describes an LLM-composer path (`providers/`) that does not exist in code (empty dir) | Informational (doc/code mismatch, not a risk) | Recommend correcting docs |
+| 3 | FCA perimeter | Design doc describes an LLM-composer path (`providers/`) that does not exist in code (empty dir) | Informational (doc/code mismatch, not a risk) | **Closed 2026-07-24** — spec §2.4 marked "NOT BUILT"; §2.3 `composer.py` reference corrected to `engine/answer.py` |
 | 4 | Licensing | Manifest silently mislabelled FCA (and would have mislabelled MoneyHelper) content as OGL v3.0 | Medium (data-hygiene bug; not yet user-facing) | **Fixed this session** — `manifest.py` `_default_licence()` + regression tests |
-| 5 | Licensing | OGL acknowledgement text exists only in README, not on the live product surface | Low–Medium | Open — recommend a footer credit line before launch |
+| 5 | Licensing | OGL acknowledgement text exists only in README, not on the live product surface | Low–Medium | **Closed 2026-07-24** — OGL v3.0 acknowledgement + source-copyright line added to the live UI footer (`App.tsx`), with test + axe coverage |
 | 6 | Licensing | Whether verbatim-sentence extraction/republication of FCA content is within FCA's permitted "incidental extract" use or needs written permission | **Highest** — genuine legal judgement call | **Needs lawyer** |
 | 7 | Licensing | MoneyHelper's NC (non-commercial) licence terms would conflict with future monetisation of any product surface reproducing its content | Low now (no MoneyHelper content live; informational for future) | Noted for the record |
 | 8 | GDPR | Free-text question log (`logs/ask.jsonl`) can capture personal (possibly special-category) data by content; no privacy notice, no defined retention/purge | Medium for any real deployment; low today (local, gitignored, undeployed) | Open — add before any real launch |
@@ -537,3 +537,29 @@ the original finding: a small classifier model (not a rewrite of the
 gate-first architecture, just a stronger first gate) plus the
 misses-review process the original finding recommended as a condition of
 launch. Neither is in scope for this pass.
+
+---
+
+## Update — 2026-07-24: findings #3 and #5 closed (autonomous, non-legal)
+
+Two findings that were closable without a lawyer's or product owner's
+judgement have been closed. Neither touches the FCA/GDPR items that still
+need a qualified reviewer.
+
+- **Finding #5 (OGL acknowledgement only in README) — closed.** OGL v3.0
+  requires the source acknowledgement to appear where the reuse is seen, not
+  only in a developer-facing file. Added a permanent footer to the live UI
+  (`web/src/App.tsx`): "Contains public sector information licensed under the
+  Open Government Licence v3.0" (linked to the licence text) plus a
+  source-copyright line noting GOV.UK/HMRC/FCA material remains its
+  publishers' copyright and is quoted with attribution. Covered by a new
+  `App.test.tsx` case and the existing axe pass (web suite 14→15 green).
+  This does **not** resolve finding #6 (whether verbatim FCA-sentence reuse
+  is within FCA's permitted use) — that remains the top lawyer item.
+- **Finding #3 (doc describes a `providers/` path that does not exist) —
+  closed.** `server/pistis/providers/` still does not exist. Rather than
+  build it, the design spec is now explicit: §2.4 carries a bold
+  "Implementation status: NOT BUILT" note directing any reviewer to review
+  the extractive engine only, and §2.3's `composer.py` reference is corrected
+  to the real `engine/answer.py` (`Engine.ask`). This removes the risk of a
+  future reviewer auditing a code path that isn't shipped.

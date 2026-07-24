@@ -220,6 +220,20 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
+  it("acknowledges the Open Government Licence on the product surface", () => {
+    render(<App />);
+    const ogl = screen.getByRole("link", {
+      name: /open government licence v3\.0/i,
+    });
+    expect(ogl).toHaveAttribute(
+      "href",
+      "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+    );
+    expect(
+      screen.getByText(/contains public sector information licensed under/i),
+    ).toBeInTheDocument();
+  });
+
   it("links to a reachable privacy notice from the disclaimer banner", () => {
     render(<App />);
     const link = screen.getByRole("link", {

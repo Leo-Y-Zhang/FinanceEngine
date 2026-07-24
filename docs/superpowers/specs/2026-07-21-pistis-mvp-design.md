@@ -59,7 +59,8 @@ assembled from what the sources support, not the model's parametric memory").
   above a support threshold. Whole-answer rule: if top-passage relevance or
   domain coverage is below threshold → **ABSTAIN** with an honest statement
   and routing (MoneyHelper + FCA-register links).
-- **Composer** (`composer.py`): assembles an **answer card**:
+- **Answer assembly** (shipped in `engine/answer.py`, `Engine.ask` — there is
+  no separate `composer.py`): assembles an **answer card**:
   ordered claims, each with `{text, citation{org,title,url,dates}, confidence}`.
   Confidence tiers per spec: `established` (single authoritative source,
   current), `depends` (rules with personal-circumstance branches — flagged,
@@ -71,6 +72,16 @@ assembled from what the sources support, not the model's parametric memory").
   (spec §5).
 
 ### 2.4 Providers (`pistis/providers`) — optional, off by default
+> **Implementation status (as of 2026-07-23): NOT BUILT.** This subsection is
+> aspirational design, not a description of shipped code. `pistis/providers/`
+> does **not** exist (no package, no `base.py`/`extractive.py`/`claude.py`).
+> The live MVP is 100% deterministic and extractive — there is no code path
+> today by which an LLM could rephrase or generate answer text. Anyone
+> reviewing the product (legal, compliance, security) should review the
+> extractive engine only. The Claude composer remains a future build gated on
+> an `ANTHROPIC_API_KEY` supplied via the credential-handoff flow; when added,
+> it must pass the same `engine/faithfulness.py` grounding gate that already
+> guards every emitted claim.
 - `base.py` defines `Composer` protocol; `extractive.py` is the default.
 - `claude.py` (Anthropic API) may *rephrase* grounded claims for fluency but
   every output sentence must re-verify against its cited passage (token-overlap

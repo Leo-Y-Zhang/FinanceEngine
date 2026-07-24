@@ -121,6 +121,22 @@ export default function App() {
             <RefusalCard response={status.response} />
           ))}
       </div>
+
+      <footer className="site-footer">
+        <p>
+          Contains public sector information licensed under the{" "}
+          <a
+            className="footer-link"
+            href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open Government Licence v3.0
+          </a>
+          . Source material from GOV.UK, HMRC and the FCA remains the copyright
+          of its respective publishers and is quoted with attribution.
+        </p>
+      </footer>
     </main>
   );
 }

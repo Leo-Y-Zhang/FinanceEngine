@@ -72,6 +72,25 @@ body {
   white-space: nowrap;
 }
 
+/* Source attribution — OGL v3.0 acknowledgement is required by the licence
+   whenever GOV.UK/HMRC content is reused; it must live on the product surface,
+   not only in the developer-facing README. */
+.site-footer {
+  border-top: 1px solid var(--rule);
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.footer-link {
+  color: var(--ink-soft);
+}
+
 /* Privacy notice page */
 .back-link {
   display: inline-block;

@@ -1,7 +1,34 @@
 # SESSION_HANDOFF — Pistis
 
-**Updated:** 2026-07-23 (session 3: Provenance & Faithfulness Layer — built,
-tested, verified end-to-end, pushed; all green)
+**Updated:** 2026-07-24 (session 4: closed compliance findings #3 + #5;
+re-verified Dependabot 0 open; all green, pushed)
+
+## Session 4 (2026-07-24) — compliance close-out (autonomous, non-legal)
+
+Swept the open compliance-review findings and closed the two that were
+closable without a lawyer or product-owner decision. Nothing legal/product
+was pre-empted; the FCA content-reuse (#6), GDPR (#8), disclaimer-prominence
+(#9), and manual-a11y (#11/#12) items still need their respective reviewers.
+
+- **Finding #5 (OGL acknowledgement only in README) — closed.** Added a
+  permanent OGL v3.0 acknowledgement + source-copyright line to the live UI
+  footer (`web/src/App.tsx` + `.site-footer` CSS), with a new `App.test.tsx`
+  case and existing axe coverage. Web suite 14 → **15 vitest** green; `tsc` +
+  `vite build` clean.
+- **Finding #3 (spec `providers/` path does not exist) — closed.** Marked
+  spec §2.4 "Implementation status: NOT BUILT" and corrected §2.3's phantom
+  `composer.py` reference to the real `engine/answer.py`. No code built —
+  `providers/` intentionally still absent (extractive-only MVP).
+- **Finding #10 (staleness policy)** was already delivered by the 2026-07-23
+  freshness layer — noted here for the record.
+- **Dependabot re-verified**: `gh api .../dependabot/alerts` → 5 alerts, all
+  `state: fixed`, **0 open**. Server baseline re-run: **165 pytest** green.
+
+Still open for you (unchanged, all need a human decision — see queue below):
+MVP-scope sign-off, lawyer sign-off (FCA reuse #6 is the top item), the
+Claude-composer build (needs an API key), and the MoneyHelper partnership.
+
+---
 
 ## Session 3 (2026-07-23) — Provenance & Faithfulness Layer
 
