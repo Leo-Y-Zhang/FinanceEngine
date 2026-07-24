@@ -120,6 +120,23 @@ const ABSTAIN: AskResponse = {
   },
 };
 
+const ABSTAIN_NO_DIAGNOSTICS: AskResponse = {
+  kind: "abstain",
+  question: "the of an at",
+  reason: "The sources Pistis trusts do not cover this well enough to answer reliably.",
+  routing: {
+    message: "Here is where to go next.",
+    links: [{ label: "MoneyHelper", url: "https://www.moneyhelper.org.uk/en" }],
+  },
+  disclaimer: "Guidance, not advice.",
+  report: {
+    stage: "no_source",
+    explanation: "No trusted source in Pistis's corpus addresses this question.",
+    signals: [],
+    uncovered_terms: [],
+  },
+};
+
 function mockAsk(response: AskResponse) {
   vi.stubGlobal(
     "fetch",
@@ -249,6 +266,23 @@ describe("App", () => {
     expect(screen.getByText("source coverage")).toBeInTheDocument();
     // a refusal is still fully accessible
     expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("omits the diagnostics panel when a refusal has no concepts or signals", async () => {
+    mockAsk(ABSTAIN_NO_DIAGNOSTICS);
+    const { container } = render(<App />);
+    await askQuestion("the of an at");
+    await waitFor(() =>
+      expect(screen.getByText(/cannot verify/i)).toBeInTheDocument(),
+    );
+    // the explanation still shows, but no empty diagnostics container lingers
+    expect(screen.getByText(/addresses this question/i)).toBeInTheDocument();
+    expect(container.querySelector(".refusal-diagnostics")).toBeNull();
+    expect(
+      screen.queryByRole("list", {
+        name: /concepts no trusted source covers/i,
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it("acknowledges the Open Government Licence on the product surface", () => {

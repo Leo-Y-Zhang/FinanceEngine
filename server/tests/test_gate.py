@@ -7,7 +7,7 @@ has drifted.
 
 import pytest
 
-from pistis.engine.gate import _confidence_for, decide
+from pistis.engine.gate import _confidence_for, _phrase_terms, _signal_pair, decide
 from pistis.models import AbstentionReport, Passage, SourceOrg
 
 ANSWERABLE = [
@@ -109,6 +109,62 @@ def test_every_out_of_corpus_refusal_is_explained(index):
         report = decide(question, index).report
         assert report is not None, question
         assert report.explanation.strip(), question
+
+
+def test_no_groundable_statement_stage_when_matched_but_uncitable(passages):
+    # The third refusal stage: retrieval is strong and coverage is full (both
+    # answerability signals pass), yet every sentence sits below the per-sentence
+    # overlap bar, so nothing is citable. Also the only path that exercises the
+    # both-signals-passed rendering.
+    from pistis.index.bm25 import Bm25Index
+
+    terms = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel"]
+    text = " ".join(f"The {t} paragraph explains one separate idea here." for t in terms)
+    spread = Passage(
+        id="spread#0", doc_id="spread", text=text, doc_title="Spread",
+        org=SourceOrg.GOVUK, url="https://www.gov.uk/spread",
+        fetched_at="2026-07-21", last_updated="2026-04-06",
+    )
+    index = Bm25Index(list(passages) + [spread])
+    decision = decide(" ".join(terms), index)
+    assert not decision.answerable
+    report = decision.report
+    assert report.stage == "no_groundable_statement"
+    assert report.explanation.strip()
+    assert len(report.signals) == 2
+    assert all(s.passed for s in report.signals)  # both_pass=True path
+
+
+def test_signal_meter_never_contradicts_its_pass_flag():
+    # A displayed value must never sit at/above its threshold while marked
+    # failed — round() alone could nudge 0.599 up to 0.60. The meters exist to
+    # make a refusal credible, so they must be internally consistent.
+    for top, cov in [(1.999, 0.599), (2.5, 0.33), (2.0, 0.6), (0.0, 0.0)]:
+        for signal in _signal_pair(top, cov):
+            assert (signal.value >= signal.threshold) == signal.passed, (
+                signal.name, signal.value, signal.threshold, signal.passed,
+            )
+
+
+def test_signal_meter_both_pass_marks_all_passed():
+    for signal in _signal_pair(2.5, 0.9, both_pass=True):
+        assert signal.passed
+        assert signal.value >= signal.threshold
+
+
+def test_phrase_terms_caps_list_and_counts_overflow():
+    terms = ("building", "install", "listed", "panels", "solar")
+    assert _phrase_terms(terms) == "'building', 'install', 'listed', 'panels', and 1 more"
+
+
+def test_phrase_terms_no_tail_within_limit():
+    assert _phrase_terms(("passport", "renew")) == "'passport', 'renew'"
+
+
+def test_no_source_refusal_summarises_overflow_terms(index):
+    report = decide("How do I install solar panels on a listed building?", index).report
+    assert report.stage == "no_source"
+    assert report.explanation.endswith("and 1 more.")
 
 
 def test_confidence_depends_marker():

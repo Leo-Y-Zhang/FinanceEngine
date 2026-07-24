@@ -72,21 +72,15 @@ def test_uncovered_terms_empty_for_in_corpus_question(index):
     assert index.uncovered_terms(q, index.search(q)) == []
 
 
-def test_uncovered_terms_are_genuinely_absent_from_top_passages(index):
-    # The invariant that makes the refusal honest: a flagged word's every token
-    # is absent from the union of the top passages — never a partial match.
-    from pistis.index.bm25 import _passage_vocab, _query_words
-
-    q = "How do I install solar panels on a listed building?"
-    hits = index.search(q)
-    uncovered = index.uncovered_terms(q, hits)
-    assert uncovered, "an out-of-domain query should surface uncovered concepts"
-    available: set[str] = set()
-    for h in hits[:4]:
-        available |= _passage_vocab(h.passage)
-    word_toks = dict(_query_words(q))
-    for word in uncovered:
-        assert word_toks[word].isdisjoint(available)
+def test_uncovered_terms_flag_out_of_domain_but_spare_in_corpus_words(index):
+    # Independent oracle (not a re-derivation of the impl's own disjoint filter):
+    # a query mixing out-of-domain concepts with genuine in-corpus finance terms
+    # must flag the former and NOT the latter.
+    q = "How do I install solar panels while keeping my ISA allowance?"
+    uncovered = set(index.uncovered_terms(q, index.search(q)))
+    assert {"solar", "panels", "install"} <= uncovered
+    assert "isa" not in uncovered
+    assert "allowance" not in uncovered
 
 
 def test_uncovered_terms_is_deterministic(index):

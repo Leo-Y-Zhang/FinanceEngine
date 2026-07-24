@@ -75,20 +75,25 @@ def _phrase_terms(terms: tuple[str, ...], limit: int = 4) -> str:
     return joined
 
 
+def _signal(name: str, raw: float, threshold: float, forced_pass: bool) -> SignalCheck:
+    """One signal for display. The pass/fail decision uses the raw score (the
+    gate's own semantics); the shown value is kept from contradicting that glyph
+    — round() alone can nudge a sub-threshold score up to its bar (0.599 -> 0.60,
+    displayed as "0.6 / 0.6 needed" yet marked failed), which is exactly the kind
+    of self-contradiction this whole feature exists to avoid."""
+    passed = forced_pass or raw >= threshold
+    value = round(raw, 2)
+    if passed and value < threshold:
+        value = threshold
+    elif not passed and value >= threshold:
+        value = round(threshold - 0.01, 2)
+    return SignalCheck(name=name, value=value, threshold=threshold, passed=passed)
+
+
 def _signal_pair(top: float, cov: float, both_pass: bool = False) -> tuple[SignalCheck, ...]:
     return (
-        SignalCheck(
-            name="retrieval strength",
-            value=round(top, 2),
-            threshold=MIN_TOP_SCORE,
-            passed=both_pass or top >= MIN_TOP_SCORE,
-        ),
-        SignalCheck(
-            name="source coverage",
-            value=round(cov, 2),
-            threshold=MIN_COVERAGE,
-            passed=both_pass or cov >= MIN_COVERAGE,
-        ),
+        _signal("retrieval strength", top, MIN_TOP_SCORE, both_pass),
+        _signal("source coverage", cov, MIN_COVERAGE, both_pass),
     )
 
 

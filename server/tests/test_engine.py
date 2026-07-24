@@ -56,9 +56,14 @@ def test_empty_question_refusal_is_explained(engine):
 
 
 def test_answer_carries_no_abstention_report(engine):
-    response = engine.ask("How does a Lifetime ISA work?")
-    assert isinstance(response, AnswerCard)
-    assert not hasattr(response, "report")
+    # report is scoped to refusals (answers use trust_report instead). Asserting
+    # the abstain side too ties this test to the feature: a revert breaks it.
+    answer = engine.ask("How does a Lifetime ISA work?")
+    abstain = engine.ask("How do I renew my passport?")
+    assert isinstance(answer, AnswerCard)
+    assert isinstance(abstain, Abstention)
+    assert not hasattr(answer, "report")
+    assert abstain.report is not None
 
 
 def test_no_response_ever_lacks_disclaimer(engine):

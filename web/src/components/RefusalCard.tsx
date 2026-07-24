@@ -1,6 +1,11 @@
 import type { Abstention, AbstentionReport, RoutingEvent } from "../types";
 
 function RefusalDiagnostics({ report }: { report: AbstentionReport }) {
+  // Nothing to show (e.g. a stopword-only query abstains with no terms and no
+  // signals): render nothing rather than an empty container with stray margin.
+  if (report.uncovered_terms.length === 0 && report.signals.length === 0) {
+    return null;
+  }
   return (
     <div className="refusal-diagnostics">
       {report.uncovered_terms.length > 0 && (
