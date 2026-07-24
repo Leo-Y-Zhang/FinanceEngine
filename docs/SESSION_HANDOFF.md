@@ -30,7 +30,9 @@ offline. Re-asks against the *current* corpus, so a filled gap stops appearing.
 covering ranking, the floor, dedup, numeric filtering, the no-leak privacy
 invariant, malformed-line tolerance, missing-log, and the CLI). Keyless/offline;
 web untouched (this is an ops/analytics CLI, deliberately not a public surface).
-Adversarial review: see below once run.
+Reviewed manually + via the 9 targeted tests (incl. the no-leak privacy
+invariant, the floor crossing, dedup, numeric filtering); the full multi-agent
+adversarial review was deferred (context budget) — worth running on resume.
 
 ---
 
