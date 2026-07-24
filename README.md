@@ -117,6 +117,27 @@ folded into `PASS`: a silent refusal is a regression, exactly like an
 ungrounded claim. Design:
 `docs/superpowers/specs/2026-07-24-explainable-refusal-design.md`.
 
+## Corpus-gap report — refusals as a roadmap
+
+If refusal is a feature, the refusals are also a signal: they say exactly which
+questions people bring that no trusted source yet covers. `pistis.gaps` turns
+that into a **keyless, privacy-safe backlog** — replay the local ask-log through
+the engine, aggregate the `uncovered_terms` of each abstention, and rank the
+concepts users most want but the corpus is silent on.
+
+```bash
+cd server && python -m pistis.gaps        # ranked corpus-gap report
+python -m pistis.gaps --json              # machine-readable record
+```
+
+Privacy is built in, not bolted on: the output is concept frequencies only (raw
+questions never leave the function), a **k-anonymity floor** withholds any
+concept that appears in fewer than `--min-distinct` distinct questions (so a
+lone, potentially identifying term is never surfaced — raise the floor before
+any multi-user use), bare numbers/amounts are dropped, and it is deterministic
+and offline. Because it re-asks against the *current* corpus, a gap you have
+since filled simply stops appearing — the backlog stays honest.
+
 ## Layout
 
 | Path | What |

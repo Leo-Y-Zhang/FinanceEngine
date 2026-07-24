@@ -1,8 +1,38 @@
 # SESSION_HANDOFF — Pistis
 
-**Updated:** 2026-07-24 (session 5: shipped the explainable-refusal layer —
-the abstain path now proves itself like an answer — plus an adversarial review
-(honesty-posture lens clean) whose 7 findings were all fixed; all green, pushed)
+**Updated:** 2026-07-24 (session 6: corpus-gap report — the refusals turned into
+a keyless, privacy-safe corpus-expansion backlog; all green, pushed)
+
+## Session 6 (2026-07-24) — Corpus-gap report (refusals as a roadmap)
+
+User directive: proceed on the open items but keep everything **free/keyless**,
+skip the lawyer gate, and drop the paid-API-key LLM composer. Honest call on the
+composer: a real composer's value is LLM fluency (needs a paid Anthropic key —
+no free API tier; local models are blocked on this locked-down box), and a
+*keyless* composer could only re-arrange source text, risking connective prose
+that implies unsourced relationships — exactly what this extractive product
+avoids. So the composer was **deliberately not built** (would be low-value
+make-work), and the MVP-scope decision is treated as user-approved (private
+build). Delivered the one genuinely valuable keyless item instead.
+
+**What shipped:** `server/pistis/gaps.py` + `python -m pistis.gaps` — replays the
+local ask-log through the engine, aggregates each abstention's `uncovered_terms`,
+and ranks the concepts users most ask about that no trusted source covers = a
+corpus-expansion backlog. **Privacy by construction:** aggregate-only (raw
+questions never leave the function; no question field on the report), a
+**k-anonymity floor** (`--min-distinct`, default 2) withholds any concept in
+fewer than N distinct questions, bare numbers/amounts dropped, deterministic +
+offline. Re-asks against the *current* corpus, so a filled gap stops appearing.
+`GapReport`/`GapConcept` dataclasses; `--json` for a machine record; sibling to
+`eval.py` (eval proves the promise, gaps turns refusals into a roadmap).
+
+**Verification:** server **185 -> 194 pytest** green (9 new in `test_gaps.py`
+covering ranking, the floor, dedup, numeric filtering, the no-leak privacy
+invariant, malformed-line tolerance, missing-log, and the CLI). Keyless/offline;
+web untouched (this is an ops/analytics CLI, deliberately not a public surface).
+Adversarial review: see below once run.
+
+---
 
 ## Session 5 (2026-07-24) — Explainable Refusal
 
