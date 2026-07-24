@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -101,13 +101,23 @@ const ROUTING: AskResponse = {
 
 const ABSTAIN: AskResponse = {
   kind: "abstain",
-  question: "How do I renew my passport?",
+  question: "What is the weather forecast for Manchester?",
   reason: "The sources Pistis trusts do not cover this well enough to answer reliably.",
   routing: {
     message: "Here is where to go next.",
     links: [{ label: "MoneyHelper", url: "https://www.moneyhelper.org.uk/en" }],
   },
   disclaimer: "Guidance, not advice.",
+  report: {
+    stage: "weak_coverage",
+    explanation:
+      "Pistis found related material but no trusted source covers 'weather', 'manchester' — the part it could not verify.",
+    signals: [
+      { name: "retrieval strength", value: 2.5, threshold: 2.0, passed: true },
+      { name: "source coverage", value: 0.33, threshold: 0.6, passed: false },
+    ],
+    uncovered_terms: ["weather", "manchester"],
+  },
 };
 
 function mockAsk(response: AskResponse) {
@@ -208,16 +218,37 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders an abstention honestly", async () => {
+  it("renders an abstention honestly with its specific reason", async () => {
     mockAsk(ABSTAIN);
     render(<App />);
-    await askQuestion("How do I renew my passport?");
+    await askQuestion("What is the weather forecast for Manchester?");
     await waitFor(() =>
       expect(screen.getByText(/cannot verify/i)).toBeInTheDocument(),
     );
+    // the report's explanation supersedes the generic one-liner
     expect(
-      screen.getByText(/do not cover this well enough/i),
+      screen.getByText(/found related material.*could not verify/i),
     ).toBeInTheDocument();
+  });
+
+  it("shows the uncovered concepts and answerability signals behind a refusal", async () => {
+    mockAsk(ABSTAIN);
+    const { container } = render(<App />);
+    await askQuestion("What is the weather forecast for Manchester?");
+    await waitFor(() =>
+      expect(screen.getByText(/cannot verify/i)).toBeInTheDocument(),
+    );
+    // the specific concepts it could not verify, surfaced as chips
+    const uncovered = screen.getByRole("list", {
+      name: /concepts no trusted source covers/i,
+    });
+    expect(within(uncovered).getByText("weather")).toBeInTheDocument();
+    expect(within(uncovered).getByText("manchester")).toBeInTheDocument();
+    // the two answerability signals, each measured against its threshold
+    expect(screen.getByText("retrieval strength")).toBeInTheDocument();
+    expect(screen.getByText("source coverage")).toBeInTheDocument();
+    // a refusal is still fully accessible
+    expect(await axe(container)).toHaveNoViolations();
   });
 
   it("acknowledges the Open Government Licence on the product surface", () => {

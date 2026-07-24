@@ -66,12 +66,33 @@ export interface AnswerCard {
   freshness?: FreshnessReport | null;
 }
 
+export type AbstainStage =
+  | "no_source"
+  | "weak_coverage"
+  | "no_groundable_statement"
+  | "empty_question";
+
+export interface SignalCheck {
+  name: string;
+  value: number;
+  threshold: number;
+  passed: boolean;
+}
+
+export interface AbstentionReport {
+  stage: AbstainStage;
+  explanation: string;
+  signals: SignalCheck[];
+  uncovered_terms: string[];
+}
+
 export interface Abstention {
   kind: "abstain";
   question: string;
   reason: string;
   routing: Routing;
   disclaimer: string;
+  report?: AbstentionReport | null;
 }
 
 export interface RoutingEvent {

@@ -381,6 +381,82 @@ body {
   font-size: 1.02rem;
 }
 
+/* Explainable refusal: the abstain proves itself the way an answer does —
+   the specific concepts it could not verify, and the answerability signals
+   measured against their thresholds. Same chip/mono language as the trust
+   and freshness chips, so a refusal reads as part of the same system. */
+.refusal-diagnostics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 0 0 1rem;
+}
+
+.uncovered-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 0.35rem;
+}
+
+.uncovered-terms {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.uncovered-chip {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--refusal);
+  background: var(--refusal-tint);
+  border: 1px solid var(--refusal);
+  border-radius: 2px;
+  padding: 0.15rem 0.5rem;
+}
+
+.signal-meters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.signal-meter {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--refusal);
+  border-radius: 2px;
+  color: var(--refusal);
+  background: var(--refusal-tint);
+}
+
+.signal-meter[data-passed="true"] {
+  color: var(--verified);
+  background: var(--verified-tint);
+  border-color: var(--verified);
+}
+
+.signal-name {
+  letter-spacing: 0.04em;
+}
+
+.signal-value {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .routing-list {
   list-style: none;
   margin: 0.6rem 0 0;
