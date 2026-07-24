@@ -208,6 +208,36 @@ class AnswerCard:
                 )
 
 
+AbstainStage = Literal[
+    "no_source", "weak_coverage", "no_groundable_statement", "empty_question"
+]
+
+
+@dataclass(frozen=True)
+class SignalCheck:
+    """One answerability signal measured against its threshold, so a refusal
+    can show exactly which check fell short and by how much."""
+
+    name: str
+    value: float
+    threshold: float
+    passed: bool
+
+
+@dataclass(frozen=True)
+class AbstentionReport:
+    """Why Pistis declined to answer — the refusal proving itself, symmetric
+    with the TrustReport that proves an answer. Deterministic and keyless: the
+    gate stage that fired, each answerability signal against its threshold, and
+    the specific query terms no trusted source covers. 'Refusal is a feature'
+    is only credible if the refusal can show its working."""
+
+    stage: AbstainStage
+    explanation: str
+    signals: tuple[SignalCheck, ...] = ()
+    uncovered_terms: tuple[str, ...] = ()
+
+
 @dataclass(frozen=True)
 class Abstention:
     question: str
@@ -215,6 +245,7 @@ class Abstention:
     routing: Routing
     disclaimer: str = DISCLAIMER
     kind: Literal["abstain"] = "abstain"
+    report: AbstentionReport | None = None
 
 
 @dataclass(frozen=True)

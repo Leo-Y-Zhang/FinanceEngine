@@ -57,6 +57,33 @@ def tokenize(text: str) -> list[str]:
     return [_fold(t) for t in out if t not in STOPWORDS]
 
 
+def _passage_vocab(passage: Passage) -> set[str]:
+    """A passage's searchable vocabulary. Includes the document title: chunking
+    strips the subject name from later passages ("the 25% bonus" passage of the
+    Lifetime ISA guide), but the citation names it."""
+    return set(tokenize(passage.text)) | set(tokenize(passage.doc_title))
+
+
+def _query_words(query: str) -> list[tuple[str, frozenset[str]]]:
+    """Original query words mapped to their content tokens (synonym expansion +
+    plural fold, stopwords dropped), in first-seen order, deduplicated by the
+    raw word. Keeps the user's own wording for display while matching on the
+    same normalised tokens the index uses."""
+    out: list[tuple[str, frozenset[str]]] = []
+    seen: set[str] = set()
+    for raw in _TOKEN.findall(query.lower()):
+        if raw in seen:
+            continue
+        toks = frozenset(
+            _fold(t) for t in SYNONYMS.get(raw, (raw,)) if t not in STOPWORDS
+        )
+        if not toks:
+            continue
+        seen.add(raw)
+        out.append((raw, toks))
+    return out
+
+
 @dataclass(frozen=True)
 class Hit:
     passage: Passage
@@ -125,9 +152,28 @@ class Bm25Index:
             return 0.0
         best = 0.0
         for h in hits[:top_n]:
-            # A passage's vocabulary includes its document title: chunking
-            # strips the subject name from later passages ("the 25% bonus"
-            # passage of the Lifetime ISA guide), but the citation names it.
-            available = set(tokenize(h.passage.text)) | set(tokenize(h.passage.doc_title))
+            available = _passage_vocab(h.passage)
             best = max(best, sum(weight(t) for t in terms if t in available) / total)
         return best
+
+    def uncovered_terms(self, query: str, hits: list[Hit], top_n: int = 4) -> list[str]:
+        """The query's own words that no top passage covers — the concepts the
+        corpus is silent on. A word counts as uncovered only when *every* token
+        it expands to is absent from the union of the top passages, so a partly
+        matched term (e.g. "tax" present, "capital"/"gains" absent) is not
+        wrongly flagged. Ordered by IDF weight (rarest, most telling gap first),
+        then alphabetically for determinism. This turns an opaque abstain into a
+        specific, honest 'we don't cover X' — without ever leaking the corpus."""
+        words = _query_words(query)
+        if not words:
+            return []
+        available: set[str] = set()
+        for h in hits[:top_n]:
+            available |= _passage_vocab(h.passage)
+        max_idf = max(self._idf.values(), default=1.0)
+        weight = lambda toks: max(  # noqa: E731
+            (self._idf.get(t, max_idf) for t in toks), default=max_idf
+        )
+        missing = [(raw, weight(toks)) for raw, toks in words if toks.isdisjoint(available)]
+        missing.sort(key=lambda rw: (-rw[1], rw[0]))
+        return [raw for raw, _ in missing]

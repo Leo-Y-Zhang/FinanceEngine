@@ -58,3 +58,39 @@ def test_coverage_high_for_in_corpus_question(index):
 def test_coverage_zero_for_out_of_domain_question(index):
     q = "Who won the football world cup final?"
     assert index.coverage(q, index.search(q)) < 0.3
+
+
+def test_uncovered_terms_names_out_of_domain_words(index):
+    q = "How do I renew my passport?"
+    uncovered = index.uncovered_terms(q, index.search(q))
+    assert "passport" in uncovered
+    assert "renew" in uncovered
+
+
+def test_uncovered_terms_empty_for_in_corpus_question(index):
+    q = "What is the annual ISA allowance?"
+    assert index.uncovered_terms(q, index.search(q)) == []
+
+
+def test_uncovered_terms_are_genuinely_absent_from_top_passages(index):
+    # The invariant that makes the refusal honest: a flagged word's every token
+    # is absent from the union of the top passages — never a partial match.
+    from pistis.index.bm25 import _passage_vocab, _query_words
+
+    q = "How do I install solar panels on a listed building?"
+    hits = index.search(q)
+    uncovered = index.uncovered_terms(q, hits)
+    assert uncovered, "an out-of-domain query should surface uncovered concepts"
+    available: set[str] = set()
+    for h in hits[:4]:
+        available |= _passage_vocab(h.passage)
+    word_toks = dict(_query_words(q))
+    for word in uncovered:
+        assert word_toks[word].isdisjoint(available)
+
+
+def test_uncovered_terms_is_deterministic(index):
+    q = "Who won the football world cup final?"
+    a = index.uncovered_terms(q, index.search(q))
+    b = index.uncovered_terms(q, index.search(q))
+    assert a == b and a

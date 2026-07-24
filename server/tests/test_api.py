@@ -78,6 +78,28 @@ def test_ask_abstention(client):
     assert body["routing"]["links"]
 
 
+def test_ask_abstention_includes_refusal_report(client):
+    body = client.post("/ask", json={"question": "How do I renew my passport?"}).json()
+    assert body["kind"] == "abstain"
+    report = body["report"]
+    assert report is not None
+    assert report["stage"] in ("no_source", "weak_coverage")
+    assert report["explanation"]
+    assert "passport" in report["uncovered_terms"]
+
+
+def test_ask_weak_coverage_serialises_signal_meters(client):
+    body = client.post(
+        "/ask", json={"question": "What is the weather forecast for Manchester?"}
+    ).json()
+    assert body["kind"] == "abstain"
+    report = body["report"]
+    assert report["stage"] == "weak_coverage"
+    names = {s["name"] for s in report["signals"]}
+    assert names == {"retrieval strength", "source coverage"}
+    assert any(s["passed"] is False for s in report["signals"])
+
+
 def test_ask_logs_outcomes(tmp_path):
     log = tmp_path / "ask.jsonl"
     client = TestClient(create_app(snapshot_path=FIXTURE_SNAPSHOT, log_path=log))

@@ -16,7 +16,15 @@ from dataclasses import dataclass
 
 from pistis.engine.faithfulness import verify
 from pistis.index.bm25 import Bm25Index, Hit, tokenize
-from pistis.models import Citation, Claim, ClaimVerdict, Confidence, Passage
+from pistis.models import (
+    AbstentionReport,
+    Citation,
+    Claim,
+    ClaimVerdict,
+    Confidence,
+    Passage,
+    SignalCheck,
+)
 
 # Answerability thresholds (both must pass).
 MIN_TOP_SCORE = 2.0
@@ -52,6 +60,36 @@ class GateDecision:
     verdicts: tuple[ClaimVerdict, ...] = ()
     top_score: float = 0.0
     coverage: float = 0.0
+    # Present only on a refusal: the explainable-refusal diagnostic.
+    report: AbstentionReport | None = None
+
+
+def _phrase_terms(terms: tuple[str, ...], limit: int = 4) -> str:
+    """Human-readable list of uncovered terms, capped so a long query does not
+    produce an unreadable wall of words."""
+    shown = list(terms[:limit])
+    extra = len(terms) - len(shown)
+    joined = ", ".join(f"'{t}'" for t in shown)
+    if extra > 0:
+        joined += f", and {extra} more"
+    return joined
+
+
+def _signal_pair(top: float, cov: float, both_pass: bool = False) -> tuple[SignalCheck, ...]:
+    return (
+        SignalCheck(
+            name="retrieval strength",
+            value=round(top, 2),
+            threshold=MIN_TOP_SCORE,
+            passed=both_pass or top >= MIN_TOP_SCORE,
+        ),
+        SignalCheck(
+            name="source coverage",
+            value=round(cov, 2),
+            threshold=MIN_COVERAGE,
+            passed=both_pass or cov >= MIN_COVERAGE,
+        ),
+    )
 
 
 def _confidence_for(sentence: str, passage: Passage) -> Confidence:
@@ -107,13 +145,34 @@ def _sentence_claims(question: str, hits: list[Hit]) -> list[tuple[Claim, ClaimV
 def decide(question: str, index: Bm25Index, k: int = 8) -> GateDecision:
     hits = index.search(question, k=k)
     if not hits:
+        uncovered = tuple(index.uncovered_terms(question, []))
+        explanation = (
+            f"No trusted source in Pistis's corpus covers {_phrase_terms(uncovered)}."
+            if uncovered
+            else "No trusted source in Pistis's corpus addresses this question."
+        )
         return GateDecision(
             answerable=False,
             reason="No source in the corpus addresses this question.",
+            report=AbstentionReport(
+                stage="no_source",
+                explanation=explanation,
+                uncovered_terms=uncovered,
+            ),
         )
     top = hits[0].score
     cov = index.coverage(question, hits)
     if top < MIN_TOP_SCORE or cov < MIN_COVERAGE:
+        uncovered = tuple(index.uncovered_terms(question, hits))
+        explanation = (
+            f"Pistis found related material but no trusted source covers "
+            f"{_phrase_terms(uncovered)} — the part it could not verify."
+            if uncovered
+            else (
+                "Trusted sources mention your question, but not strongly or "
+                "completely enough in one place to answer without guessing."
+            )
+        )
         return GateDecision(
             answerable=False,
             reason=(
@@ -122,6 +181,12 @@ def decide(question: str, index: Bm25Index, k: int = 8) -> GateDecision:
             ),
             top_score=top,
             coverage=cov,
+            report=AbstentionReport(
+                stage="weak_coverage",
+                explanation=explanation,
+                signals=_signal_pair(top, cov),
+                uncovered_terms=uncovered,
+            ),
         )
     pairs = _sentence_claims(question, hits)
     if not pairs:
@@ -133,6 +198,15 @@ def decide(question: str, index: Bm25Index, k: int = 8) -> GateDecision:
             ),
             top_score=top,
             coverage=cov,
+            report=AbstentionReport(
+                stage="no_groundable_statement",
+                explanation=(
+                    "Relevant sources were found and matched your question well, "
+                    "but no single statement in them could be tied to your "
+                    "question confidently enough to quote and cite."
+                ),
+                signals=_signal_pair(top, cov, both_pass=True),
+            ),
         )
     return GateDecision(
         answerable=True,

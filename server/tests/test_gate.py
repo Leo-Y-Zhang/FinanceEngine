@@ -8,7 +8,7 @@ has drifted.
 import pytest
 
 from pistis.engine.gate import _confidence_for, decide
-from pistis.models import Passage, SourceOrg
+from pistis.models import AbstentionReport, Passage, SourceOrg
 
 ANSWERABLE = [
     "How does a Lifetime ISA work?",
@@ -67,6 +67,48 @@ def make_passage(last_updated="2026-04-06"):
         url="https://www.gov.uk/t", fetched_at="2026-07-21",
         last_updated=last_updated,
     )
+
+
+def test_answerable_decision_carries_no_report(index):
+    decision = decide("What is the annual ISA allowance?", index)
+    assert decision.answerable
+    assert decision.report is None
+
+
+def test_no_source_refusal_names_uncovered_terms(index):
+    decision = decide("How do I renew my passport?", index)
+    assert not decision.answerable
+    report = decision.report
+    assert isinstance(report, AbstentionReport)
+    assert report.stage == "no_source"
+    assert "passport" in report.uncovered_terms
+    assert report.explanation.strip()
+
+
+def test_weak_coverage_refusal_shows_signal_meters(index):
+    # In-domain retrieval fires but coverage is too thin: both answerability
+    # signals must be shown, with the coverage signal failing.
+    decision = decide("What is the weather forecast for Manchester?", index)
+    assert not decision.answerable
+    report = decision.report
+    assert report.stage == "weak_coverage"
+    assert {s.name for s in report.signals} == {"retrieval strength", "source coverage"}
+    by_name = {s.name: s for s in report.signals}
+    assert by_name["source coverage"].passed is False
+    assert by_name["source coverage"].threshold == 0.6
+    assert "weather" in report.uncovered_terms
+
+
+def test_every_out_of_corpus_refusal_is_explained(index):
+    for question in [
+        "How do I renew my passport?",
+        "Who won the football world cup final?",
+        "What is the weather forecast for Manchester?",
+        "How do I install solar panels on a listed building?",
+    ]:
+        report = decide(question, index).report
+        assert report is not None, question
+        assert report.explanation.strip(), question
 
 
 def test_confidence_depends_marker():

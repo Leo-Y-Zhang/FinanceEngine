@@ -20,6 +20,15 @@ def test_honesty_eval_passes_over_fixtures():
     assert r.passed
 
 
+def test_eval_scores_every_refusal_as_explained():
+    # Symmetric with the faithfulness promise: over the golden set, every
+    # abstention must carry an explanation, and that is part of PASS.
+    r = run_eval(FIXTURES / "snapshot.json", FIXTURES / "golden.json")
+    assert r.abstentions > 0
+    assert r.abstentions_explained == r.abstentions
+    assert r.passed
+
+
 def test_eval_cli_exits_zero_and_reports_pass(capsys):
     code = main(
         [

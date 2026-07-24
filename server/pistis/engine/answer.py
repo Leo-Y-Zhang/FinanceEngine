@@ -15,6 +15,7 @@ from pistis.engine.routing import abstain_routing, default_routing
 from pistis.index.bm25 import Bm25Index
 from pistis.models import (
     Abstention,
+    AbstentionReport,
     AnswerCard,
     FreshnessReport,
     Response,
@@ -34,6 +35,10 @@ class Engine:
                 question=question,
                 reason="Ask a question about UK personal finance.",
                 routing=abstain_routing(),
+                report=AbstentionReport(
+                    stage="empty_question",
+                    explanation="No question was asked yet.",
+                ),
             )
 
         verdict = classify(question)
@@ -51,6 +56,7 @@ class Engine:
                 question=question,
                 reason=decision.reason,
                 routing=abstain_routing(),
+                report=decision.report,
             )
 
         ref = reference_date or date.today()

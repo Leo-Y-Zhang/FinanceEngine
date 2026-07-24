@@ -45,6 +45,8 @@ class EvalReport:
     unsupported_claims: int
     grounded_rate: float
     citations_complete: bool
+    abstentions: int
+    abstentions_explained: int
     passed: bool
     mismatches: tuple[str, ...]
 
@@ -55,6 +57,7 @@ def run_eval(snapshot_path: Path, golden_path: Path) -> EvalReport:
 
     correct = 0
     total_claims = grounded = unsupported = 0
+    abstentions = abstentions_explained = 0
     citations_complete = True
     mismatches: list[str] = []
 
@@ -66,6 +69,13 @@ def run_eval(snapshot_path: Path, golden_path: Path) -> EvalReport:
             correct += 1
         else:
             mismatches.append(f"{question!r}: expected {expect}, got {state}")
+
+        if resp.kind == "abstain":
+            # Symmetric with faithfulness: a refusal must explain itself, or the
+            # 'refusal is a feature' promise is not actually being kept.
+            abstentions += 1
+            if resp.report is not None and resp.report.explanation.strip():
+                abstentions_explained += 1
 
         if resp.kind == "answer":
             for claim in resp.claims:
@@ -87,6 +97,7 @@ def run_eval(snapshot_path: Path, golden_path: Path) -> EvalReport:
         and unsupported == 0
         and grounded == total_claims
         and citations_complete
+        and abstentions_explained == abstentions
     )
     return EvalReport(
         questions=n,
@@ -97,6 +108,8 @@ def run_eval(snapshot_path: Path, golden_path: Path) -> EvalReport:
         unsupported_claims=unsupported,
         grounded_rate=grounded_rate,
         citations_complete=citations_complete,
+        abstentions=abstentions,
+        abstentions_explained=abstentions_explained,
         passed=passed,
         mismatches=tuple(mismatches),
     )
@@ -112,6 +125,7 @@ def _format(r: EvalReport) -> str:
         f"Claims grounded        : {r.grounded_claims}/{r.total_claims} ({r.grounded_rate:.0%})",
         f"Unsupported claims     : {r.unsupported_claims}  (must be 0)",
         f"Citations complete     : {'yes' if r.citations_complete else 'NO'}",
+        f"Refusals explained     : {r.abstentions_explained}/{r.abstentions}  (must be all)",
         f"RESULT                 : {'PASS' if r.passed else 'FAIL'}",
     ]
     if r.mismatches:

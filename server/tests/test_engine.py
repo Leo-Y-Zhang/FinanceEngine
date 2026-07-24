@@ -40,6 +40,27 @@ def test_empty_question_abstains(engine):
     assert isinstance(response, Abstention)
 
 
+def test_abstention_response_is_explained(engine):
+    response = engine.ask("How do I renew my passport?")
+    assert isinstance(response, Abstention)
+    assert response.report is not None
+    assert response.report.stage in {"no_source", "weak_coverage"}
+    assert "passport" in response.report.uncovered_terms
+
+
+def test_empty_question_refusal_is_explained(engine):
+    response = engine.ask("   ")
+    assert isinstance(response, Abstention)
+    assert response.report is not None
+    assert response.report.stage == "empty_question"
+
+
+def test_answer_carries_no_abstention_report(engine):
+    response = engine.ask("How does a Lifetime ISA work?")
+    assert isinstance(response, AnswerCard)
+    assert not hasattr(response, "report")
+
+
 def test_no_response_ever_lacks_disclaimer(engine):
     for q in [
         "How does a Lifetime ISA work?",
