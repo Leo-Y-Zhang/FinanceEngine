@@ -1,8 +1,81 @@
 # SESSION_HANDOFF — Pistis
 
-**Updated:** 2026-07-27 (session 9: finished the in-flight answerability
-benchmark - it found three defects in its own validator, one false label, and a
-live advice-boundary escape; all green, pushed)
+**Updated:** 2026-07-27 (session 10: acted on the benchmark's finding - built the
+missing RELEVANCE guard, halving false answers 24% -> 12% at zero cost in false
+refusals; all green, pushed)
+
+## Session 10 (2026-07-27) — the relevance guard: grounded is not relevant
+
+Session 9's benchmark said 12 of 50 should-refuse questions were answered, every
+one perfectly grounded, and the faithfulness verifier caught none. This session
+found out why and fixed it. Commit `e3676ad`.
+
+**The diagnosis, which took two wrong hypotheses to reach.** First guess was that
+sentence-level overlap should be IDF-weighted like `coverage` already is. The
+data killed it: "How much is statutory sick pay?" matches *all three* of its
+query terms in the offending sentence — a list of earnings types that happens to
+include "statutory sick pay". Lexical overlap, weighted or not, cannot tell
+*about X* from *mentions X in passing*.
+
+Second guess was to key relevance on the question's single rarest term. The data
+killed that too, and instructively: in the live corpus **"each" has a higher IDF
+than "isa"**, so that rule puts "How much can I pay into an ISA each year?"
+entirely on a function word. This is the same defect class as session 8's `am`
+stopword bug — and it *cannot* be fixed by widening `STOPWORDS`, because session
+8 already measured that dropping high-frequency words shifts BM25 globally and
+regressed real answers.
+
+**What shipped.** A third signal, independent of the other two.
+`Bm25Index.topic_share(query, doc_id)` measures the share of a question's
+IDF-weighted meaning that a document is actually **about**, where `is_about` =
+titled for the term, or using it across enough distinct passages to be a subject
+rather than an aside. The gate drops off-topic hits *before* claim selection
+(`_on_topic`), so the guard can only ever REMOVE material — it cannot turn a
+refusal into an answer, and a test pins that.
+
+Two things it had to get right:
+- **IDF-weighted share, not the rarest term** (above). A single junk token cannot
+  hijack the measure because it only contributes its own weight to the denominator.
+- **Aboutness relative to document length.** A fixed passage count is meaningless
+  across sizes: live documents run to a median of 32 passages, but 3 of 53 hold
+  only two, and in a two-passage document one passage IS half the subject. The
+  absolute rule broke **12 tests on the fixture corpus** (every fixture doc has
+  exactly 2 passages) — the design telling on itself before it reached anything
+  real. Now `min(ABOUTNESS_PASSAGES, ceil(passages/2))`.
+
+Refusals get their own **`off_topic`** stage rather than reusing
+`no_groundable_statement`. That distinction is not cosmetic: the latter means a
+source IS on topic but holds no quotable sentence, and reusing it would have
+given the user a confidently wrong account of why Pistis declined. Mirrored in
+`web/src/types.ts`.
+
+**Measured on the live 53-doc corpus — the whole point of having the benchmark:**
+
+    false answers  : 12 of 50 (24.0%)  ->  6 of 50 (12.0%)
+    false refusals :  4 of 81 ( 4.9%)  ->  4 of 81 ( 4.9%)   UNCHANGED
+    answer->answer : 77                ->  77                UNCHANGED
+
+The 6 answers removed were *exactly* the 6 false ones. `MIN_TOP_SCORE` and
+`MIN_COVERAGE` were **not touched** — this is a new orthogonal signal, not a
+recalibration, which is why session 8's re-certification rule is not violated.
+
+**What remains, honestly.** 6 false answers, all still `near_miss`. Their limit
+is structural, not a tuning gap: asked for the Universal Credit standard
+allowance, the corpus genuinely *is* about Universal Credit — it just never
+states award rates. Topical aboutness cannot separate "covers the subject" from
+"covers the specific fact asked for", and no threshold on this signal will. That
+needs a different idea (question-type vs passage-shape matching), and it should
+be measured on the benchmark before it is believed.
+
+**Verification:** server **260 -> 267 pytest** green; honesty eval **PASS on both
+fixture and live corpus** (21/21 answerability, 42/42 grounded live); web **17
+vitest** green + `tsc` clean. Pushed.
+
+---
+
+**Session 9 header (previous):** 2026-07-27 — finished the in-flight answerability
+benchmark; it found three defects in its own validator, one false label, and a
+live advice-boundary escape; all green, pushed.
 
 ## Session 9 (2026-07-27) — the answerability benchmark, finished and run in anger
 

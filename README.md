@@ -191,29 +191,53 @@ to be broken. The protocol and its stated limits live next to the data in
 **The result, on the 53-document live corpus (2026-07-27) — including the part
 that is unflattering:**
 
-| | |
-|---|---|
-| False answers (answered when it should not have) | **12 of 50 — 24.0%** |
-| False refusals (refused when it could have answered) | 4 of 81 — 4.9% |
-| Advice-boundary routing | 18/18 |
-| Answers fully grounded | 89/89 |
+| | before the relevance guard | now |
+|---|---|---|
+| False answers (answered when it should not have) | 12 of 50 — 24.0% | **6 of 50 — 12.0%** |
+| False refusals (refused when it could have answered) | 4 of 81 — 4.9% | **4 of 81 — 4.9%** |
+| Advice-boundary routing | 17/18 | **18/18** |
+| Answers fully grounded | 89/89 | **83/83** |
 
-Every one of those 12 false answers is concentrated in the adversarial
-`near_miss` class — finance-shaped questions *adjacent* to the corpus but not
-covered — and **every one of them is perfectly grounded**. Asked "How is
-cryptocurrency taxed?", the engine returns a correctly-cited, faithfully-extracted
-claim about inheritance-tax taper relief. That is the honest headline: of the 24
-near-miss questions it should refuse, it answers **12 — exactly half** — and the
-overall 24% false-answer rate is entirely this one class. The faithfulness verifier
-caught **none** of it, because grounded is not the same property as relevant.
-The verifier checks a claim against the passage it came from; it never asks
-whether that passage answers the question. Closing this means re-deriving
-`MIN_TOP_SCORE` / `MIN_COVERAGE` against a re-certified golden set — a project,
-not a threshold nudge — and this benchmark is the instrument to do it against.
+Both numbers come from the same run, and the second column cost nothing on the
+first: **no genuine answer was lost** closing half the false answers.
 
-It has already paid for itself once: it caught a live advice-boundary escape
-where "is a Lifetime ISA **worth it for me**" was answered while "is **it** worth
-it for me" routed, because the rule recognised only a pronoun subject.
+**What the benchmark found.** Every false answer sat in the adversarial
+`near_miss` class — finance-shaped questions *adjacent* to the corpus — and
+**every one was perfectly grounded**. Asked "How is cryptocurrency taxed?", the
+engine returned a correctly-cited claim about *inheritance-tax taper relief*.
+Asked "How much is statutory sick pay?", a passage listing SSP among types of
+earnings. The faithfulness verifier objected to none of them, and it was right
+not to: the claims really were supported by the passages they came from.
+**Grounded is not the same property as relevant** — and the engine had a check
+for the first and none for the second.
+
+**The relevance guard** (`Bm25Index.topic_share`) is that missing check, and a
+third signal independent of the other two. Retrieval strength and coverage ask
+whether the question's *words* are present; faithfulness asks whether a claim is
+supported by its source passage; this asks whether the document is *about the
+subject raised* — titled for it, or using it across enough distinct passages to
+be a subject rather than an aside. Off-topic sources are dropped before claim
+selection, so the guard can only ever **remove** material and can never turn a
+refusal into an answer. Such refusals carry their own `off_topic` stage rather
+than borrowing another one's explanation.
+
+Two details it had to get right, both settled by measurement rather than taste.
+It weights by **share of IDF meaning, not the single rarest term** — in this
+corpus "each" is a *rarer* token than "isa", so a rarest-word rule would hang
+"How much can I pay into an ISA each year?" on a function word. And aboutness is
+**relative to document length**, because live documents run to a median of 32
+passages while some hold two, and in a two-passage document one passage is half
+the subject. `MIN_TOP_SCORE` and `MIN_COVERAGE` were not touched.
+
+**What remains.** 6 false answers, all still `near_miss`. The honest limit of a
+lexical measure is visible in them: asked for the Universal Credit standard
+allowance, the corpus genuinely *is* about Universal Credit — it just never
+states the award rates. Topical aboutness cannot tell "covers the subject" from
+"covers the specific fact asked for", and no amount of tuning this signal will.
+
+The benchmark also caught a live advice-boundary escape on its first run, where
+"is a Lifetime ISA **worth it for me**" was answered while "is **it** worth it
+for me" routed, because the rule recognised only a pronoun subject.
 
 ## Layout
 
