@@ -79,10 +79,22 @@ refusals (would gut the highest-confidence gap signal); `errors="replace"` on th
 log read (silently accepts corrupted text); making the floor count asks (would
 publish one person's single wording).
 
-**Verification:** server **198 -> 219 pytest** green; honesty eval **PASS**
-(21/21 answerability, 41/41 grounded, refusals-explained 4/4); web **17 vitest**
-green, `tsc` + `vite build` clean, `npm audit` 0 vulns; CLI re-run against the
-live 46-doc snapshot.
+**Verification:** server **198 -> 219 pytest** green; web **17 vitest** green,
+`tsc` + `vite build` clean, `npm audit` 0 vulns.
+
+**Live-corpus production run (2026-07-27):** rebuilt the snapshot
+(`python -m pistis.corpus.refresh` -> **46 documents**; the 2 failures are the
+known prose-less GOV.UK calculator pages, pre-existing) and evaluated against the
+real GOV.UK/HMRC/FCA data rather than the fixture:
+
+    python -m pistis.eval --snapshot ../data/corpus/snapshot.json
+    21/21 answerability · 42/42 claims grounded · 0 unsupported
+    citations complete · refusals explained 4/4 · RESULT: PASS
+
+`python -m pistis.gaps` re-run on that fresh corpus prints
+`Snapshot fetched : 2026-07-27` — the provenance line added this session doing
+exactly its job, letting a reader confirm the backlog reflects today's corpus
+rather than a stale one.
 
 ---
 
