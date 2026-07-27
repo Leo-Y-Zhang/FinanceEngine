@@ -18,7 +18,7 @@ def client(tmp_path):
 
 
 def test_missing_snapshot_fails_loudly(tmp_path):
-    with pytest.raises(FileNotFoundError, match="corpus.refresh"):
+    with pytest.raises(FileNotFoundError, match=r"corpus\.refresh"):
         create_app(snapshot_path=tmp_path / "nope.json", log_path=None)
 
 

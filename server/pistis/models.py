@@ -75,7 +75,7 @@ class Citation:
     last_updated: str | None = None
 
     @classmethod
-    def from_passage(cls, p: Passage) -> "Citation":
+    def from_passage(cls, p: Passage) -> Citation:
         return cls(
             org=p.org,
             title=p.doc_title,
@@ -117,8 +117,8 @@ class TrustReport:
 
     @classmethod
     def from_verdicts(
-        cls, verdicts: "tuple[ClaimVerdict, ...] | list[ClaimVerdict]"
-    ) -> "TrustReport":
+        cls, verdicts: tuple[ClaimVerdict, ...] | list[ClaimVerdict]
+    ) -> TrustReport:
         vs = tuple(verdicts)
         grounded = sum(1 for v in vs if v.verdict == "grounded")
         total = len(vs)
@@ -157,8 +157,8 @@ class FreshnessReport:
 
     @classmethod
     def from_items(
-        cls, items: "tuple[Freshness, ...] | list[Freshness]"
-    ) -> "FreshnessReport":
+        cls, items: tuple[Freshness, ...] | list[Freshness]
+    ) -> FreshnessReport:
         items = tuple(items)
         overall: FreshnessVerdict = "current"
         for f in items:

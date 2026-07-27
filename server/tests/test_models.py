@@ -1,10 +1,10 @@
 import pytest
 
 from pistis.models import (
+    DISCLAIMER,
     AnswerCard,
     Citation,
     Claim,
-    DISCLAIMER,
     ManifestEntry,
     SourceOrg,
 )

@@ -120,7 +120,10 @@ def _format(r: EvalReport) -> str:
         "Pistis honesty eval",
         "===================",
         f"Golden questions       : {r.questions}",
-        f"Answerability accuracy : {r.answerability_correct}/{r.questions} ({r.answerability_accuracy:.0%})",
+        (
+            f"Answerability accuracy : {r.answerability_correct}/{r.questions}"
+            f" ({r.answerability_accuracy:.0%})"
+        ),
         f"Claims asserted        : {r.total_claims}",
         f"Claims grounded        : {r.grounded_claims}/{r.total_claims} ({r.grounded_rate:.0%})",
         f"Unsupported claims     : {r.unsupported_claims}  (must be 0)",

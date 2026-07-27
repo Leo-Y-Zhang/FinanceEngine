@@ -426,7 +426,10 @@ def _format(r: GapReport) -> str:
         f"  refused                 : {r.refused}",
         f"    naming a concept      : {r.refusals_with_concepts}",
         f"    naming none           : {r.refusals_without_concepts}",
-        f"Reporting floor           : a concept must appear in >= {r.min_distinct} distinct questions",
+        (
+            f"Reporting floor           : a concept must appear in >= {r.min_distinct}"
+            " distinct questions"
+        ),
     ]
     if not r.privacy_floor_active:
         lines.append(

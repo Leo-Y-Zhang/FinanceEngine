@@ -1,0 +1,79 @@
+name: CI
+
+# Every gate this project claims to hold itself to, run on every push, so the
+# claims in the README are checked rather than asserted.
+#
+# NOTE: GitHub Actions is currently blocked at the account level (billing), so
+# runs will fail to start until that clears — the failure is not the code. Verify
+# locally with the same commands; they are deliberately identical to the ones in
+# docs/SESSION_HANDOFF.md.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  server:
+    name: server (lint, tests, coverage, deps)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check pistis tests
+
+      - name: Tests with coverage floor
+        run: pytest --cov=pistis --cov-report=term-missing
+
+      - name: Dependency audit
+        run: pip-audit --strict
+
+      # The gate's honesty promise, run over the committed fixture corpus. The
+      # live snapshot is gitignored and needs a network fetch, so CI checks the
+      # reproducible half; the live number is recorded in the handoff.
+      - name: Honesty eval (fixture corpus)
+        run: python -m pistis.eval
+
+  web:
+    name: web (types, tests, build, deps)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Tests (includes axe accessibility checks)
+        run: npm test -- --run
+
+      - name: Build
+        run: npm run build
+
+      - name: Dependency audit
+        run: npm audit --audit-level=moderate

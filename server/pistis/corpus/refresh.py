@@ -43,7 +43,10 @@ def refresh(snapshot_path: Path = SNAPSHOT_PATH) -> int:
                 )
             )
             print(f"[{i}/{len(entries)}] ok    {entry.id} ({len(text)} chars)")
-        except Exception as exc:  # noqa: BLE001 — report and continue
+        except Exception as exc:
+            # Broad on purpose: one unreachable host, malformed payload or
+            # blocked fetch must not abandon the other 50-odd sources. Every
+            # failure is reported below, never swallowed.
             failures.append(f"{entry.id}: {exc}")
             print(f"[{i}/{len(entries)}] FAIL  {entry.id}: {exc}")
 

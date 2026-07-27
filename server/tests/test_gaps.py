@@ -462,9 +462,9 @@ def test_all_flag_lists_strictly_more_than_the_cap(tmp_path, capsys):
     assert full.no_shared_term.total >= 2  # non-vacuity guard
 
     args = ["--log", str(log), "--snapshot", str(SNAPSHOT), "--min-distinct", "2", "--json"]
-    main(args + ["--top", "1"])
+    main([*args, "--top", "1"])
     capped = json.loads(capsys.readouterr().out)["no_shared_term"]["listed"]
-    main(args + ["--top", "1", "--all"])
+    main([*args, "--top", "1", "--all"])
     everything = json.loads(capsys.readouterr().out)["no_shared_term"]["listed"]
 
     assert len(everything) > len(capped)  # pins what --all is named for

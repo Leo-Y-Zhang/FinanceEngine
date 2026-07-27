@@ -9,14 +9,14 @@ from pistis.models import SourceOrg
 
 
 def make_doc(text, **overrides):
-    defaults = dict(
-        doc_id="d1",
-        title="Doc",
-        org=SourceOrg.GOVUK,
-        url="https://www.gov.uk/d1",
-        fetched_at="2026-07-21",
-        last_updated="2026-04-06",
-    )
+    defaults = {
+        "doc_id": "d1",
+        "title": "Doc",
+        "org": SourceOrg.GOVUK,
+        "url": "https://www.gov.uk/d1",
+        "fetched_at": "2026-07-21",
+        "last_updated": "2026-04-06",
+    }
     defaults.update(overrides)
     return Document(text=text, **defaults)
 

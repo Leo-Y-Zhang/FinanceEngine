@@ -12,6 +12,9 @@ dependencies = [
 dev = [
     "pytest>=8",
     "httpx>=0.27",
+    "ruff>=0.8",
+    "pytest-cov>=6",
+    "pip-audit>=2.7",
 ]
 
 [build-system]
@@ -24,3 +27,56 @@ include = ["pistis*"]
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["pistis"]
+
+[tool.coverage.report]
+# A floor, not a target. Set just under the current 95% so a genuine regression
+# trips it while ordinary churn does not — chasing 100% here would mean testing
+# the network paths, which are deliberately kept out of the unit suite.
+fail_under = 90
+show_missing = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# Pinned explicitly rather than inherited from ruff's defaults, so upgrading
+# ruff cannot silently change what "clean" means for this repo.
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # import order
+    "UP",       # pyupgrade
+    "B",        # bugbear
+    "C4",       # comprehensions
+    "SIM",      # simplify
+    "ISC",      # implicit string concatenation
+    "RUF",
+]
+ignore = [
+    # `"a b c".split()` is used deliberately for word lists (STOPWORDS, the HTML
+    # tag sets). Rewriting them as list literals turns one readable line into
+    # fifteen noisy ones.
+    "SIM905",
+    # A one-line lambda reads better than a def for the IDF weight helpers in
+    # bm25.py, and matches the surrounding code.
+    "E731",
+    # The prose in this codebase uses en/em dashes on purpose, in comments,
+    # docstrings and user-facing strings alike.
+    "RUF001", "RUF002", "RUF003",
+    # SourceOrg is `str, Enum` rather than StrEnum deliberately: the two differ
+    # in what str() returns, and the API serialises these values.
+    "UP042",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Test fixtures hold literal GOV.UK sentences and HTML fragments that must stay
+# byte-accurate rather than be wrapped to satisfy a line limit.
+"tests/*" = ["E501"]
+# The advice-boundary patterns are single regexes. Wrapping one across lines to
+# meet a character count makes a regulatory guardrail harder to read and review,
+# which is the opposite of what matters in that file.
+"pistis/engine/classifier.py" = ["E501"]

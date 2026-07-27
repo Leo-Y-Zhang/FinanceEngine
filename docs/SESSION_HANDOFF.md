@@ -778,6 +778,13 @@ the user says so.
 - UI: `cd web && npm run dev` (proxies /api -> :8000); privacy notice at
   `#/privacy` or via the link in the disclaimer banner
 - Tests: `server/.venv/Scripts/python -m pytest` · `cd web && npm test`
+- Full local gate (identical to CI, see `.github/workflows/ci.yml`): from
+  `server/` — `python -m ruff check pistis tests`,
+  `python -m pytest --cov=pistis --cov-report=term-missing` (floor 90%, currently
+  95%), `python -m pip_audit --strict`, `python -m pistis.eval`; from `web/` —
+  `npx tsc --noEmit`, `npm test -- --run`, `npm run build`, `npm audit`.
+  NOTE: Actions is billing-blocked at account level, so CI will not start until
+  that clears; the commands above are what it runs.
 - Honesty eval: `server/.venv/Scripts/python -m pistis.eval --snapshot ../data/corpus/snapshot.json`
 - Answerability benchmark (session 9): from `server/`,
   `.venv/Scripts/python -m pistis.bench --validate` to check the LABELS against

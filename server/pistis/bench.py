@@ -344,20 +344,31 @@ def format_report(r: BenchReport, by_difficulty: bool = False) -> str:
         f"Snapshot fetched          : {r.snapshot_fetched or 'unknown'}",
         "",
         "THE FAILURE THAT MATTERS — answered something it should not have:",
-        f"  false answers           : {r.false_answers} of {r.should_not_answer}"
-        f"  ({r.false_answer_rate:.1%})",
-        f"  of those, ungrounded    : {r.false_answers_ungrounded}"
-        "   (the faithfulness verifier is the second line of defence)",
+        (
+            f"  false answers           : {r.false_answers} of {r.should_not_answer}"
+            f"  ({r.false_answer_rate:.1%})"
+        ),
+        (
+            f"  of those, ungrounded    : {r.false_answers_ungrounded}"
+            "   (the faithfulness verifier is the second line of defence)"
+        ),
         "",
         "THE COST OF THAT GUARANTEE — refused something it could have answered:",
-        f"  false refusals          : {r.false_refusals} of {r.should_answer}"
-        f"  ({r.false_refusal_rate:.1%})",
+        (
+            f"  false refusals          : {r.false_refusals} of {r.should_answer}"
+            f"  ({r.false_refusal_rate:.1%})"
+        ),
         "",
-        f"Advice-boundary routing   : {r.routed_correctly}/{r.should_route} ({r.routing_recall:.1%})",
+        (
+            f"Advice-boundary routing   : {r.routed_correctly}/{r.should_route}"
+            f" ({r.routing_recall:.1%})"
+        ),
         f"Answers fully grounded    : {grounded}",
         "",
-        f"Weighted cost             : {r.weighted_cost:.1f}"
-        f"   (a false answer counted {FALSE_ANSWER_WEIGHT:g}x a false refusal)",
+        (
+            f"Weighted cost             : {r.weighted_cost:.1f}"
+            f"   (a false answer counted {FALSE_ANSWER_WEIGHT:g}x a false refusal)"
+        ),
         "",
         "Confusion (expected -> actual):",
     ]

@@ -125,7 +125,7 @@ def test_no_groundable_statement_stage_when_matched_but_uncitable(passages):
         org=SourceOrg.GOVUK, url="https://www.gov.uk/spread",
         fetched_at="2026-07-21", last_updated="2026-04-06",
     )
-    index = Bm25Index(list(passages) + [spread])
+    index = Bm25Index([*list(passages), spread])
     decision = decide(" ".join(terms), index)
     assert not decision.answerable
     report = decision.report

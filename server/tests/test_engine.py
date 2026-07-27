@@ -1,6 +1,6 @@
 """End-to-end: the three response states over the fixture corpus."""
 
-from pistis.models import Abstention, AnswerCard, DISCLAIMER, RoutingEvent
+from pistis.models import DISCLAIMER, Abstention, AnswerCard, RoutingEvent
 
 
 def test_guidance_question_returns_answer_card(engine):
@@ -18,8 +18,8 @@ def test_personal_rec_question_returns_routing_event(engine):
     response = engine.ask("Which ISA should I open?")
     assert isinstance(response, RoutingEvent)
     assert response.matched
-    assert any("moneyhelper" in l.url for l in response.routing.links)
-    assert any("register.fca.org.uk" in l.url for l in response.routing.links)
+    assert any("moneyhelper" in link.url for link in response.routing.links)
+    assert any("register.fca.org.uk" in link.url for link in response.routing.links)
 
 
 def test_personal_rec_wins_even_when_corpus_could_answer(engine):

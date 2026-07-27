@@ -142,7 +142,7 @@ class Bm25Index:
         self._doc_passage_df: dict[str, Counter[str]] = {}
         self._doc_title_terms: dict[str, set[str]] = {}
         self._doc_passage_count: Counter[str] = Counter()
-        for passage, toks in zip(self._passages, self._docs):
+        for passage, toks in zip(self._passages, self._docs, strict=True):
             self._doc_passage_df.setdefault(passage.doc_id, Counter()).update(set(toks))
             self._doc_title_terms.setdefault(
                 passage.doc_id, set(tokenize(passage.doc_title))
@@ -157,7 +157,9 @@ class Bm25Index:
         if not terms or not self._docs:
             return []
         scored: list[Hit] = []
-        for passage, doc, freqs in zip(self._passages, self._docs, self._doc_freqs):
+        for passage, doc, freqs in zip(
+            self._passages, self._docs, self._doc_freqs, strict=True
+        ):
             score = 0.0
             dl = len(doc)
             for term in terms:
@@ -189,7 +191,7 @@ class Bm25Index:
         if not terms:
             return 0.0
         max_idf = max(self._idf.values(), default=1.0)
-        weight = lambda t: self._idf.get(t, max_idf)  # noqa: E731
+        weight = lambda t: self._idf.get(t, max_idf)
         total = sum(weight(t) for t in terms)
         if not total:
             return 0.0
@@ -240,7 +242,7 @@ class Bm25Index:
         if not terms:
             return 0.0
         max_idf = max(self._idf.values(), default=1.0)
-        weight = lambda t: self._idf.get(t, max_idf)  # noqa: E731
+        weight = lambda t: self._idf.get(t, max_idf)
         total = sum(weight(t) for t in terms)
         if not total:
             return 0.0
@@ -261,7 +263,7 @@ class Bm25Index:
         for h in hits[:top_n]:
             available |= _passage_vocab(h.passage)
         max_idf = max(self._idf.values(), default=1.0)
-        weight = lambda toks: max(  # noqa: E731
+        weight = lambda toks: max(
             (self._idf.get(t, max_idf) for t in toks), default=max_idf
         )
         missing = [(raw, weight(toks)) for raw, toks in words if toks.isdisjoint(available)]

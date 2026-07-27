@@ -262,6 +262,39 @@ for me" routed, because the rule recognised only a pronoun subject.
 | `data/` | Corpus snapshots (gitignored; rebuild via `pistis.corpus`) |
 | `docs/` | Design spec, implementation plan, session handoff |
 
+## Development & quality gates
+
+Every gate below runs in CI (`.github/workflows/ci.yml`) on each push, and each
+one can be run locally with the same command.
+
+```bash
+# server
+cd server && pip install -e ".[dev]"
+ruff check pistis tests                       # lint, rules pinned in pyproject
+pytest --cov=pistis --cov-report=term-missing # 276 tests, 95% coverage, floor 90%
+pip-audit --strict                            # dependency CVEs
+python -m pistis.eval                         # the honesty promise, fixture corpus
+python -m pistis.bench --validate             # the benchmark's labels vs the corpus
+
+# web
+cd web && npm ci
+npx tsc --noEmit && npm test -- --run && npm run build && npm audit
+```
+
+The web suite includes **axe** accessibility assertions rather than leaving
+a11y to inspection. Coverage carries a floor, not a target: the network fetch
+paths are deliberately outside the unit suite, so chasing 100% would mean
+testing `urllib` rather than this product.
+
+Two things worth knowing before reading a CI badge:
+
+- **GitHub Actions is blocked at the account level (billing)**, so runs fail to
+  start until that clears. That failure is not the code — the commands above are
+  the same ones CI runs, and they pass locally.
+- CI evaluates the **fixture** corpus, because the live snapshot is gitignored
+  and needs a network fetch. Live-corpus numbers are recorded in the handoff with
+  the date and document count they were measured against.
+
 ## Licence & content
 
 Code is proprietary (private). Corpus content from GOV.UK is used under the
