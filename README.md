@@ -127,16 +127,36 @@ concepts users most want but the corpus is silent on.
 
 ```bash
 cd server && python -m pistis.gaps        # ranked corpus-gap report
+python -m pistis.gaps --all               # list every concept above the floor
 python -m pistis.gaps --json              # machine-readable record
 ```
 
+Two kinds of gap are reported **separately**, because they mean opposite things
+to whoever curates the corpus. **Thin coverage** — trusted sources matched the
+question but fell short — are the real expansion candidates. **No overlap** —
+nothing in the corpus matched at all — are mostly just out of scope for a UK
+personal-finance corpus (a passport question, a weather question), and a
+zero-hit refusal names every content word rather than one missing concept, so
+listing them together let off-topic noise outrank the genuine gaps. Concepts are
+canonicalised the way the index matches them, so a gap cannot hide by
+fragmenting across its spellings ("passport" / "passports").
+
 Privacy is built in, not bolted on: the output is concept frequencies only (raw
-questions never leave the function), a **k-anonymity floor** withholds any
-concept that appears in fewer than `--min-distinct` distinct questions (so a
-lone, potentially identifying term is never surfaced — raise the floor before
-any multi-user use), bare numbers/amounts are dropped, and it is deterministic
-and offline. Because it re-asks against the *current* corpus, a gap you have
-since filled simply stops appearing — the backlog stays honest.
+questions never leave the function), and a **reporting floor** withholds any
+concept appearing in fewer than `--min-distinct` distinct questions. Being
+precise about what that floor does and does not give you: the ask-log records no
+user identity, so it counts **distinct questions, not distinct people** — it is
+not k-anonymity over users. To stop one person clearing the floor by merely
+retyping, "distinct" is measured on a question's content tokens, so case,
+punctuation, stopwords and word order cannot manufacture a second question.
+Raise the floor before exposing the report to more than one person's questions.
+Amounts and identifier shapes are withheld — a term containing a digit is
+dropped unless it is a known UK tax-form code, so `50k`, a National Insurance
+number, a postcode or an IBAN can never surface as a "concept". It is
+deterministic and offline, and it names its own inputs (log, snapshot, snapshot
+date) so a reader can check what it read. Because it re-asks against the
+*current* corpus, a gap you have since filled simply stops appearing — the
+backlog stays honest.
 
 ## Layout
 
