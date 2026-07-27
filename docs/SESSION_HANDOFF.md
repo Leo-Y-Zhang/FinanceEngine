@@ -111,7 +111,62 @@ response as *correct*. Every number in it should be read with that caveat. A
 quality dimension would need a different label type (does the answer contain the
 specific fact asked for?) and is the natural next extension.
 
-**Verification:** server **260 -> 268 pytest** green; honesty eval **PASS on both
+### Nav chrome: FIXED at extraction (`1c6de4a`)
+
+The defect above is closed. A tag-only skip missed link blocks that do not live
+in a `<nav>`: FCA pages carry related-links lists as plain `<div>`/`<ul>` in the
+body. Page `<title>` was being extracted too, brand suffix and all, so
+"Protect yourself from scams | FCA." was offered as a citable claim while every
+Passage already carries the real title separately. Also fixed a nesting bug —
+the skip counted depth across *different* tag names, so a nested `<div>` could
+close a skipped block early and let chrome back in mid-block.
+
+**The marker list is one entry long, and that is the point.** The first draft had
+ten plausible-sounding markers. Measured against the live pages, `sidebar` alone
+cut the FCA scam-protection page from **7,400 characters to 210** (the FCA layout
+wraps its main content in a sidebar-named container) and most of the rest changed
+nothing at all. Only `related-` does the job. The comment in `fetch.py` says to
+extend the list only with a before/after character count on the real page.
+
+**Re-fetched and verified surgical:** 53 documents before and after, none lost,
+**only 7 documents changed and every one an FCA page** (1-3.5% each, 1,453 chars
+of 441,914 total). No GOV.UK or HMRC document changed at all. All 131 labels
+still validate; benchmark unchanged.
+
+### Phrase-level retrieval: MEASURED and DECLINED (deliberate — do not "finish" this)
+
+The remaining 6 false answers are word-sense failures on multi-word concepts
+("credit report" -> a scam-*report* passage; "trading allowance" -> "Online
+trading scams"). The obvious fix is phrase awareness, so it was built and
+measured rather than argued about. Three variants, on the 131-question set:
+
+| variant | false answers | new false refusals |
+|---|---|---|
+| A: answering doc must contain some query bigram | 6 -> 4 | **+3** |
+| B: refuse if a query bigram is absent corpus-wide | 6 -> 6 | +2 |
+| C: require it only when the bigram is a real corpus phrase | 6 -> 4 | +1 |
+
+C is the best of them and by the written 5x cost model it "wins" (24 vs 33). It
+is still declined, for two reasons:
+
+1. **What it breaks is not an artifact.** The answer it removes — "Is interest on
+   my child's savings taxable?" — is currently *correct and well-sourced*: "The
+   parent will have to pay tax on all the interest if it's above their own
+   Personal Savings Allowance", from exactly the document the label names.
+   Trading a right answer about a real question for two junk ones is not the
+   trade the cost model was written to authorise.
+2. **It would generalise badly, and the benchmark cannot see that.** These are
+   131 *authored* questions, not a sample of real traffic — the build script says
+   so itself. Bigram adjacency is brittle across paraphrase in a way topical
+   aboutness is not, so a rule that costs 1 of 81 in-sample will cost more
+   out-of-sample, and the benchmark would never show it.
+
+If it is ever revisited, the honest instrument is not a bigram set but a
+question-type signal (does the passage state the *kind* of fact being asked
+for — a rate, a threshold, a deadline?), measured on a question set drawn from
+the real ask-log rather than authored.
+
+**Verification:** server **260 -> 272 pytest** green; honesty eval **PASS on both
 fixture and live corpus** (21/21 answerability, 42/42 grounded live); web **17
 vitest** green + `tsc` clean. Pushed.
 

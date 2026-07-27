@@ -203,11 +203,12 @@ normally trade against each other. Closing half the false answers cost no
 genuine answer at all.
 
 One caveat on reading any of this: the benchmark scores **answer-or-refuse
-state, not answer quality**. It counts an answer as correct when the label says
-answer, even if the text returned is weak — and it currently does exactly that
-for one question, where the engine answers from a navigation-link block that the
-corpus extractor kept as prose. That is a real open defect, recorded in the
-handoff, and a quality dimension is the natural next extension of this harness.
+state, not answer quality**. It counts an answer as correct whenever the label
+says answer, however weak the text returned. That blind spot is what hid the
+navigation-chrome defect it later exposed (link blocks and page `<title>`s were
+being extracted as prose and cited as claims — fixed at extraction, verified
+surgical: 7 documents changed, all FCA, 1,453 characters of 441,914). A quality
+dimension is the natural next extension of this harness.
 
 **What the benchmark found.** Every false answer sat in the adversarial
 `near_miss` class — finance-shaped questions *adjacent* to the corpus — and
@@ -242,6 +243,11 @@ lexical measure is visible in them: asked for the Universal Credit standard
 allowance, the corpus genuinely *is* about Universal Credit — it just never
 states the award rates. Topical aboutness cannot tell "covers the subject" from
 "covers the specific fact asked for", and no amount of tuning this signal will.
+Phrase-level retrieval was built and measured against these, then **declined**:
+its best variant removed two of the six but destroyed a correct, well-sourced
+answer about children's savings tax, and bigram adjacency generalises worse than
+topical aboutness on paraphrase — which a set of 131 *authored* questions would
+never reveal. The reasoning and the numbers are in the handoff.
 
 The benchmark also caught a live advice-boundary escape on its first run, where
 "is a Lifetime ISA **worth it for me**" was answered while "is **it** worth it
