@@ -1,8 +1,109 @@
 # SESSION_HANDOFF — Pistis
 
-**Updated:** 2026-07-27 (session 8: gap report used on a real question set - found
-a stopword bug, expanded the corpus 46 -> 53 docs, evaluated and declined a
-stemmer; all green, pushed)
+**Updated:** 2026-07-27 (session 9: finished the in-flight answerability
+benchmark - it found three defects in its own validator, one false label, and a
+live advice-boundary escape; all green, pushed)
+
+## Session 9 (2026-07-27) — the answerability benchmark, finished and run in anger
+
+**Picked up work left uncommitted when the previous session ended.** The working
+tree held `server/pistis/bench.py` plus `tests/fixtures/bench_build.py` and
+`bench.json` — written, but never run, never tested, and never committed. It is
+now all three. Commits `6976d62` (benchmark) and `2aed2f0` (the escape it found).
+
+**What it is.** `pistis.eval` proves every *emitted* claim is grounded. It never
+measured the **gate**, which is where the product's central claim lives.
+`python -m pistis.bench` scores 131 labelled questions and reports the two
+failures separately — never averaged into one accuracy figure, because that
+would hide a serious failure inside a mild one — under a stated 5x cost model,
+broken down by difficulty. No label comes from Pistis's output; each is derived
+from the corpus or the question's form, and `--validate` re-checks every one
+against the current corpus so labels cannot rot as it grows. The CLI **refuses
+to score** against labels known to be broken.
+
+### Running `--validate` for the first time found six problems — and three were the validator's own
+
+1. **Aboutness counted MENTIONS while its name and docstring both said
+   PASSAGES.** One passage about visa *scams* says "visa" three times, which is
+   not the corpus knowing how to apply for a spouse visa. Now counts distinct
+   passages — which is exactly what the docstring's own measurement had said
+   separates incidental terms (1-2 passages) from real coverage (FSCS: a title
+   AND 5 passages). The code simply never implemented what it described.
+2. **Probes matched whole words only**, so "bill" did not match "bills" and
+   "categor" did not match "categories" — three perfectly true labels reported as
+   broken. Now word-START prefix matching, which keeps the anchor that stops
+   "roth" matching inside "growth" while letting morphology through. False alarms
+   are not free: a validator that cries wolf every time the corpus grows is one
+   the operator learns to skip, which costs exactly the protection it exists for.
+3. **A run that answered nothing reported 100% grounded.** 0 of 0 is an absent
+   measurement, not a perfect score. Reports `n/a` now. Same class of bug session
+   7 fixed in `gaps.py`; it had been reintroduced here.
+
+The other three were labels, adjudicated by reading the corpus: visa and Rent a
+Room stay `abstain` (both were heuristic false positives), while **salary
+sacrifice was genuinely mislabelled** — the corpus explains it across two
+passages ("you give up part of your salary and your employer pays this straight
+into your pension"), below the 3-passage floor, so the automatic check passed it
+and a human read caught it. Relabelled to `answer` and *recorded as such* in
+`bench_build.py`, because a benchmark that drops its own inconvenient findings is
+worthless. That limit is now written into the honest-limitations section: a clean
+`--validate` means "no label has rotted", not "every label is right".
+
+### The measurement, including the part that is unflattering
+
+    Questions 131 · snapshot 2026-07-27 (53 docs)
+    False answers   : 12 of 50  (24.0%)   <-- the failure that matters
+    False refusals  :  4 of 81  ( 4.9%)
+    Advice routing  : 18/18      Answers fully grounded: 89/89
+
+**All 12 false answers are in the adversarial `near_miss` class, and every one
+is perfectly grounded.** Of the 24 near-miss questions it should refuse, it
+answers **12 — exactly half**. Asked "How is cryptocurrency taxed?" it returns a
+correctly-cited, faithfully-extracted claim about *inheritance-tax taper relief*.
+Asked for the Bank of England base rate it returns a tracker-mortgage passage
+that mentions the base rate without ever stating it.
+
+The important finding is not the number, it is *what the number proves*: the
+faithfulness verifier caught **none** of these (`of those, ungrounded: 0`),
+because **grounded is not the same property as relevant**. The verifier checks a
+claim against the passage it came from; it never asks whether that passage
+answers the question asked. The second line of defence does not cover this
+failure mode at all, and now there is evidence rather than an assumption.
+
+### An advice-boundary escape, found and closed (`2aed2f0`)
+
+The benchmark caught a real one on its first run: **"Is a Lifetime ISA worth it
+for me?" was ANSWERED** while "is *it* worth it for me" routed — the `worth-it`
+rule recognised only a pronoun subject, so the identical ask about a named
+product slipped through. This is the FCA-perimeter classifier failing at exactly
+what it exists for, and it is a concrete instance of the "irreducible
+false-negative tail" the compliance doc describes in the abstract. Fixed with one
+alternative (bare "worth it"). Five red-team positives added, each verified
+against the pre-fix pattern set first to confirm a genuine escape not caught by
+another rule; four negative boundary probes added alongside, because "worth"
+*without* "it" is a valuation question ("how much is my pension pot worth?") that
+must stay answerable. Classifier suite 63 -> 72.
+
+### Exact next step — and what NOT to do
+
+**Do not nudge the gate thresholds to chase the 24%.** Session 8 settled the
+principle for the stemmer and it applies here with more force: `MIN_TOP_SCORE` /
+`MIN_COVERAGE` were calibrated against this tokenizer on real data, and moving
+them needs re-derivation plus a golden set well beyond 21 questions — a project,
+not a bump. What changed is that the instrument now exists: any such attempt is
+measured against `python -m pistis.bench` before and after, and must move false
+answers down *without* trading it for false refusals (currently 4.9%, the number
+to protect). The near-miss class is the target; the rest is already strong.
+
+The more interesting lead the benchmark opens: a relevance check is a *different*
+guard from a faithfulness check, and the product currently has only the latter.
+
+**Verification:** server **221 -> 260 pytest** green (30 new in `test_bench.py`,
+9 new red-team fixtures); all 131 labels validate against the live 53-document
+corpus; `python -m pistis.eval --snapshot ../data/corpus/snapshot.json` still
+**PASS**. Pushed to GreenPandaTech/Pistis.
+
+---
 
 ## Session 8 (2026-07-27) — the gap report used in anger, and a stemmer evaluated then declined
 
@@ -495,5 +596,12 @@ the user says so.
 - UI: `cd web && npm run dev` (proxies /api -> :8000); privacy notice at
   `#/privacy` or via the link in the disclaimer banner
 - Tests: `server/.venv/Scripts/python -m pytest` · `cd web && npm test`
+- Honesty eval: `server/.venv/Scripts/python -m pistis.eval --snapshot ../data/corpus/snapshot.json`
+- Answerability benchmark (session 9): from `server/`,
+  `.venv/Scripts/python -m pistis.bench --validate` to check the LABELS against
+  the current corpus, then `-m pistis.bench --by-difficulty` to score the gate.
+  Rebuild the dataset with `.venv/Scripts/python tests/fixtures/bench_build.py`
+  after editing the labelling script — never hand-edit `bench.json` (a test
+  pins it to the build script's output).
 - Manual log purge (optional — startup already does this):
   `server/.venv/Scripts/python -m pistis.privacy.retention`

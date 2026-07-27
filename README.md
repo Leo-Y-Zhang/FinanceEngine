@@ -164,6 +164,57 @@ own inputs (log, snapshot, snapshot date) so a reader can check what it read.
 Because it re-asks against the *current* corpus, a gap you have since filled
 simply stops appearing — the backlog stays honest.
 
+## Answerability benchmark — measuring the gate, not asserting it
+
+The faithfulness eval proves every emitted claim is grounded. It never measured
+the **gate**, which is where the central claim lives. `pistis.bench` scores 131
+labelled questions and reports the two failures **separately**, because a single
+accuracy figure would average a serious failure against a mild one:
+
+```bash
+cd server && python -m pistis.bench --validate      # check the LABELS, not the engine
+python -m pistis.bench                              # score the engine
+python -m pistis.bench --by-difficulty              # plain / paraphrase / abbreviation / near_miss
+python -m pistis.bench --json                       # machine-readable record
+```
+
+**No label comes from Pistis's output** — that would measure nothing. Each is
+derived from the corpus or from the question's form, and each is falsifiable: an
+`answer` label names a supporting document and a probe term that document must
+contain; an `abstain` label names a concept the corpus must be silent on; a
+`route` label names the phrase that makes the question a request for advice.
+`--validate` re-checks every one against the current corpus, so labels cannot
+silently rot as it grows, and the CLI **refuses to score** against labels known
+to be broken. The protocol and its stated limits live next to the data in
+`tests/fixtures/bench_build.py`.
+
+**The result, on the 53-document live corpus (2026-07-27) — including the part
+that is unflattering:**
+
+| | |
+|---|---|
+| False answers (answered when it should not have) | **12 of 50 — 24.0%** |
+| False refusals (refused when it could have answered) | 4 of 81 — 4.9% |
+| Advice-boundary routing | 18/18 |
+| Answers fully grounded | 89/89 |
+
+Every one of those 12 false answers is concentrated in the adversarial
+`near_miss` class — finance-shaped questions *adjacent* to the corpus but not
+covered — and **every one of them is perfectly grounded**. Asked "How is
+cryptocurrency taxed?", the engine returns a correctly-cited, faithfully-extracted
+claim about inheritance-tax taper relief. That is the honest headline: of the 24
+near-miss questions it should refuse, it answers **12 — exactly half** — and the
+overall 24% false-answer rate is entirely this one class. The faithfulness verifier
+caught **none** of it, because grounded is not the same property as relevant.
+The verifier checks a claim against the passage it came from; it never asks
+whether that passage answers the question. Closing this means re-deriving
+`MIN_TOP_SCORE` / `MIN_COVERAGE` against a re-certified golden set — a project,
+not a threshold nudge — and this benchmark is the instrument to do it against.
+
+It has already paid for itself once: it caught a live advice-boundary escape
+where "is a Lifetime ISA **worth it for me**" was answered while "is **it** worth
+it for me" routed, because the rule recognised only a pronoun subject.
+
 ## Layout
 
 | Path | What |
