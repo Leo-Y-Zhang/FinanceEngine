@@ -1,7 +1,8 @@
 # SESSION_HANDOFF — Pistis
 
-**Updated:** 2026-07-27 (session 7: the deferred adversarial review of the
-corpus-gap report, run and closed; all green, pushed)
+**Updated:** 2026-07-27 (session 8: gap report used on a real question set - found
+a stopword bug, expanded the corpus 46 -> 53 docs, evaluated and declined a
+stemmer; all green, pushed)
 
 ## Session 8 (2026-07-27) — the gap report used in anger, and a stemmer evaluated then declined
 
