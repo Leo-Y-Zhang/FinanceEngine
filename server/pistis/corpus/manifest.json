@@ -431,6 +431,69 @@
       "kind": "govuk",
       "locator": "/government/collections/check-a-list-of-genuine-hmrc-contacts",
       "why": "HMRC's canonical collection for verifying whether an email, call, letter or text claiming to be HMRC is genuine — key anti-tax-scam check."
+    },
+    {
+      "id": "tax-register-for-vat",
+      "domain": "tax",
+      "title": "Register for VAT",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/register-for-vat",
+      "why": "Corpus-gap report: VAT registration was the top measured gap (2 distinct questions, the only concept above the reporting floor). Covers the registration threshold, when registration is compulsory vs voluntary, and how to register"
+    },
+    {
+      "id": "tax-vat-rates",
+      "domain": "tax",
+      "title": "VAT rates",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/vat-rates",
+      "why": "Companion to the registration guide: the standard, reduced and zero rates people ask for by number"
+    },
+    {
+      "id": "tax-off-payroll-ir35",
+      "domain": "tax",
+      "title": "Understanding off-payroll working (IR35)",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/guidance/understanding-off-payroll-working-ir35",
+      "why": "Corpus-gap report: 'ir35' was named as an uncovered concept. The definitive HMRC explainer of who the off-payroll rules apply to and who decides status"
+    },
+    {
+      "id": "tax-inheritance-tax",
+      "domain": "tax",
+      "title": "How Inheritance Tax works: thresholds, rules and allowances",
+      "org": "HMRC",
+      "kind": "govuk",
+      "locator": "/inheritance-tax",
+      "why": "Corpus-gap report: two IHT questions were refused, one naming 'nil' (the residence nil-rate band). Covers the GBP 325,000 threshold, the residence nil-rate band and spouse transfers"
+    },
+    {
+      "id": "budgeting-council-tax",
+      "domain": "budgeting",
+      "title": "How Council Tax works",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/council-tax",
+      "why": "Corpus-gap report: a council-tax banding question was refused naming 'banding'. NOTE deliberately /council-tax (11k chars of prose) and NOT /council-tax-bands, which is a transaction page with a zero-length body - the known prose-less-page trap"
+    },
+    {
+      "id": "budgeting-warm-home-discount",
+      "domain": "budgeting",
+      "title": "Warm Home Discount Scheme",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/the-warm-home-discount-scheme",
+      "why": "Corpus-gap report: 'warm' was named as uncovered. Eligibility and the discount amount for the named scheme people ask about"
+    },
+    {
+      "id": "budgeting-help-energy-bills",
+      "domain": "budgeting",
+      "title": "Help with your energy bills",
+      "org": "GOVUK",
+      "kind": "govuk",
+      "locator": "/get-help-energy-bills",
+      "why": "Corpus-gap report: an energy-bills help question was refused naming 'energy'. The official index of energy-cost support"
     }
   ],
   "excluded": [
