@@ -6,6 +6,46 @@ False answers 24% -> 12% AND false refusals 4.9% -> 3.7%, both down together;
 all green, pushed. Exposed one open corpus defect: nav chrome is indexed as
 content - see the end of this section.)
 
+---
+
+## ▶ PROJECT STATUS — COMPLETE AND PARKED (2026-07-27)
+
+**Nothing is in flight. Everything is committed and pushed.** Read this block
+before anything else; the dated sections below are a historical record and some
+of their statements were true only on the day they were written.
+
+| | |
+|---|---|
+| Repo | `GreenPandaTech/Pistis` (private), local `C:\dev\Pistis` |
+| State | working tree clean, `main` == `origin/main` |
+| Server | **276 pytest**, ruff clean, **95% coverage** (floor 90%), `pip-audit` clean |
+| Web | **17 vitest** (incl. axe), `tsc` clean, build clean, `npm audit` 0 vulns |
+| Honesty eval | **PASS** on fixture *and* live corpus (21/21, 42/42 grounded) |
+| Benchmark | 131 labels valid · false answers **12.0%** · false refusals **3.7%** · routing 18/18 |
+
+**CURRENT GATES (these supersede the "Gates in force" list at the bottom):**
+- **Build-only.** No deploy, no launch, no monetisation, no real users.
+- **Pushing to GitHub is NORMAL and expected.** The "ON HOLD" note further down
+  was a one-off instruction from 2026-07-21 and is long expired.
+- **The lawyer gate does not block development.** User decided 2026-07-27 that
+  there will be no launch or monetisation, so it does not apply. It returns in
+  full the moment anyone wants to make this public or take money for it.
+- Anonymity: GreenPandaTech noreply identity, no personal identifiers.
+- Corpus: OGL/official sources only; no scraping around WAFs.
+
+**IF RESUMED, the honest options** (none is outstanding work — the project is
+finished as a private build):
+1. Give the benchmark a **quality** dimension. It currently scores answer-or-refuse
+   *state* only, and that blind spot is what hid the nav-chrome defect.
+2. The residual **6 false answers** — a structural limit of a lexical gate, not a
+   bug. Needs a question-type signal, measured on questions from the real
+   ask-log rather than authored ones.
+3. **Do NOT re-open**: gate threshold nudging (session 8 + 10), a stemmer
+   (session 8), phrase-level retrieval (session 10). Each was built or measured
+   and declined for a written reason.
+
+---
+
 ## Session 10 (2026-07-27) — the relevance guard: grounded is not relevant
 
 Session 9's benchmark said 12 of 50 should-refuse questions were answered, every
@@ -729,13 +769,19 @@ bottom of `docs/compliance-review-2026-07-21.md` itself — summary here:
 - Corpus notes: 2 GOV.UK calculator pages have no prose body (correctly
   skipped, pre-existing).
 
-## Push status
+## Push status — EXPIRED, see PROJECT STATUS at the top
+> **Historical.** This hold was a one-off instruction on 2026-07-21 and no longer
+> applies. Everything through session 10 is committed AND pushed; the tree is
+> clean and `main` matches `origin/main`. Pushing is normal.
+
 **Pushing to GitHub is ON HOLD per current user instruction** (recent
 free-tier limit) — this session's changes are **local commits only**.
 Nothing in this session was pushed to GreenPandaTech/Pistis. Push when
 the user says so.
 
-## Exact next step
+## Exact next step — SUPERSEDED, see PROJECT STATUS at the top
+> **Historical (2026-07-21).** Nothing is in flight as of session 10.
+
 - NONE IN FLIGHT. Session 2's work (privacy notice + retention purge +
   classifier hardening pass 2) is committed locally, not pushed. Next
   session = user-directed (see queue) — most likely either a real lawyer's
@@ -743,32 +789,39 @@ the user says so.
   the 2026-07-21 addendum), or continuing to build (e.g. MoneyHelper
   partnership integration, staleness policy, disclaimer visual prominence).
 
-## Needs-you queue
-1. Give your own read/OK on the MVP scope decision (design doc §1 — shape
-   A, extractive/LLM-optional). Reversible; the automated compliance pass
-   above is a head start, not your sign-off.
-2. Compliance/lawyer sign-off before any launch/monetisation (standing
-   gate) — start from `docs/compliance-review-2026-07-21.md`; top item for
-   the lawyer is the FCA content-reuse question (finding #6 in that doc).
-3. Claude-composer mode (optional): needs an API key via credential
-   handoff. Note: `pistis/providers/` is currently an empty directory —
-   this mode isn't stubbed yet, it's a from-scratch build.
-4. MoneyHelper content: a free partnership/republishing programme appears
-   to exist (`moneyhelper.org.uk/en/about-us/partnerships/overview`) —
-   worth a build session to integrate properly (terms, attribution,
-   possible NC restriction on downloadable material vs. any future
-   monetisation) rather than the current WAF-blocked dead end. 21 entries
-   are parked in `manifest.json`'s `excluded` array pending this.
-5. ~~Confirm GitHub Dependabot alerts cleared~~ DONE this session — 0 open.
-6. Decide on disclaimer visual prominence (compliance doc finding #9) and
-   a staleness policy for old corpus snapshots (finding #10) — product
-   calls, not legal ones, but worth deciding before launch.
+## Needs-you queue — ALL CLOSED as of 2026-07-27; nothing is pending
 
-## Gates in force
+1. ~~Read/OK on the MVP scope decision~~ **CLOSED** — user approved proceeding
+   on it as a private build (2026-07-24). Do not re-open.
+2. ~~Compliance/lawyer sign-off~~ **DOES NOT APPLY** — user decided 2026-07-27
+   there will be **no launch and no monetisation**, so the gate is not blocking
+   anything. `docs/compliance-review-2026-07-21.md` is retained as the starting
+   point if that ever changes; the gate returns in full at that moment.
+3. ~~Claude-composer mode~~ **DROPPED by user** (2026-07-24) — everything stays
+   free/keyless. A keyless "composer" was deliberately NOT built: it could only
+   re-arrange source text and risk connective prose implying unsourced
+   relationships, which is precisely what this extractive product exists to
+   avoid. Do not revive it without the user asking.
+4. MoneyHelper content — **OPTIONAL, not blocking.** A free
+   partnership/republishing programme appears to exist
+   (`moneyhelper.org.uk/en/about-us/partnerships/overview`); 21 entries are
+   parked in `manifest.json`'s `excluded` array. This is a **content decision,
+   not code** — the engine works without them. Only worth doing if someone wants
+   the corpus wider.
+5. ~~Confirm GitHub Dependabot alerts cleared~~ **DONE** — 0 open.
+6. ~~Disclaimer visual prominence (finding #9)~~ **MOOT** with no launch — it is
+   a pre-launch presentation call and the disclaimer is already shown.
+   ~~Staleness policy (finding #10)~~ **DELIVERED** by the 2026-07-23 freshness
+   layer (`engine/freshness.py`).
+
+## Gates in force — SUPERSEDED, see PROJECT STATUS at the top
+> **Historical (2026-07-21).** The push hold below has expired. The build-only,
+> anonymity and corpus gates all still stand.
+
 - Build-only: NO deploy, NO launch, NO monetisation.
 - Anonymity: GreenPandaTech noreply identity; no personal identifiers.
 - Corpus content: OGL/official sources only; no scraping around WAFs.
-- Push-to-GitHub: ON HOLD per current user instruction (see "Push status").
+- ~~Push-to-GitHub: ON HOLD~~ — expired 2026-07-21; pushing is normal.
 
 ## How to run
 - Snapshot: `server/.venv/Scripts/python -m pistis.corpus.refresh`
