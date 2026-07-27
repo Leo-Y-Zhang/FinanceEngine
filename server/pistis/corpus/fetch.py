@@ -29,7 +29,46 @@ FETCH_DELAY_SECONDS = 0.5
 _BLOCK_TAGS = frozenset(
     "p li h1 h2 h3 h4 h5 h6 td th dt dd figcaption caption".split()
 )
-_SKIP_TAGS = frozenset("script style noscript svg iframe form nav header footer aside".split())
+# "head" (and so <title>) is skipped because a page's <title> is site chrome,
+# not body prose: it was being extracted as the first sentence of every FCA
+# page, brand suffix and all — "Protect yourself from scams | FCA." — and then
+# offered as a citable claim. The real document title is already carried
+# separately on every Passage, so this was duplication as well as noise.
+_SKIP_TAGS = frozenset(
+    "script style noscript svg iframe form nav header footer aside head title".split()
+)
+
+# Navigation chrome does not always live in a <nav>. FCA pages carry blocks of
+# site links as plain <div>/<ul> in the body, so a tag-only skip let a run of
+# link labels through as if it were prose:
+#
+#   "Support available for mortgages as interest rates rise More information.
+#    Your rights with financial services Mortgage fraud Protect yourself from
+#    scams How to complain."
+#
+# Retrieval then treated that as a passage and the engine answered "how do I
+# protect myself from financial scams?" out of a menu.
+#
+# This list holds ONLY markers measured against the live pages, because
+# over-matching deletes genuine content and that is the worse failure by far.
+# The first draft of it carried ten plausible-sounding markers. Measured,
+# "sidebar" alone cut the FCA scam-protection page from 7,400 characters to
+# 210 — the FCA layout wraps its main content in a sidebar-named container —
+# and most of the rest changed nothing whatsoever. "related-" removes the
+# offending block, costs 194 characters in total, and is the only marker that
+# does anything useful. So it is the only one here.
+#
+# Extend this list only with a before/after character count on the real page.
+_SKIP_CLASS_MARKERS = ("related-",)
+
+
+def _is_chrome(attrs) -> bool:
+    for name, value in attrs:
+        if name in ("class", "id") and value:
+            haystack = value.lower()
+            if any(marker in haystack for marker in _SKIP_CLASS_MARKERS):
+                return True
+    return False
 
 
 class _TextExtractor(HTMLParser):
@@ -39,6 +78,9 @@ class _TextExtractor(HTMLParser):
         super().__init__(convert_charrefs=True)
         self._scope_to_main = scope_to_main
         self._in_main = not scope_to_main
+        # The element currently being skipped, and how deep we are inside
+        # same-named tags within it, so a nested <div> cannot close it early.
+        self._skip_tag: str | None = None
         self._skip_depth = 0
         self._lines: list[str] = []
         self._buffer: list[str] = []
@@ -46,19 +88,31 @@ class _TextExtractor(HTMLParser):
     def handle_starttag(self, tag: str, attrs) -> None:
         if tag == "main":
             self._in_main = True
-        if tag in _SKIP_TAGS:
-            self._skip_depth += 1
+        if self._skip_tag is not None:
+            if tag == self._skip_tag:
+                self._skip_depth += 1
+            return
+        if tag in _SKIP_TAGS or _is_chrome(attrs):
+            # Flush first: text buffered before the chrome began is real prose
+            # and must not be glued onto whatever follows it.
+            self._flush()
+            self._skip_tag = tag
+            self._skip_depth = 1
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "main" and self._scope_to_main:
             self._in_main = False
-        if tag in _SKIP_TAGS and self._skip_depth:
-            self._skip_depth -= 1
+        if self._skip_tag is not None:
+            if tag == self._skip_tag:
+                self._skip_depth -= 1
+                if self._skip_depth <= 0:
+                    self._skip_tag = None
+            return
         if tag in _BLOCK_TAGS:
             self._flush()
 
     def handle_data(self, data: str) -> None:
-        if self._in_main and not self._skip_depth and data.strip():
+        if self._in_main and self._skip_tag is None and data.strip():
             self._buffer.append(data)
 
     def _flush(self) -> None:
