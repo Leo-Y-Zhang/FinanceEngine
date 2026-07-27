@@ -20,7 +20,8 @@ with nothing saying the backlog was longer — and that fix was completed:
 robustness, test-quality, integration), each lens's findings then put to an
 adversarial verifier told to refute them. 36 findings, 3 refuted, the rest
 confirmed or narrowed, collapsing to ~8 root causes. Fixed in `843aa21` +
-`f1f8dc6`:
+`d7c0172` (the second applies the review synthesis, which corrected three things
+the first had shipped — see that commit message):
 
 - **The ranking omitted the most-requested concept.** Concepts were keyed on the
   user's own wording, so one gap fragmented across its spellings: "passport" in
