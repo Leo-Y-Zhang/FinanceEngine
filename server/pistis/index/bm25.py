@@ -46,7 +46,8 @@ STOPWORDS = frozenset(
     us we our ours get got much many people whether need use like also work
     works
     am been being were did doing done
-    he she him her hers his they them theirs""".split()
+    he she him her hers his they them theirs
+    myself yourself himself herself itself ourselves yourselves themselves""".split()
 )
 
 

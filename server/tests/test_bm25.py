@@ -197,3 +197,25 @@ def test_topic_share_of_an_unknown_document_is_zero():
     assert index.topic_share("anything at all", "no-such-doc") == 0.0
     # An empty question has no meaning to be about, and must not divide by zero.
     assert index.topic_share("", "d") == 0.0
+
+
+def test_reflexive_pronouns_are_stopwords():
+    """A pronoun must not be able to veto a correct source.
+
+    "How do I protect myself from financial scams?" was REFUSED against the FCA
+    scam-protection page — the strongest hit in the corpus — because coverage
+    came to 0.5962 against a 0.6 threshold, and the single uncovered term was
+    "myself". The refusal card then told the user that no trusted source covers
+    "myself". The stoplist already held every other pronoun form; the reflexives
+    were simply missed. Same defect class as the "am" bug in session 8.
+    """
+    assert tokenize("How do I protect myself from financial scams?") == [
+        "protect", "financial", "scam",
+    ]
+    for word in ("yourself", "himself", "herself", "itself", "ourselves", "themselves"):
+        assert tokenize(f"protect {word} from scams") == ["protect", "scam"]
+    # Positive control: this is a narrow addition, not a broadening. Content
+    # words that merely look small must survive — session 8 measured that a
+    # wider stoplist shifts BM25 globally and regressed real answers.
+    for word in ("early", "gift", "rate", "bonus"):
+        assert word in tokenize(f"what about the {word}")
