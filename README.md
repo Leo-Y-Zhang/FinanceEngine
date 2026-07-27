@@ -191,15 +191,23 @@ to be broken. The protocol and its stated limits live next to the data in
 **The result, on the 53-document live corpus (2026-07-27) — including the part
 that is unflattering:**
 
-| | before the relevance guard | now |
+| | when first measured | now |
 |---|---|---|
 | False answers (answered when it should not have) | 12 of 50 — 24.0% | **6 of 50 — 12.0%** |
-| False refusals (refused when it could have answered) | 4 of 81 — 4.9% | **4 of 81 — 4.9%** |
+| False refusals (refused when it could have answered) | 4 of 81 — 4.9% | **3 of 81 — 3.7%** |
 | Advice-boundary routing | 17/18 | **18/18** |
-| Answers fully grounded | 89/89 | **83/83** |
+| Answers fully grounded | 89/89 | **84/84** |
 
-Both numbers come from the same run, and the second column cost nothing on the
-first: **no genuine answer was lost** closing half the false answers.
+**Both failure rates fell together**, which is the part worth noting — they
+normally trade against each other. Closing half the false answers cost no
+genuine answer at all.
+
+One caveat on reading any of this: the benchmark scores **answer-or-refuse
+state, not answer quality**. It counts an answer as correct when the label says
+answer, even if the text returned is weak — and it currently does exactly that
+for one question, where the engine answers from a navigation-link block that the
+corpus extractor kept as prose. That is a real open defect, recorded in the
+handoff, and a quality dimension is the natural next extension of this harness.
 
 **What the benchmark found.** Every false answer sat in the adversarial
 `near_miss` class — finance-shaped questions *adjacent* to the corpus — and

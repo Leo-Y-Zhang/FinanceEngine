@@ -1,8 +1,10 @@
 # SESSION_HANDOFF — Pistis
 
 **Updated:** 2026-07-27 (session 10: acted on the benchmark's finding - built the
-missing RELEVANCE guard, halving false answers 24% -> 12% at zero cost in false
-refusals; all green, pushed)
+missing RELEVANCE guard and fixed a pronoun that could veto a correct source.
+False answers 24% -> 12% AND false refusals 4.9% -> 3.7%, both down together;
+all green, pushed. Exposed one open corpus defect: nav chrome is indexed as
+content - see the end of this section.)
 
 ## Session 10 (2026-07-27) — the relevance guard: grounded is not relevant
 
@@ -67,9 +69,61 @@ states award rates. Topical aboutness cannot separate "covers the subject" from
 needs a different idea (question-type vs passage-shape matching), and it should
 be measured on the benchmark before it is believed.
 
-**Verification:** server **260 -> 267 pytest** green; honesty eval **PASS on both
+### A reflexive pronoun could veto a correct source
+
+Chasing the *cost* side afterwards found one more, and it is session 8's `am` bug
+a third time. **"How do I protect myself from financial scams?" was REFUSED**
+against the FCA scam-protection page — the strongest hit in the entire corpus.
+Coverage came to **0.5962 against a 0.6 threshold**, and the single uncovered
+term was **"myself"**. The explainable-refusal card then told the user that no
+trusted source covers "myself".
+
+The stoplist already held every other pronoun form (`me my you your he she him
+her they them theirs`) and had simply missed the reflexives. Adding
+`myself/yourself/himself/herself/itself/ourselves/yourselves/themselves`
+completes that list on its own logic rather than widening policy — and the
+regression test carries a positive control on small content words, because
+session 8 measured that a *broader* stoplist shifts BM25 globally and regressed
+real answers. **False refusals 4 -> 3 of 81 (4.9% -> 3.7%), false answers
+unchanged at 6.**
+
+### It exposed a real corpus defect — NAVIGATION CHROME IS INDEXED AS CONTENT
+
+Do not read that fix as a clean win. The scams question now *answers*, but from
+a **link-menu block** on an FCA page, not prose:
+
+    "Support available for mortgages as interest rates rise More information.
+     Your rights with financial services Mortgage fraud Protect yourself from
+     scams How to complain."
+
+Both behaviours were bad — refusing while blaming the word "myself", or
+answering with navigation chrome — and they are two separate defects. The
+stopword fix is right on its own terms; the chrome was always there and the fix
+merely surfaced it. **The extraction step is keeping related-links blocks as
+passages.** The honest fix is at extraction time in `corpus/`, not a
+claim-level filter (a run of link labels is hard to tell from a legitimate
+GOV.UK list without deleting real content, and getting that wrong is worse).
+It needs a re-fetch to verify, which is a live network operation.
+
+**LIMIT OF THE INSTRUMENT, now written down:** the benchmark scores
+**answer-or-refuse state, not answer quality**, so it counted that nav-chrome
+response as *correct*. Every number in it should be read with that caveat. A
+quality dimension would need a different label type (does the answer contain the
+specific fact asked for?) and is the natural next extension.
+
+**Verification:** server **260 -> 268 pytest** green; honesty eval **PASS on both
 fixture and live corpus** (21/21 answerability, 42/42 grounded live); web **17
 vitest** green + `tsc` clean. Pushed.
+
+**Final measured state of the gate (live 53-doc corpus):**
+
+    false answers  : 6 of 50 (12.0%)   was 12 of 50 (24.0%) at session start
+    false refusals : 3 of 81 ( 3.7%)   was  4 of 81 ( 4.9%)
+    advice routing : 18/18             was 17/18
+    grounded       : 84/84
+
+Both failure rates went DOWN together, which is the part worth noting: the two
+usually trade against each other.
 
 ---
 
