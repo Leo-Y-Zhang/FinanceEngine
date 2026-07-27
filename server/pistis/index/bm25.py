@@ -44,7 +44,13 @@ STOPWORDS = frozenset(
 
 
 def _fold(token: str) -> str:
-    """Light plural fold so 'contributions' matches 'contribution'."""
+    """Light plural fold so 'contributions' matches 'contribution'.
+
+    Deliberately NOT a stemmer. See docs/SESSION_HANDOFF.md (session 8) for the
+    measured evaluation of adding one: it answers ~3 more questions in 80 but
+    changes every IDF and BM25 score, and the gate's thresholds were calibrated
+    against THIS tokenizer, so it needs re-certification rather than a green eval.
+    """
     if len(token) > 3 and token.endswith("s") and not token.endswith(("ss", "is", "us")):
         return token[:-1]
     return token

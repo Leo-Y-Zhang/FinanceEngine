@@ -3,6 +3,72 @@
 **Updated:** 2026-07-27 (session 7: the deferred adversarial review of the
 corpus-gap report, run and closed; all green, pushed)
 
+## Session 8 (2026-07-27) — the gap report used in anger, and a stemmer evaluated then declined
+
+**Used the corpus-gap report for the first time properly.** It had never been run
+on anything real — the local ask-log holds 5 questions, so it reported nothing.
+Against an 80-question realistic set (`--log`, so the privacy-relevant real log
+stays untouched) it earned its keep twice.
+
+1. **It found an engine bug.** `am` was missing from `STOPWORDS`. Measured on the
+   live corpus, `idf("am") = 6.966` — *identical to* `idf("vat")`, a concept the
+   corpus genuinely lacked. So a function word dragged IDF-weighted coverage down
+   as hard as a real gap, falsely refusing two questions, and then explained the
+   refusal with the word "am". Fixed in `9ab5fec`. Worth reading how: a first,
+   broader stoplist (`than/then/any/all/no/not/only/most`…) **measurably regressed**
+   "auto enrolment" from answered to refused, because dropping high-frequency
+   words from the *documents* shifts BM25 globally and buried the passage that
+   answers it. Narrowed to only what the evidence justified.
+2. **Corpus 46 → 53 documents** (`9838f39`), closing the gaps it ranked: VAT
+   registration + rates, IR35, inheritance tax, council tax, warm home discount,
+   energy-bills help. Each page was verified *before* adding —
+   `/vat-registration` does not resolve, and `/council-tax-bands` has a
+   ZERO-length body (the transaction-page trap behind the two standing refresh
+   failures). Result on the same 80 questions: **59 answered / 19 refused → 67 /
+   11**, every new answer fully grounded, and the report then showed **nothing
+   above the floor** — the filled gap dropped off by itself, as designed.
+
+### A stemmer: built, measured, and DECLINED (deliberate — do not "finish" this)
+
+The one honest remainder was morphology: the light plural fold maps `bands→band`
+but not `banding→band`, so "how does council tax banding work" refused against a
+corpus that covers council tax bands.
+
+Both options were actually tried and measured, not guessed at:
+
+* **Hand-rolled inflection rules** (plural + `ing`/`ed` + `ies`) — rejected as
+  *incorrect*. They are not confluent: `earnings→earning` (via the plural rule)
+  while `earning→earn`, so the two stop matching each other; and they produce
+  non-words inconsistently (`housing→hous` but `house→house`). It did measure
+  well on the surface (67 → 70 answered, eval PASS) which is exactly the trap —
+  it answered 3 more of *my own* 80 questions while carrying a known defect.
+* **`snowballstemmer`** (BSD-3, pure Python) — correct and properly confluent
+  (`banding/bands/band → band`, `earnings/earning/earn → earn`). Still declined,
+  for two reasons that are about this product specifically:
+  1. **The gate's thresholds were calibrated against THIS tokenizer** (the 24/24
+     then 37/37 golden work, and the union-vs-best-passage coverage bug found on
+     real data). Stemming changes every IDF and BM25 score, so it needs
+     re-certification of `MIN_TOP_SCORE`/`MIN_COVERAGE`, not merely a green eval —
+     21 goldens cannot demonstrate that.
+  2. **It widens the false-match surface in the dangerous direction.** Stemming
+     made `listed→list` and `building→build`, which flipped
+     `test_no_source_refusal_summarises_overflow_terms` from `no_source` to
+     `weak_coverage` — the solar-panels query started matching generic corpus
+     text. For a default-deny product, coverage satisfied by generic stems is
+     worse than a false refusal, and `bm25.py`'s own header commits to
+     pure-python scoring "which the gate's calibration tests rely on".
+
+**If it is ever taken on, it is a project, not a bump:** add the dependency (or
+vendor it, with the BSD-3 notice), re-derive the gate thresholds against the
+stemmed index, extend the golden set well beyond 21, and re-run the live-corpus
+eval — the `--log` harness plus a canary list of must-answer/must-refuse questions
+is the right instrument. The measured upside to weigh against that: ~3 more
+answers in 80.
+
+`_fold`'s docstring now points here so the next reader does not re-litigate it.
+
+---
+
 ## Session 7 (2026-07-27) — corpus-gap report: deferred review run and closed
 
 Session 6 left one open item: the full multi-agent adversarial review of
