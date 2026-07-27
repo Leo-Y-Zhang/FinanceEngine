@@ -209,7 +209,15 @@ class AnswerCard:
 
 
 AbstainStage = Literal[
-    "no_source", "weak_coverage", "no_groundable_statement", "empty_question"
+    "no_source",
+    "weak_coverage",
+    # Sources matched the words strongly, but none of them is ABOUT the subject
+    # raised — distinct from no_groundable_statement, where a source IS on topic
+    # and merely has no quotable sentence. Conflating the two would give the user
+    # a confidently wrong account of why Pistis declined.
+    "off_topic",
+    "no_groundable_statement",
+    "empty_question",
 ]
 
 

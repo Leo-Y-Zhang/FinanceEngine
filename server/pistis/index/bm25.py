@@ -17,6 +17,13 @@ from pistis.models import Passage
 K1 = 1.5
 B = 0.75
 
+# How many distinct passages of one document must use a term before that
+# document counts as being ABOUT it rather than mentioning it in passing. Two,
+# measured: on the live corpus incidental terms sit in a single passage, and
+# raising this to three bought no extra false answers blocked while costing
+# real answers ("how do I know if a message from HMRC is genuine?").
+ABOUTNESS_PASSAGES = 2
+
 _TOKEN = re.compile(r"[a-z0-9£]+(?:/[0-9]+)?")
 
 # Closed-class function words, dropped before matching. This list is
@@ -126,6 +133,20 @@ class Bm25Index:
         self._idf = {
             term: math.log(1 + (n - f + 0.5) / (f + 0.5)) for term, f in df.items()
         }
+        # Document-level topical index: for each source document, how many of its
+        # DISTINCT passages use each term, plus the terms in its title. Passage
+        # counts are taken from passage TEXT alone here — deliberately not
+        # `_passage_vocab`, which folds the title into every passage and would
+        # make a title term look like it saturates the whole document.
+        self._doc_passage_df: dict[str, Counter[str]] = {}
+        self._doc_title_terms: dict[str, set[str]] = {}
+        self._doc_passage_count: Counter[str] = Counter()
+        for passage, toks in zip(self._passages, self._docs):
+            self._doc_passage_df.setdefault(passage.doc_id, Counter()).update(set(toks))
+            self._doc_title_terms.setdefault(
+                passage.doc_id, set(tokenize(passage.doc_title))
+            )
+            self._doc_passage_count[passage.doc_id] += 1
 
     def __len__(self) -> int:
         return len(self._passages)
@@ -176,6 +197,53 @@ class Bm25Index:
             available = _passage_vocab(h.passage)
             best = max(best, sum(weight(t) for t in terms if t in available) / total)
         return best
+
+    def is_about(self, doc_id: str, term: str) -> bool:
+        """Does this document TREAT ``term`` as a subject, rather than mention it?
+
+        Titled for it, or using it across at least ABOUTNESS_PASSAGES distinct
+        passages. Measured on the live corpus, incidental terms occupy one
+        passage and never reach a title, while genuinely covered subjects do
+        both — the same separation the benchmark's label validator relies on.
+        """
+        if term in self._doc_title_terms.get(doc_id, frozenset()):
+            return True
+        # Relative to document length, because a raw passage count means very
+        # different things at different sizes: live documents run to a median of
+        # 32 passages, but some hold only two, and in a two-passage document one
+        # passage IS half the subject matter. Without this, "about" silently
+        # became "impossible to satisfy" for short sources.
+        total = self._doc_passage_count.get(doc_id, 0)
+        required = min(ABOUTNESS_PASSAGES, math.ceil(total / 2)) if total else ABOUTNESS_PASSAGES
+        return self._doc_passage_df.get(doc_id, {}).get(term, 0) >= max(1, required)
+
+    def topic_share(self, query: str, doc_id: str) -> float:
+        """How much of the question's meaning this document is actually ABOUT.
+
+        The third signal, and a different question from the other two.
+        ``coverage`` asks whether the words are present; ``faithfulness`` asks
+        whether a claim is supported by the passage it came from. Neither asks
+        whether the source addresses the subject that was raised — so a passage
+        listing "statutory sick pay" among types of earnings scores a perfect
+        coverage for "how much is statutory sick pay?", and a grounded, correctly
+        cited claim about inheritance-tax taper relief comes back for "how is
+        cryptocurrency taxed?". Both were real, measured failures.
+
+        IDF-weighted for the same reason ``coverage`` is, and for one more: it
+        makes the measure immune to a single junk term. "How much can I pay into
+        an ISA each year?" has "each" as its RAREST token — rarer than "isa" —
+        so any rule keyed on the single rarest word puts the whole question on a
+        function word. Weighting by share of total meaning lets "isa" carry it.
+        """
+        terms = set(tokenize(query))
+        if not terms:
+            return 0.0
+        max_idf = max(self._idf.values(), default=1.0)
+        weight = lambda t: self._idf.get(t, max_idf)  # noqa: E731
+        total = sum(weight(t) for t in terms)
+        if not total:
+            return 0.0
+        return sum(weight(t) for t in terms if self.is_about(doc_id, t)) / total
 
     def uncovered_terms(self, query: str, hits: list[Hit], top_n: int = 4) -> list[str]:
         """The query's own words that no top passage covers — the concepts the

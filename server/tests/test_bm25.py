@@ -112,3 +112,88 @@ def test_a_genuinely_missing_concept_still_surfaces(index):
     query = "Do I need to register for cryptocurrency"
     hits = index.search(query)
     assert "cryptocurrency" in index.uncovered_terms(query, hits)
+
+
+# ── the relevance signal: is this document ABOUT the question? ────────────────
+#
+# A third signal, independent of retrieval strength and coverage. Both of those
+# ask whether the question's WORDS are present; the faithfulness verifier asks
+# whether a claim is supported by the passage it came from. None of them asks
+# whether the source addresses the SUBJECT, which is how a grounded, correctly
+# cited claim about inheritance-tax taper relief came back for "how is
+# cryptocurrency taxed?".
+
+
+def _doc(doc_id, title, *texts):
+    from pistis.models import Passage, SourceOrg
+
+    return [
+        Passage(
+            id=f"{doc_id}#{i}",
+            doc_id=doc_id,
+            text=text,
+            doc_title=title,
+            org=SourceOrg.GOVUK,
+            url="https://www.gov.uk/x",
+            fetched_at="2026-07-27",
+        )
+        for i, text in enumerate(texts)
+    ]
+
+
+def test_a_passing_mention_is_not_aboutness():
+    # The exact shape of the crypto failure: one incidental mention inside a
+    # document about something else entirely.
+    passages = _doc(
+        "iht", "Inheritance Tax",
+        "Gifts given 3 to 7 years before death are taxed on a sliding scale.",
+        "Chargeable assets include property, shares and cryptocurrency.",
+        "The threshold is set each tax year.",
+        "Taper relief reduces the tax due.",
+    )
+    index = Bm25Index(passages)
+    assert not index.is_about("iht", "cryptocurrency")
+    # positive control: the subject the document actually covers
+    assert index.is_about("iht", "tax")
+
+
+def test_a_title_makes_a_document_about_its_subject():
+    index = Bm25Index(_doc("ctf", "Child Trust Fund", "Some text.", "More text."))
+    assert index.is_about("ctf", "child")
+
+
+def test_aboutness_is_relative_to_document_length():
+    """In a two-passage document, one passage IS half the subject matter.
+
+    A fixed passage count silently became unsatisfiable for short sources —
+    live documents run to a median of 32 passages, but some hold only two.
+    """
+    short = Bm25Index(_doc("s", "A title", "Annuity rates vary by provider.", "Other text."))
+    assert short.is_about("s", "annuity")
+    long_doc = Bm25Index(
+        _doc("l", "A title", "Annuity rates vary.", *["Unrelated text."] * 9)
+    )
+    assert not long_doc.is_about("l", "annuity")
+
+
+def test_topic_share_is_not_hijacked_by_one_rare_junk_term():
+    """"each" outranks "isa" on IDF in the live corpus — rarity alone is no guide.
+
+    Any rule keyed on a question's single rarest token would put the whole
+    decision on a function word. Weighting by share of total meaning does not.
+    """
+    passages = _doc(
+        "isa", "Individual Savings Accounts ISA",
+        "You can pay in up to the allowance each year.",
+        "There are four types of ISA account.",
+    ) + _doc("x", "Something else", "Filler text here.", "More filler text.")
+    index = Bm25Index(passages)
+    assert index.topic_share("How much can I pay into an ISA each year?", "isa") >= 0.5
+    assert index.topic_share("How much can I pay into an ISA each year?", "x") < 0.5
+
+
+def test_topic_share_of_an_unknown_document_is_zero():
+    index = Bm25Index(_doc("d", "Title", "Text one.", "Text two."))
+    assert index.topic_share("anything at all", "no-such-doc") == 0.0
+    # An empty question has no meaning to be about, and must not divide by zero.
+    assert index.topic_share("", "d") == 0.0

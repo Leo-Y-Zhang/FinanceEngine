@@ -212,3 +212,63 @@ def test_worked_example_claims_capped_and_not_boosted(passages):
     assert all(c.confidence == "uncertain" for c in example_claims)
     # the un-boosted example must not outrank the real rule
     assert decision.claims[0].citation.url.endswith("/rule")
+
+
+def _passage(doc_id, idx, title, text):
+    return Passage(
+        id=f"{doc_id}#{idx}",
+        doc_id=doc_id,
+        text=text,
+        doc_title=title,
+        org=SourceOrg.GOVUK,
+        url="https://www.gov.uk/inheritance-tax",
+        fetched_at="2026-07-27",
+        last_updated="2026-07-01",
+    )
+
+
+def test_off_topic_sources_are_refused_and_told_apart_from_uncitable_ones():
+    """The relevance guard: matching the words is not addressing the subject.
+
+    This is the crypto failure in miniature. A document about Inheritance Tax
+    mentions cryptocurrency once, in a list of chargeable assets. Retrieval and
+    coverage are both satisfied — the words really are there — and any sentence
+    drawn from it is perfectly grounded in its own passage. It still does not
+    answer how cryptocurrency is taxed.
+    """
+    from pistis.index.bm25 import Bm25Index
+
+    passages = [
+        _passage("iht", 0, "Inheritance Tax",
+                 "Chargeable assets are taxed and include property, shares and cryptocurrency."),
+        _passage("iht", 1, "Inheritance Tax",
+                 "Gifts given 3 to 7 years before death are taxed on a sliding scale."),
+        _passage("iht", 2, "Inheritance Tax",
+                 "The Inheritance Tax threshold is reviewed each tax year by HMRC."),
+        _passage("iht", 3, "Inheritance Tax",
+                 "Taper relief reduces the amount of Inheritance Tax due on a gift."),
+    ]
+    decision = decide("How is cryptocurrency taxed?", Bm25Index(passages))
+
+    assert not decision.answerable
+    assert decision.report is not None
+    assert decision.report.stage == "off_topic"
+    # The explanation must say why, not borrow another stage's account of itself.
+    assert "about" in decision.report.explanation.lower()
+    assert decision.claims == ()
+
+
+def test_the_relevance_guard_cannot_turn_a_refusal_into_an_answer():
+    """Safety property: it only ever removes material.
+
+    Anything the gate would previously have refused it must still refuse, so the
+    guard can never widen what Pistis is willing to say.
+    """
+    from pistis.index.bm25 import Bm25Index
+
+    index = Bm25Index([
+        _passage("d", 0, "Some guide", "This document is about something else entirely."),
+        _passage("d", 1, "Some guide", "It has nothing to do with the question asked."),
+    ])
+    for question in OUT_OF_CORPUS:
+        assert not decide(question, index).answerable

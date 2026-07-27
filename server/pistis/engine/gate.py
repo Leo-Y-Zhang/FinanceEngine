@@ -35,6 +35,16 @@ MIN_COVERAGE = 0.6
 MIN_SENTENCE_OVERLAP = 0.25
 MAX_CLAIMS = 6
 
+# Relevance threshold: the share of a question's IDF-weighted meaning that a
+# source document must actually be ABOUT before anything in it may be cited.
+# This is a THIRD signal, independent of the two above — see `_on_topic`.
+# Chosen by measurement on the live 53-document corpus against the 131-question
+# answerability benchmark, not by taste: at 0.5 it removes 8 of the 12 false
+# answers and costs ZERO new false refusals. 0.6 removes one more but starts
+# refusing genuine answers ("how is a SIPP taxed?"), which is not a trade worth
+# making when false refusals are already the cheaper failure to keep low.
+MIN_TOPIC_SHARE = 0.5
+
 _SENTENCE_END = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9£])")
 
 # Confidence-tier markers: sentences whose truth depends on the reader's
@@ -104,6 +114,24 @@ def _confidence_for(sentence: str, passage: Passage) -> Confidence:
         # Undated source and no checkable figure: honest tier is "uncertain".
         return "uncertain"
     return "established"
+
+
+def _on_topic(question: str, hits: list[Hit], index: Bm25Index) -> list[Hit]:
+    """Drop hits from documents that are not ABOUT what was asked.
+
+    The relevance guard, and deliberately a separate one. Retrieval strength and
+    coverage both ask whether the question's *words* are present; the
+    faithfulness verifier asks whether a claim is supported by the passage it
+    came from. None of them asks whether the source addresses the subject — so
+    the engine could return a grounded, correctly cited claim about
+    inheritance-tax taper relief when asked how cryptocurrency is taxed, and the
+    faithfulness verifier had no objection, because the claim was perfectly true
+    of the passage it was drawn from. Grounded is not the same property as
+    relevant, and this is the check for the second one.
+
+    It can only ever REMOVE material, so it cannot turn a refusal into an answer.
+    """
+    return [h for h in hits if index.topic_share(question, h.passage.doc_id) >= MIN_TOPIC_SHARE]
 
 
 def _sentence_claims(question: str, hits: list[Hit]) -> list[tuple[Claim, ClaimVerdict]]:
@@ -193,7 +221,32 @@ def decide(question: str, index: Bm25Index, k: int = 8) -> GateDecision:
                 uncovered_terms=uncovered,
             ),
         )
-    pairs = _sentence_claims(question, hits)
+    on_topic = _on_topic(question, hits, index)
+    if not on_topic:
+        uncovered = tuple(index.uncovered_terms(question, hits))
+        return GateDecision(
+            answerable=False,
+            reason=(
+                "The sources Pistis trusts mention this, but none of them is "
+                "about it in enough depth to answer."
+            ),
+            top_score=top,
+            coverage=cov,
+            report=AbstentionReport(
+                stage="off_topic",
+                explanation=(
+                    "Trusted sources used your words, but none of them is ABOUT "
+                    "the subject you asked about — they mention it in passing "
+                    "while covering something else. Answering from those would "
+                    "produce a correctly cited statement that does not address "
+                    "your question."
+                ),
+                signals=_signal_pair(top, cov, both_pass=True),
+                uncovered_terms=uncovered,
+            ),
+        )
+
+    pairs = _sentence_claims(question, on_topic)
     if not pairs:
         return GateDecision(
             answerable=False,

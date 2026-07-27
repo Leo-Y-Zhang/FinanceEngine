@@ -69,6 +69,11 @@ export interface AnswerCard {
 export type AbstainStage =
   | "no_source"
   | "weak_coverage"
+  // Sources matched the words but none of them is ABOUT the subject raised.
+  // Kept distinct from no_groundable_statement, where a source IS on topic and
+  // merely holds no quotable sentence — conflating the two would give the user
+  // a confidently wrong account of why Pistis declined.
+  | "off_topic"
   | "no_groundable_statement"
   | "empty_question";
 
