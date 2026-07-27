@@ -3,6 +3,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from pistis.gaps import corpus_gap_report, main
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -124,3 +126,74 @@ def test_cli_human_and_json(tmp_path, capsys):
     assert code == 0
     assert payload["questions_analyzed"] == len(GAP_QUESTIONS)
     assert any(c["term"] == "passport" for c in payload["concepts"])
+    # the machine record carries the pre-cap total, so a consumer can detect truncation
+    assert payload["total_gap_concepts"] == len(payload["concepts"])
+
+
+def test_top_cap_never_silently_truncates(tmp_path, capsys):
+    log = tmp_path / "ask.jsonl"
+    _write_log(log, GAP_QUESTIONS)
+
+    full = corpus_gap_report(log, SNAPSHOT, min_distinct=2)
+    capped = corpus_gap_report(log, SNAPSHOT, min_distinct=2, top=1)
+
+    assert len(full.concepts) >= 2  # the fixture genuinely has more than one gap
+    assert full.total_gap_concepts == len(full.concepts)  # uncapped: total == listed
+    assert len(capped.concepts) == 1
+    assert capped.concepts[0].term == "passport"  # the cap keeps the top-ranked
+    # the cap shrinks the LISTING, never the reported truth
+    assert capped.total_gap_concepts == full.total_gap_concepts
+    assert capped.suppressed_concepts == full.suppressed_concepts
+
+    code = main(
+        ["--log", str(log), "--snapshot", str(SNAPSHOT), "--min-distinct", "2", "--top", "1"]
+    )
+    out = capsys.readouterr().out
+    assert code == 0
+    assert f"and {full.total_gap_concepts - 1} more" in out  # truncation is visible
+    assert f"above the floor  : {full.total_gap_concepts}" in out
+
+
+def test_top_zero_discloses_the_withheld_count(tmp_path, capsys):
+    log = tmp_path / "ask.jsonl"
+    _write_log(log, GAP_QUESTIONS)
+    total = corpus_gap_report(log, SNAPSHOT, min_distinct=2).total_gap_concepts
+
+    report = corpus_gap_report(log, SNAPSHOT, min_distinct=2, top=0)
+    assert report.concepts == ()
+    assert report.total_gap_concepts == total  # an empty listing is not "no gaps"
+
+    code = main(
+        ["--log", str(log), "--snapshot", str(SNAPSHOT), "--min-distinct", "2", "--top", "0"]
+    )
+    out = capsys.readouterr().out
+    assert code == 0
+    assert "none above the floor" not in out  # must not claim there are no gaps
+    assert f"list {total}" in out
+
+
+def test_all_flag_overrides_the_cap(tmp_path, capsys):
+    log = tmp_path / "ask.jsonl"
+    _write_log(log, GAP_QUESTIONS)
+    full = corpus_gap_report(log, SNAPSHOT, min_distinct=2)
+
+    code = main(
+        [
+            "--log", str(log), "--snapshot", str(SNAPSHOT),
+            "--min-distinct", "2", "--top", "1", "--all", "--json",
+        ]
+    )
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    assert len(payload["concepts"]) == full.total_gap_concepts  # nothing withheld
+    assert {c["term"] for c in payload["concepts"]} == {c.term for c in full.concepts}
+
+
+def test_negative_top_is_rejected_rather_than_reverse_slicing(tmp_path):
+    log = tmp_path / "ask.jsonl"
+    _write_log(log, GAP_QUESTIONS)
+    # a negative slice would silently DROP the highest-ranked gaps — refuse instead
+    with pytest.raises(ValueError):
+        corpus_gap_report(log, SNAPSHOT, min_distinct=2, top=-1)
+    with pytest.raises(SystemExit):
+        main(["--log", str(log), "--snapshot", str(SNAPSHOT), "--top", "-1"])

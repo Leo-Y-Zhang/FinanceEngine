@@ -89,7 +89,8 @@ class GapReport:
     questions_analyzed: int
     refusals_with_gaps: int
     min_distinct: int
-    concepts: tuple[GapConcept, ...]  # above the floor, ranked most-requested first
+    concepts: tuple[GapConcept, ...]  # above the floor, ranked; may be capped by ``top``
+    total_gap_concepts: int           # distinct concepts above the floor (pre-cap)
     suppressed_concepts: int          # distinct concepts seen but below the floor
 
 
@@ -102,7 +103,11 @@ def corpus_gap_report(
     """Replay the ask-log against the current corpus and aggregate the concepts
     that still make Pistis abstain. Re-asking (rather than trusting the logged
     outcome) means the report reflects the corpus as it stands now: a gap the
-    corpus has since filled simply stops appearing."""
+    corpus has since filled simply stops appearing.
+
+    ``top`` caps how many concepts are LISTED (None = no cap). The cap is never
+    silent: ``total_gap_concepts`` always carries the full pre-cap count, so a
+    truncated listing cannot be mistaken for the whole backlog."""
     engine = Engine(Bm25Index(load_snapshot(Path(snapshot_path))))
     questions = _read_questions(Path(log_path))
 
@@ -121,7 +126,10 @@ def corpus_gap_report(
     above = [(t, n) for t, n in counts.items() if n >= min_distinct]
     above.sort(key=lambda tn: (-tn[1], tn[0]))
     suppressed = sum(1 for n in counts.values() if n < min_distinct)
+    total_above = len(above)
     if top is not None:
+        if top < 0:
+            raise ValueError("top must be non-negative (or None for no cap)")
         above = above[:top]
 
     return GapReport(
@@ -129,6 +137,7 @@ def corpus_gap_report(
         refusals_with_gaps=refusals_with_gaps,
         min_distinct=min_distinct,
         concepts=tuple(GapConcept(term=t, questions=n) for t, n in above),
+        total_gap_concepts=total_above,
         suppressed_concepts=suppressed,
     )
 
@@ -140,6 +149,7 @@ def _format(r: GapReport) -> str:
         f"Questions analysed        : {r.questions_analyzed}",
         f"Refusals with a gap       : {r.refusals_with_gaps}",
         f"Reporting floor           : a concept must appear in >= {r.min_distinct} distinct questions",
+        f"Concepts above the floor  : {r.total_gap_concepts}",
         f"Concepts below the floor  : {r.suppressed_concepts}  (withheld for privacy)",
         "",
         "Most-requested uncovered concepts (candidates to add to the corpus):",
@@ -149,6 +159,13 @@ def _format(r: GapReport) -> str:
         for c in r.concepts:
             plural = "question" if c.questions == 1 else "questions"
             lines.append(f"  {c.term.ljust(width)}  {c.questions} {plural}")
+        hidden = r.total_gap_concepts - len(r.concepts)
+        if hidden > 0:
+            # Never let the --top cap pass itself off as the whole backlog.
+            lines.append(f"  ... and {hidden} more (raise --top to list them)")
+    elif r.total_gap_concepts:
+        # Above the floor but nothing listed: --top 0.
+        lines.append(f"  (none listed — raise --top to list {r.total_gap_concepts})")
     else:
         lines.append("  (none above the floor)")
     return "\n".join(lines)
@@ -164,12 +181,25 @@ def main(argv: list[str] | None = None) -> int:
         default=DEFAULT_MIN_DISTINCT,
         help="privacy floor: min distinct questions a concept must appear in",
     )
-    parser.add_argument("--top", type=int, default=25)
+    parser.add_argument(
+        "--top",
+        type=int,
+        default=25,
+        help="max concepts to LIST (the full count is always reported); use --all for no cap",
+    )
+    parser.add_argument(
+        "--all", action="store_true", help="list every concept above the floor (no --top cap)"
+    )
     parser.add_argument("--json", action="store_true", help="machine-readable output")
     args = parser.parse_args(argv)
+    if args.top < 0:
+        parser.error("--top must be non-negative (or use --all for no cap)")
 
     report = corpus_gap_report(
-        args.log, args.snapshot, min_distinct=args.min_distinct, top=args.top
+        args.log,
+        args.snapshot,
+        min_distinct=args.min_distinct,
+        top=None if args.all else args.top,
     )
     print(json.dumps(asdict(report), indent=2) if args.json else _format(report))
     return 0
