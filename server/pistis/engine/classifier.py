@@ -67,8 +67,12 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = tuple(
         # 2) beyond do/pick/choose/buy — "what would you put/invest/open/
         # move/transfer/go for" are the same ask in different everyday verbs.
         ("recommend", r"\b(recommend|advise\s+me|advice\s+for\s+me|what\s+would\s+you\s+(do|pick|choose|buy|put|invest|open|move|transfer|go\s+for))\b"),
-        # "is it worth (it) (for me)" / "good idea to"
-        ("worth-it", r"\b(is\s+it\s+worth|worthwhile|good\s+idea\s+(for\s+me\s+)?to)\b"),
+        # "is it worth (it) (for me)" / "good idea to". The bare "worth it"
+        # alternative was added 2026-07-27 after the answerability benchmark
+        # caught a live escape: this pattern recognised only the PRONOUN subject,
+        # so "is it worth it for me" routed while "is a Lifetime ISA worth it for
+        # me" was answered. A named product in the subject slot is the same ask.
+        ("worth-it", r"\b(is\s+it\s+worth|worth\s+it|worthwhile|good\s+idea\s+(for\s+me\s+)?to)\b"),
         # Suitability verbs beyond "worth": smart/wise/sensible/makes sense/
         # the way to go — the same ask in everyday phrasing
         ("suitability-verb", r"\b(is|are|was|would|does|do|did)\b[^?.]{0,50}\b(smart|wise|sensible|prudent|make[s]?\s+sense|the\s+way\s+to\s+go|the\s+right\s+(call|move|choice|option)|the\s+better\s+(pick|option|choice)|a\s+good\s+move)\b"),

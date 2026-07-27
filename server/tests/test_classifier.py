@@ -65,6 +65,16 @@ PERSONAL_REC_QUESTIONS = [
     "Kindly advise on my pension options",
     "Guide me on my pension options",
     "What do you suggest for my pension contributions?",
+    # Escape found by the answerability benchmark, 2026-07-27. The "worth-it"
+    # pattern recognised only the PRONOUN subject, so "is it worth it for me"
+    # routed while the identical ask about a NAMED PRODUCT was answered. Each of
+    # these was checked against the pre-fix pattern set first: all five escaped,
+    # and no other rule caught them.
+    "Is a Lifetime ISA worth it for me?",
+    "Is a Lifetime ISA worth it?",
+    "Is the Help to Save bonus worth it for someone on my income?",
+    "Are voluntary National Insurance contributions worth it?",
+    "Overpaying my mortgage — is that worth it?",
 ]
 
 GUIDANCE_QUESTIONS = [
@@ -90,6 +100,14 @@ GUIDANCE_QUESTIONS = [
     "What would happen to my Help to Buy ISA bonus if I change jobs?",
     "Is it common for people to switch pension providers when they change jobs?",
     "If you already have a Lifetime ISA, can you also pay into a Help to Buy ISA in the same tax year?",
+    # Boundary probes for the 2026-07-27 "worth it" widening. "Worth" without
+    # "it" is a VALUATION question, not a suitability one, and must stay
+    # answerable — this is the negative control that stops the new alternative
+    # quietly swallowing a whole class of factual questions.
+    "How much is my pension pot worth?",
+    "What is my ISA worth after five years?",
+    "How much is the new State Pension worth?",
+    "What is the Help to Save bonus worth?",
 ]
 
 
