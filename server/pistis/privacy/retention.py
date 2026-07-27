@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import time
+import warnings
 from pathlib import Path
 
 RETENTION_DAYS = 30
@@ -40,9 +41,24 @@ def purge_expired(
     now = time.time() if now is None else now
     cutoff = now - retention_seconds
 
+    try:
+        text = log_path.read_text(encoding="utf-8-sig")
+    except (UnicodeDecodeError, OSError) as exc:
+        # This pass runs at server startup, so raising here would stop the
+        # service starting at all over one corrupt byte in a local log. Warn
+        # loudly and change nothing: rewriting a file we could not fully read
+        # would be the worse failure, since the lines we could not decode are
+        # exactly the ones we would silently drop.
+        warnings.warn(
+            f"ask-log retention skipped: cannot read {log_path}: {exc}",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+        return 0
+
     kept: list[str] = []
     removed = 0
-    for line in log_path.read_text(encoding="utf-8").splitlines():
+    for line in text.splitlines():
         if not line.strip():
             continue
         try:

@@ -3,47 +3,56 @@
 Reads the local ask-log, replays each distinct question through the engine, and
 aggregates the concepts that make Pistis abstain — the query terms no trusted
 source covers (the same ``uncovered_terms`` diagnostic the refusal shows the
-user). The result is a keyless, privacy-safe backlog of what to add to the
-corpus next: the money questions people ask that Pistis cannot yet answer.
-Refusal is a feature; this makes the refusals *actionable*.
+user). The result is a keyless backlog of the concepts people ask about that no
+trusted source in the corpus covers. Refusal is a feature; this makes the
+refusals *actionable*.
 
-Two kinds of gap, reported separately and never mixed, because they mean
-opposite things to whoever curates the corpus:
+**Absent from the corpus is not the same as belongs in the corpus.** Nothing in
+the engine classifies topical scope (the advice-boundary classifier detects
+personal-recommendation *shape*, and the gate decides on retrieval strength and
+coverage), so this report cannot tell a real gap from a question Pistis
+correctly refused as out of scope. It reports evidence and leaves the triage to
+a human. The two sections say only what was measured:
 
-  * **Thin coverage** — trusted sources DID match the question, but not
-    strongly or completely enough in one place. These are the real
-    corpus-expansion candidates: Pistis is on the topic and short of material.
-  * **No overlap** — nothing in the corpus matched the question at all. Most of
-    these are simply OUT OF SCOPE for a UK personal-finance corpus (a passport
-    question, a weather question), and a zero-hit refusal names every content
-    word in the question rather than one missing concept. Ranking them together
-    with the thin-coverage gaps let off-topic noise outrank the genuine ones,
-    so they are listed apart and must be triaged for scope before anything is
-    added.
+  * **No source shared any term** — every token of the concept is absent from
+    the entire corpus. This is the STRONGEST evidence of absence the system can
+    produce, not a weak signal.
+  * **Partial match** — trusted sources did match the question, but not
+    strongly or completely enough in one place.
 
-Privacy by construction:
-  * Aggregate-only. Raw questions never leave the function; the output is
-    concept frequencies, nothing else.
-  * A reporting floor. A concept is reported only when it appears across at
-    least ``min_distinct`` distinct questions. **What that does and does not
-    guarantee:** the ask-log records no user identity, so the floor counts
-    DISTINCT QUESTIONS, not distinct people — it is not k-anonymity over users,
-    and one person asking about the same thing in two genuinely different ways
-    can still cross it. To stop a single person crossing the floor by merely
-    retyping, "distinct" is measured on a question's CONTENT TOKENS (the same
-    normalisation the index matches on), so case, punctuation, stopwords and
-    word order do not manufacture a second question. Raise the floor before
-    exposing the report to more than one person's questions.
-  * Concepts are canonicalised the way the index matches them, so a gap cannot
-    hide by fragmenting across its spellings ("passport" / "passports").
-  * Amounts and identifier-shaped strings are dropped: a term containing a
-    digit is withheld unless it is a known UK tax-form code, so an amount
-    ("50k"), a National Insurance number, a postcode or an IBAN can never be
-    published as a "concept".
+They are listed apart so neither crowds the other out of the ranking; the
+division is by evidence, and is NOT a scope judgement.
+
+Privacy posture — what is and is not guaranteed:
+  * Aggregate-only: the output is per-concept frequencies and counts, and there
+    is no question field on the report. On a very small log, though, the set of
+    concepts can still approximate the vocabulary of an individual question.
+  * A **repetition floor over distinct normalised questions** (``min_distinct``)
+    withholds any concept that recurs less often. This is NOT k-anonymity and
+    NOT anonymity over people: the ask-log records no user or session identity,
+    so N distinct questions may all come from one person, and raising the floor
+    does not change that. What the floor does do is stop a *cosmetic* retype
+    counting twice — "distinct" is measured on a question's content tokens (the
+    same normalisation retrieval uses), so case, punctuation, stopwords and word
+    order cannot manufacture a second question. A genuinely differently-worded
+    second question by the same person still counts.
+  * Treat the report as **trusted-single-operator output**. It is a stdout-only
+    ops CLI, exposed by no API and no web surface. Anyone who can write to the
+    ask-log can increment the floor's counter, so the floor is not a control
+    against a party who already has that access.
+  * Amount- and identifier-shaped tokens are dropped: bare numbers, £-prefixed
+    and digit-leading tokens (£45k, 20k, 1aa), National-Insurance-number shapes,
+    long alphanumeric mixtures, and both halves of any full postcode typed in a
+    question. Short letter-led codes are deliberately KEPT (p45, sa302, ir35) —
+    they are real corpus-expansion concepts. This is best-effort scrubbing, not
+    a guarantee: an isolated outward postcode fragment ("sw1a", "e14") is
+    indistinguishable by shape from a form code, and a rare proper noun is a
+    word like any other.
   * Deterministic and offline — no network, no keys. The report names its own
     inputs (log, snapshot, snapshot date) so a reader can check what it read.
 
     python -m pistis.gaps                 # human-readable report
+    python -m pistis.gaps --all           # list every concept above the floor
     python -m pistis.gaps --json          # machine-readable record
 """
 
@@ -51,7 +60,8 @@ from __future__ import annotations
 
 import argparse
 import json
-from collections import Counter, defaultdict
+import re
+from collections import Counter
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
@@ -65,76 +75,91 @@ _ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_LOG = _ROOT / "logs" / "ask.jsonl"
 DEFAULT_SNAPSHOT = _ROOT / "data" / "corpus" / "snapshot.json"
 
-# Reporting floor: a concept must appear across at least this many distinct
-# questions to be reported. Conservative default for a small pre-launch log;
-# raise it before exposing the report to more than one person's questions.
+# Repetition floor: a concept must recur across at least this many distinct
+# normalised questions to be reported. Conservative default for a small
+# pre-launch log. See the module docstring for what this does and does not give.
 DEFAULT_MIN_DISTINCT = 2
 
 # Exit codes, so an operator (or a script) can tell "nothing to report" apart
 # from "I could not read what you pointed me at" — the two used to look
-# identical, both a clean empty report with status 0.
+# identical, both a clean empty report at status 0.
 EXIT_OK = 0
 EXIT_NO_LOG = 2
 EXIT_NO_SNAPSHOT = 3
 
-# The ONLY digit-bearing terms allowed through: UK tax and benefit form codes
-# users genuinely ask about by name, and which a corpus curator would want to
-# see. Everything else containing a digit is withheld, because an amount or an
-# identifier is not a concept to add to the corpus — and NI numbers, postcodes
-# and IBANs all contain letters, so "has a letter in it" cannot be the test.
-FORM_CODES = frozenset(
-    """p45 p46 p60 p87 p11d p800 p53 p55 sa100 sa102 sa105 sa106 sa302 sa800
-    ct600 r40 r85 iht205 iht400 vat100 sc2""".split()
-)
+_NI_NUMBER = re.compile(r"[a-z]{2}\d{6}[a-d]?")
+# A FULL postcode only. The outward code alone ("sw1a", "e14") has the same
+# shape as real form codes ("cf83", "r85"), so shape cannot decide it — the
+# pair is what identifies, and the pair is what gets redacted.
+_POSTCODE = re.compile(r"\b[a-z]{1,2}\d[a-z\d]?\s*\d[a-z]{2}\b")
 
 
 def _is_concept(term: str) -> bool:
     """Is this uncovered term reportable as a concept?
 
-    Default-deny: it must carry alphabetic content, and if it carries a digit
-    it must be a known form code. That withholds amounts ("50k", "£45k") and
-    every identifier shape — National Insurance numbers, postcodes, IBANs,
-    account and reference numbers — which are not corpus concepts and could
-    identify the person who typed them.
+    Rejects amounts and identifier shapes while KEEPING short letter-led codes:
+    "p45", "sa302" and "ir35" are among the most actionable gaps a UK-finance
+    corpus can have, so a blanket ban on digits would be a worse defect than
+    the one it fixes. "Has a letter in it" is likewise no test at all — NI
+    numbers, postcodes and IBANs all contain letters.
     """
     if not any(c.isalpha() for c in term):
         return False
-    if any(c.isdigit() for c in term):
-        return term.lower().lstrip("£") in FORM_CODES
-    return True
+    if "£" in term or term[0].isdigit():  # £45k, 20k, 1st, 1aa
+        return False
+    if _NI_NUMBER.fullmatch(term):  # qq123456c
+        return False
+    return not (len(term) > 12 and any(c.isdigit() for c in term))  # IBAN-ish
+
+
+def _postcode_tokens(question: str) -> set[str]:
+    """Tokens to redact because they form a full postcode in this question."""
+    found = _POSTCODE.findall(question.lower())
+    return {t for m in found for t in m.split()} | {m.replace(" ", "") for m in found}
 
 
 def _concept_key(term: str) -> tuple[str, ...]:
     """The canonical identity of an uncovered term, for counting.
 
-    Two surface words name the same concept when the index matches them on the
-    same tokens — ``tokenize`` applies the plural fold and the abbreviation
-    expansions the corpus is searched with. Counting raw surface words instead
-    splits one gap across its spellings: "passport" in one question and
-    "passports" in another each score 1, so a concept asked about twice falls
-    below a floor of 2 and the most-requested gap is reported as nothing.
+    ``uncovered_terms`` returns the user's own wording, deliberately, so the
+    refusal can show it back to them. Counting on that wording splits one gap
+    across typing variants: "passport" in one question and "passports" in
+    another score 1 each, so a concept asked about twice falls below a floor of
+    2 and the most-requested gap is reported as nothing at all. Keying on
+    ``tokenize`` — the same plural fold and abbreviation expansion the corpus is
+    searched with — makes them one concept.
+
+    Scope of this canonicalisation, honestly: it merges the plural fold, the
+    stopword drop and the synonym expansion. It does NOT merge an abbreviation
+    against its spelled-out form — "cgt" keys as (capital, gain, tax) while the
+    three typed words key separately — so those still count apart.
     """
     return tuple(sorted(set(tokenize(term))))
 
 
-def _question_key(question: str) -> tuple[str, ...]:
+def _question_key(question: str) -> object:
     """The identity of a question for distinctness.
 
     Measured on content tokens, so the same question retyped with different
-    case, punctuation, stopwords or word order is ONE question. Keying on the
-    raw text instead let a single person clear the reporting floor by typing
-    their question twice — the engine saw one query, the report counted two.
-    An all-stopword question keeps its raw text so those do not all collapse
-    into one.
+    case, punctuation, stopwords or word order is ONE question. Keyed on the raw
+    text instead, one person could clear the floor by typing their own question
+    twice — the engine saw one query, the report counted two.
+
+    A SET (not a sequence) because bag-of-words retrieval cannot distinguish
+    word order either, so collapsing order-variants matches what the engine
+    actually sees and is the more conservative of the two options. An
+    all-stopword question keeps its raw text, or they would all collapse into
+    one. A str and a frozenset never compare equal, so the two kinds of key
+    coexist safely.
     """
-    tokens = tuple(sorted(set(tokenize(question))))
-    return tokens if tokens else ("\x00raw", question.strip().lower())
+    tokens = frozenset(tokenize(question))
+    return tokens if tokens else question.strip().lower()
 
 
 @dataclass(frozen=True)
 class GapConcept:
-    term: str  # the most-used surface wording of this concept
-    questions: int  # distinct questions in which this uncovered concept appeared
+    term: str  # the normalised concept, never the user's own wording
+    questions: int  # distinct question wordings in which it appeared
 
 
 @dataclass(frozen=True)
@@ -149,29 +174,31 @@ class GapSection:
 
 @dataclass(frozen=True)
 class GapReport:
-    # What was read (so the reader can check the report's own inputs).
+    # What was read, so the report's own inputs are checkable.
     log_path: str = ""
     snapshot_path: str = ""
     snapshot_fetched: str = ""
     log_found: bool = True
+    asks_read: int = 0  # log lines carrying a usable question, before dedup
     lines_skipped: int = 0  # blank, unparseable, or no usable question
     # What came back, so an empty backlog cannot be mistaken for a healthy one.
-    questions_analyzed: int = 0  # distinct questions
+    questions_analyzed: int = 0  # distinct normalised questions
     answered: int = 0
     routed: int = 0
     refused: int = 0
     refusals_with_concepts: int = 0
-    refusals_without_concepts: int = 0
-    refusals_no_overlap: int = 0  # zero corpus hits: often out of scope
+    refusals_without_concepts: int = 0  # no term-level signal: NOT represented
     min_distinct: int = 0
+    privacy_floor_active: bool = True  # False when min_distinct < 2
     # The backlogs.
-    thin_coverage: GapSection = field(default_factory=GapSection)
-    no_overlap: GapSection = field(default_factory=GapSection)
+    no_shared_term: GapSection = field(default_factory=GapSection)
+    partial_match: GapSection = field(default_factory=GapSection)
 
 
 @dataclass
 class _LogRead:
     questions: list[str] = field(default_factory=list)
+    asks_read: int = 0
     lines_skipped: int = 0
     found: bool = True
 
@@ -179,19 +206,36 @@ class _LogRead:
 def _read_questions(log_path: Path) -> _LogRead:
     """Distinct questions from the JSONL ask-log, in first-seen order.
 
-    Best-effort, and it says so afterwards: blank lines, unparseable lines, a
-    missing question and a question that is not a string are all SKIPPED AND
-    COUNTED, so the report can disclose that it did not read everything rather
-    than quietly understating the backlog. Undecodable bytes (a log copied
-    through a tool that rewrote it as UTF-16, say) degrade to replacement
-    characters and fail the JSON parse — they are skipped like any other bad
-    line instead of raising, which is what "best-effort" has to mean.
+    Malformed *lines* are skipped AND COUNTED, so the report can disclose that
+    it did not read everything rather than quietly understating the backlog: a
+    line that is not JSON, is not an object, has no question, or whose question
+    is not a string (``null``, a number, a nested object) is skipped. A question
+    is never ``str()``-coerced — that turned ``{"question": null}`` into the
+    phantom concept "none" and mined a nested object's JSON keys.
+
+    A file that is not valid UTF-8 is a different matter and is refused OUTRIGHT
+    with an actionable error. Decoding it with replacement characters was worse
+    than useless: a mangled latin-1 record still parses as JSON and would be
+    silently ACCEPTED with corrupted text feeding the counts, and a UTF-16 log
+    would report zero questions at status 0 — the exact silent false negative
+    the rest of this file works to eliminate. ``utf-8-sig`` is used so a leading
+    byte-order mark does not fail the first record.
     """
     if not log_path.exists():
         return _LogRead(found=False)
-    text = log_path.read_bytes().decode("utf-8", errors="replace")
+    try:
+        text = log_path.read_text(encoding="utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise ValueError(
+            f"cannot read ask-log {log_path}: not valid UTF-8 ({exc.reason}). "
+            "Re-export it as UTF-8 rather than letting the report silently "
+            "analyse corrupted text."
+        ) from exc
+    except OSError as exc:
+        raise ValueError(f"cannot read ask-log {log_path}: {exc}") from exc
+
     read = _LogRead()
-    seen: set[tuple[str, ...]] = set()
+    seen: set[object] = set()
     for line in text.splitlines():
         if not line.strip():
             continue
@@ -204,47 +248,48 @@ def _read_questions(log_path: Path) -> _LogRead:
             read.lines_skipped += 1
             continue
         question = record.get("question")
-        # Only a real string: str()-coercing a dict or a list would mine the
-        # Python repr of a structure that was never a question.
         if not isinstance(question, str) or not question.strip():
             read.lines_skipped += 1
             continue
         question = question.strip()
+        read.asks_read += 1
         key = _question_key(question)
         if key in seen:
             continue
         seen.add(key)
         read.questions.append(question)
+
+    # A file with content but not one usable question is unreadable, whatever
+    # the encoding — UTF-16 ASCII is technically valid UTF-8 (the NUL bytes
+    # decode fine, then fail every JSON parse), so strict decoding alone cannot
+    # catch it. Refuse rather than print a clean empty report at status 0.
+    if read.asks_read == 0 and read.lines_skipped:
+        raise ValueError(
+            f"cannot read ask-log {log_path}: {read.lines_skipped} line(s) present "
+            "but not one carried a usable question. Expected UTF-8 JSONL with a "
+            'string "question" field.'
+        )
     return read
 
 
 def _section(
     keys: list[tuple[str, ...]],
     counts: Counter[tuple[str, ...]],
-    variants: dict[tuple[str, ...], Counter[str]],
     min_distinct: int,
     top: int | None,
 ) -> GapSection:
     above = [(key, counts[key]) for key in keys if counts[key] >= min_distinct]
-    # Rank by demand, then by the displayed wording for a stable order.
-    above.sort(key=lambda kn: (-kn[1], _display(variants[kn[0]])))
+    # Rank by demand, then by the concept itself for a stable order.
+    above.sort(key=lambda kn: (-kn[1], kn[0]))
     suppressed = sum(1 for key in keys if counts[key] < min_distinct)
     total = len(above)
     if top is not None:
         above = above[:top]
     return GapSection(
-        listed=tuple(
-            GapConcept(term=_display(variants[key]), questions=n) for key, n in above
-        ),
+        listed=tuple(GapConcept(term="+".join(key), questions=n) for key, n in above),
         total=total,
         suppressed=suppressed,
     )
-
-
-def _display(seen: Counter[str]) -> str:
-    """The wording to show for a concept: the most-used surface form, ties
-    broken alphabetically so the report is deterministic."""
-    return min(seen.items(), key=lambda tv: (-tv[1], tv[0]))[0]
 
 
 def corpus_gap_report(
@@ -268,17 +313,16 @@ def corpus_gap_report(
     read = _read_questions(Path(log_path))
 
     # A concept is counted ONCE across every refusal that named it, so its
-    # demand is never split. Which SECTION it lands in is decided separately,
-    # by where it mostly showed up (see below) — splitting the count by section
-    # would re-introduce the fragmentation this report exists to avoid.
+    # demand is never split. Which SECTION it lands in is decided separately, by
+    # where it mostly showed up — counting per section would re-create the
+    # fragmentation this report exists to avoid.
     counts: Counter[tuple[str, ...]] = Counter()
     by_bucket: dict[str, Counter[tuple[str, ...]]] = {
-        "thin": Counter(),
-        "no_overlap": Counter(),
+        "no_shared_term": Counter(),
+        "partial_match": Counter(),
     }
-    variants: dict[tuple[str, ...], Counter[str]] = defaultdict(Counter)
     answered = routed = refused = 0
-    with_concepts = without_concepts = no_overlap_refusals = 0
+    with_concepts = without_concepts = 0
 
     for question in read.questions:
         response = engine.ask(question)
@@ -293,40 +337,39 @@ def corpus_gap_report(
         if report is None:
             without_concepts += 1
             continue
-        bucket = "no_overlap" if report.stage == "no_source" else "thin"
-        if bucket == "no_overlap":
-            no_overlap_refusals += 1
+        bucket = "no_shared_term" if report.stage == "no_source" else "partial_match"
+        redact = _postcode_tokens(question)
         # One vote per question per concept, even if the question spelled the
         # concept two ways.
-        reportable: dict[tuple[str, ...], str] = {}
+        reportable: set[tuple[str, ...]] = set()
         for raw in report.uncovered_terms:
-            if not _is_concept(raw):
+            if raw in redact or not _is_concept(raw):
                 continue
-            key = _concept_key(raw)
-            if not key:
-                continue
-            reportable.setdefault(key, raw)
+            key = _concept_key(raw) or (raw,)
+            reportable.add(key)
         if reportable:
             with_concepts += 1
         else:
             without_concepts += 1
-        for key, raw in reportable.items():
+        for key in reportable:
             counts[key] += 1
             by_bucket[bucket][key] += 1
-            variants[key][raw] += 1
 
     # Each concept belongs to the section it mostly came from. A tie goes to
-    # NO OVERLAP: the conservative call is to quarantine a concept for scope
-    # triage rather than present it as a corpus-expansion candidate.
-    thin_keys = [k for k in counts if by_bucket["thin"][k] > by_bucket["no_overlap"][k]]
-    no_overlap_keys = [k for k in counts if k not in set(thin_keys)]
+    # "no shared term", which is the stronger evidence of absence.
+    absent = [
+        k
+        for k in counts
+        if by_bucket["no_shared_term"][k] >= by_bucket["partial_match"][k]
+    ]
+    partial = [k for k in counts if k not in set(absent)]
 
-    newest = max((p.fetched_at for p in passages), default="")
     return GapReport(
         log_path=str(log_path),
         snapshot_path=str(snapshot_path),
-        snapshot_fetched=newest,
+        snapshot_fetched=max((p.fetched_at for p in passages), default=""),
         log_found=read.found,
+        asks_read=read.asks_read,
         lines_skipped=read.lines_skipped,
         questions_analyzed=len(read.questions),
         answered=answered,
@@ -334,20 +377,20 @@ def corpus_gap_report(
         refused=refused,
         refusals_with_concepts=with_concepts,
         refusals_without_concepts=without_concepts,
-        refusals_no_overlap=no_overlap_refusals,
         min_distinct=min_distinct,
-        thin_coverage=_section(thin_keys, counts, variants, min_distinct, top),
-        no_overlap=_section(no_overlap_keys, counts, variants, min_distinct, top),
+        privacy_floor_active=min_distinct >= 2,
+        no_shared_term=_section(absent, counts, min_distinct, top),
+        partial_match=_section(partial, counts, min_distinct, top),
     )
 
 
-def _format_section(section: GapSection, heading: str, note: str) -> list[str]:
-    lines = ["", heading, note]
+def _format_section(section: GapSection, heading: str, blind: int) -> list[str]:
+    lines = ["", heading]
     if section.listed:
         width = max(len(c.term) for c in section.listed)
         for c in section.listed:
             plural = "question" if c.questions == 1 else "questions"
-            lines.append(f"  {c.term.ljust(width)}  {c.questions} {plural}")
+            lines.append(f"  {c.term.ljust(width)}  {c.questions} distinct {plural}")
         hidden = section.total - len(section.listed)
         if hidden > 0:
             # Never let the --top cap pass itself off as the whole backlog.
@@ -355,12 +398,15 @@ def _format_section(section: GapSection, heading: str, note: str) -> list[str]:
     elif section.total:
         # Above the floor but nothing listed: --top 0.
         lines.append(f"  (none listed — raise --top to list {section.total})")
+    elif blind:
+        lines.append(
+            f"  (none above the floor; {blind} refusal(s) produced no term-level"
+            " signal and are NOT represented here)"
+        )
     else:
         lines.append("  (none above the floor)")
     if section.suppressed:
-        lines.append(
-            f"  [{section.suppressed} below the floor, withheld for privacy]"
-        )
+        lines.append(f"  [{section.suppressed} below the floor, withheld]")
     return lines
 
 
@@ -374,25 +420,36 @@ def _format(r: GapReport) -> str:
         f"Snapshot fetched          : {r.snapshot_fetched or 'unknown'}",
         f"Log lines skipped         : {r.lines_skipped}  (blank, unparseable, or no question)",
         "",
-        f"Distinct questions        : {r.questions_analyzed}",
+        f"Distinct questions        : {r.questions_analyzed}  (from {r.asks_read} asks in the log)",
         f"  answered                : {r.answered}",
         f"  routed (advice boundary): {r.routed}",
         f"  refused                 : {r.refused}",
         f"    naming a concept      : {r.refusals_with_concepts}",
         f"    naming none           : {r.refusals_without_concepts}",
-        f"    with no corpus overlap: {r.refusals_no_overlap}",
         f"Reporting floor           : a concept must appear in >= {r.min_distinct} distinct questions",
     ]
+    if not r.privacy_floor_active:
+        lines.append(
+            "  *** WARNING: the floor is OFF at this setting — a concept only one"
+            " person ever typed can be listed. ***"
+        )
+    lines += [
+        "",
+        "Repeat asks of the same wording count once, so a frequently-asked gap",
+        "phrased identically can fall below the floor and be withheld. An",
+        "uncovered concept may be a real corpus gap OR a question Pistis",
+        "correctly refused as out of scope; this report cannot tell them apart.",
+        "Triage before adding anything.",
+    ]
     lines += _format_section(
-        r.thin_coverage,
-        "THIN COVERAGE — sources matched but fell short (corpus-expansion candidates):",
-        "  the corpus is on these topics and short of material.",
+        r.no_shared_term,
+        "NO SOURCE SHARED ANY TERM — absent from the whole corpus:",
+        r.refusals_without_concepts,
     )
     lines += _format_section(
-        r.no_overlap,
-        "NO OVERLAP — nothing in the corpus matched at all (triage for scope first):",
-        "  a zero-hit refusal names every content word, and most are simply\n"
-        "  out of scope for a UK personal-finance corpus. Do not add blindly.",
+        r.partial_match,
+        "PARTIAL MATCH — sources matched the question but fell short:",
+        r.refusals_without_concepts,
     )
     return "\n".join(lines)
 
@@ -405,14 +462,15 @@ def main(argv: list[str] | None = None) -> int:
         "--min-distinct",
         type=int,
         default=DEFAULT_MIN_DISTINCT,
-        help="privacy floor: min distinct questions a concept must appear in",
+        help="repetition floor: min distinct questions a concept must appear in"
+        f" (default {DEFAULT_MIN_DISTINCT}; below 2 disables the floor)",
     )
     parser.add_argument(
         "--top",
         type=int,
         default=25,
-        help="max concepts to LIST per section (the full count is always reported);"
-        " use --all for no cap",
+        help="max concepts to LIST per section (default 25; the full count is"
+        " always reported); use --all for no cap",
     )
     parser.add_argument(
         "--all", action="store_true", help="list every concept above the floor (no --top cap)"
@@ -421,6 +479,14 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.top < 0:
         parser.error("--top must be non-negative (or use --all for no cap)")
+    if args.min_distinct < 0:
+        parser.error("--min-distinct must be non-negative")
+    if not Path(args.snapshot).exists():
+        parser.exit(
+            EXIT_NO_SNAPSHOT,
+            f"No corpus snapshot at {args.snapshot}.\n"
+            "Build one with:  python -m pistis.corpus.refresh\n",
+        )
 
     try:
         report = corpus_gap_report(
@@ -429,15 +495,8 @@ def main(argv: list[str] | None = None) -> int:
             min_distinct=args.min_distinct,
             top=None if args.all else args.top,
         )
-    except (FileNotFoundError, IsADirectoryError, json.JSONDecodeError) as exc:
-        # A missing or unreadable snapshot is the operator's most likely
-        # mistake on a fresh clone (the snapshot is gitignored). Say what to do
-        # instead of raising a traceback at them.
-        parser.exit(
-            EXIT_NO_SNAPSHOT,
-            f"Cannot read the corpus snapshot {args.snapshot}: {exc}\n"
-            "Build one with:  python -m pistis.corpus.refresh\n",
-        )
+    except ValueError as exc:
+        parser.error(str(exc))
 
     print(json.dumps(asdict(report), indent=2) if args.json else _format(report))
     return EXIT_OK if report.log_found else EXIT_NO_LOG

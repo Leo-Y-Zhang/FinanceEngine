@@ -119,44 +119,50 @@ ungrounded claim. Design:
 
 ## Corpus-gap report — refusals as a roadmap
 
-If refusal is a feature, the refusals are also a signal: they say exactly which
-questions people bring that no trusted source yet covers. `pistis.gaps` turns
-that into a **keyless, privacy-safe backlog** — replay the local ask-log through
-the engine, aggregate the `uncovered_terms` of each abstention, and rank the
-concepts users most want but the corpus is silent on.
+If refusal is a feature, the refusals are also a signal: they say which concepts
+people ask about that no trusted source in the corpus covers. `pistis.gaps`
+turns that into a **keyless backlog** — replay the local ask-log through the
+engine, aggregate the `uncovered_terms` of each abstention, and rank them.
 
 ```bash
-cd server && python -m pistis.gaps        # ranked corpus-gap report
-python -m pistis.gaps --all               # list every concept above the floor
-python -m pistis.gaps --json              # machine-readable record
+cd server && python -m pistis.gaps            # ranked corpus-gap report
+python -m pistis.gaps --min-distinct 3        # raise the repetition floor (default 2)
+python -m pistis.gaps --top 50                # list more per section (default 25)
+python -m pistis.gaps --all                   # no cap at all
+python -m pistis.gaps --json                  # machine-readable record
 ```
 
-Two kinds of gap are reported **separately**, because they mean opposite things
-to whoever curates the corpus. **Thin coverage** — trusted sources matched the
-question but fell short — are the real expansion candidates. **No overlap** —
-nothing in the corpus matched at all — are mostly just out of scope for a UK
-personal-finance corpus (a passport question, a weather question), and a
-zero-hit refusal names every content word rather than one missing concept, so
-listing them together let off-topic noise outrank the genuine gaps. Concepts are
-canonicalised the way the index matches them, so a gap cannot hide by
-fragmenting across its spellings ("passport" / "passports").
+**Absent from the corpus is not the same as belongs in the corpus.** Nothing in
+the engine classifies topical scope, so the report cannot tell a real gap from a
+question Pistis correctly refused as out of scope — it reports evidence and says
+so, leaving the triage to a human. Two sections report only what was measured:
+**no source shared any term** (every token absent from the whole corpus — the
+strongest evidence of absence the system can produce) and **partial match**
+(sources matched but fell short). They are listed apart so neither crowds the
+other out of the ranking; the division is by evidence, not a scope judgement.
+Concepts are keyed the way the index matches them, so a gap cannot hide by
+fragmenting across its spellings ("passport" / "passports"), and nothing is
+capped silently — each section always reports its full pre-cap total.
 
-Privacy is built in, not bolted on: the output is concept frequencies only (raw
-questions never leave the function), and a **reporting floor** withholds any
-concept appearing in fewer than `--min-distinct` distinct questions. Being
-precise about what that floor does and does not give you: the ask-log records no
-user identity, so it counts **distinct questions, not distinct people** — it is
-not k-anonymity over users. To stop one person clearing the floor by merely
-retyping, "distinct" is measured on a question's content tokens, so case,
-punctuation, stopwords and word order cannot manufacture a second question.
-Raise the floor before exposing the report to more than one person's questions.
-Amounts and identifier shapes are withheld — a term containing a digit is
-dropped unless it is a known UK tax-form code, so `50k`, a National Insurance
-number, a postcode or an IBAN can never surface as a "concept". It is
-deterministic and offline, and it names its own inputs (log, snapshot, snapshot
-date) so a reader can check what it read. Because it re-asks against the
-*current* corpus, a gap you have since filled simply stops appearing — the
-backlog stays honest.
+On privacy, precisely. The output is per-concept frequencies with no question
+field, and a **repetition floor** withholds any concept recurring across fewer
+than `--min-distinct` distinct questions. That is **not k-anonymity and not
+anonymity over people**: the ask-log records no user or session identity, so N
+distinct questions may all come from one person, and raising the floor does not
+change that. What the floor does do is stop a *cosmetic* retype counting twice —
+"distinct" is measured on a question's content tokens, so case, punctuation,
+stopwords and word order cannot manufacture a second question. Treat the report
+as **trusted-single-operator output**: it is a stdout-only ops CLI behind no API
+or web surface, and anyone who can write to the ask-log can increment the
+floor's counter. Amount- and identifier-shaped tokens are dropped (bare numbers,
+`£45k`, `20k`, NI-number shapes, long alphanumeric mixtures, and both halves of
+any full postcode), while short letter-led codes like `p60`, `sa302` and `ir35`
+are deliberately kept — they are real corpus concepts, and a blanket ban on
+digits would be a worse defect than the one it fixes. This is best-effort
+scrubbing, not a guarantee. It is deterministic and offline, and it names its
+own inputs (log, snapshot, snapshot date) so a reader can check what it read.
+Because it re-asks against the *current* corpus, a gap you have since filled
+simply stops appearing — the backlog stays honest.
 
 ## Layout
 

@@ -1,7 +1,89 @@
 # SESSION_HANDOFF — Pistis
 
-**Updated:** 2026-07-24 (session 6: corpus-gap report — the refusals turned into
-a keyless, privacy-safe corpus-expansion backlog; all green, pushed)
+**Updated:** 2026-07-27 (session 7: the deferred adversarial review of the
+corpus-gap report, run and closed; all green, pushed)
+
+## Session 7 (2026-07-27) — corpus-gap report: deferred review run and closed
+
+Session 6 left one open item: the full multi-agent adversarial review of
+`gaps.py` was deferred at 99% context. It has now been run and every confirmed
+finding is fixed.
+
+**First, the working tree was broken.** An in-flight edit had added
+`total_gap_concepts` to `GapReport` without passing it, so all 9 gaps tests
+failed. It was aimed at a real defect — `--top` silently truncated the listing
+with nothing saying the backlog was longer — and that fix was completed:
+`total`/`--all`/negative-`--top` guard, disclosure in both human and JSON output
+(`7a7242d`, 194 -> 198 pytest).
+
+**The review**: 13 agents, six lenses (privacy, correctness, honesty,
+robustness, test-quality, integration), each lens's findings then put to an
+adversarial verifier told to refute them. 36 findings, 3 refuted, the rest
+confirmed or narrowed, collapsing to ~8 root causes. Fixed in `843aa21` +
+`f1f8dc6`:
+
+- **The ranking omitted the most-requested concept.** Concepts were keyed on the
+  user's own wording, so one gap fragmented across its spellings: "passport" in
+  one question and "passports" in another scored 1 each, both fell below a floor
+  of 2, and the top gap printed as *nothing at all*. Now keyed on `tokenize` —
+  the same fold/expansion retrieval uses — counted once across every refusal
+  that named it, and displayed as the normalised token rather than the user's
+  wording.
+- **The floor was defeatable by one person retyping.** Distinctness was keyed on
+  raw lowercased text, so a trailing "?" or an inserted stopword made a second
+  "distinct question" and published a rare proper noun only one person had ever
+  typed. Distinctness is now the question's content-token set.
+- **`_is_concept` published identifiers.** "Has a letter in it" passes NI
+  numbers, postcodes and IBANs, and "50k" is an amount. Now rejects £-prefixed,
+  digit-leading, NI-shaped and long alphanumeric tokens, plus both halves of any
+  full postcode typed in a question — while deliberately KEEPING short
+  letter-led codes (`p45`, `sa302`, `ir35`), because a blanket digit ban deletes
+  the most actionable class of UK-finance gap there is.
+- **The claims were overstated.** It is not k-anonymity: the ask-log has no user
+  identity, so N distinct questions may all be one person, and raising the floor
+  does not change that. The docstring/README now say exactly that, drop the
+  "never surfaced" absolutes, drop the actively misleading "raise the floor
+  before any multi-user deployment", and state the trusted-single-operator
+  posture. A "money questions people ask" line was false of the tool's own
+  example output (top rows: passport, weather) and is gone.
+- **Two sections, by evidence, not scope.** A zero-hit refusal means every token
+  is absent from the whole corpus — the *strongest* evidence of absence, not
+  noise — so it is reported, not filtered. But it is listed apart from partial
+  matches so neither crowds the other out of the ranking, with an explicit
+  caveat that the report cannot tell a real gap from a correct out-of-scope
+  refusal. Deliberately NOT built: a scope classifier from `AbstentionReport.
+  stage` — measured, `stage` does not discriminate scope.
+- **Silent false negatives closed.** Refusals naming no term are counted and
+  disclosed ("NOT represented here") instead of letting an all-refused log read
+  as a clean bill of health; skipped log lines are counted; the report names its
+  own inputs and the snapshot date; a missing log exits 2 rather than printing a
+  clean empty report; a missing snapshot says how to build one instead of a
+  28-line traceback; a log with lines but not one usable question is refused
+  outright (UTF-16 ASCII is technically valid UTF-8, so strict decoding alone
+  cannot catch it); `--min-distinct` below 2 prints a loud floor-is-OFF warning.
+- **`privacy/retention.py` had the same unguarded read**, and it runs at server
+  startup — one corrupt byte in a local log would have stopped the service
+  starting. Now warns and changes nothing rather than raising or silently
+  rewriting a file it could not fully read.
+- **Tests rewritten.** The old privacy test asserted a tokenizer tautology that
+  passed with the entire privacy layer deleted, and the bare-numbers test was
+  vacuous. Every absence assertion now carries a positive control, the serialised
+  field surface is pinned (killing leak mutants that add a question field), and
+  the shipped default floor is exercised.
+
+**Explicitly NOT done** (each rejected with a measured reason, do not re-open
+without reading it): a per-session id in the ask-log (a new linkable identifier
+next to free-text questions = net privacy regression); excluding `no_source`
+refusals (would gut the highest-confidence gap signal); `errors="replace"` on the
+log read (silently accepts corrupted text); making the floor count asks (would
+publish one person's single wording).
+
+**Verification:** server **198 -> 219 pytest** green; honesty eval **PASS**
+(21/21 answerability, 41/41 grounded, refusals-explained 4/4); web **17 vitest**
+green, `tsc` + `vite build` clean, `npm audit` 0 vulns; CLI re-run against the
+live 46-doc snapshot.
+
+---
 
 ## Session 6 (2026-07-24) — Corpus-gap report (refusals as a roadmap)
 
@@ -26,13 +108,22 @@ offline. Re-asks against the *current* corpus, so a filled gap stops appearing.
 `GapReport`/`GapConcept` dataclasses; `--json` for a machine record; sibling to
 `eval.py` (eval proves the promise, gaps turns refusals into a roadmap).
 
-**Verification:** server **185 -> 194 pytest** green (9 new in `test_gaps.py`
+**Verification (as of session 6):** server **185 -> 194 pytest** green (9 new in `test_gaps.py`
 covering ranking, the floor, dedup, numeric filtering, the no-leak privacy
 invariant, malformed-line tolerance, missing-log, and the CLI). Keyless/offline;
 web untouched (this is an ops/analytics CLI, deliberately not a public surface).
 Reviewed manually + via the 9 targeted tests (incl. the no-leak privacy
 invariant, the floor crossing, dedup, numeric filtering); the full multi-agent
 adversarial review was deferred (context budget) — worth running on resume.
+
+> **SUPERSEDED BY SESSION 7 — read that section instead.** The deferred review
+> has now been run, and it falsified several claims made in this section. The
+> floor is **not** k-anonymity (it counts distinct questions, and the ask-log
+> holds no user identity); "bare numbers/amounts dropped" did not stop NI
+> numbers, postcodes, IBANs or "50k"; the "no-leak privacy invariant" test
+> credited above asserted a tokenizer tautology that passed with the whole
+> privacy layer deleted; and the ranking omitted the most-requested concept
+> because concepts were keyed on the user's own wording. All fixed in session 7.
 
 ---
 

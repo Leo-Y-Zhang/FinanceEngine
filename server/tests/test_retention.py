@@ -8,6 +8,8 @@ import json
 import time
 from pathlib import Path
 
+import pytest
+
 from pistis.privacy.retention import RETENTION_DAYS, RETENTION_SECONDS, purge_expired
 
 
@@ -83,3 +85,17 @@ def test_retention_period_is_short_as_promised_in_the_privacy_notice():
     # The privacy notice promises "30 days" — keep the two in sync.
     assert RETENTION_DAYS == 30
     assert RETENTION_SECONDS == 30 * 24 * 60 * 60
+
+
+def test_undecodable_log_does_not_stop_the_purge_pass(tmp_path):
+    """purge_expired runs at server startup, so an unreadable local log must
+    not stop the service from starting — but it must not pass silently either,
+    and it must not rewrite a file it could not fully read."""
+    log = tmp_path / "ask.jsonl"
+    original = b'{"ts": 1, "question": "caf\xe9 pension"}\n'
+    log.write_bytes(original)
+
+    with pytest.warns(RuntimeWarning, match="retention skipped"):
+        assert purge_expired(log, retention_seconds=1, now=10_000_000) == 0
+
+    assert log.read_bytes() == original  # untouched, not silently truncated
