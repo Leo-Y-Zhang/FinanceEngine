@@ -1,0 +1,1204 @@
+{
+  "schema_version": 1,
+  "description": "Pistis answerability benchmark. Labels are derived from the CORPUS and from question FORM, never from the engine's output - see bench_build.py for the labelling protocol and its stated limits.",
+  "counts": {
+    "answer": 81,
+    "abstain": 32,
+    "route": 18,
+    "total": 131
+  },
+  "questions": [
+    {
+      "id": "ans-isa-allowance",
+      "question": "How much can I pay into an ISA each year?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-isa-overview"
+      ],
+      "probe": "allowance",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-isa-types",
+      "question": "What types of ISA are there?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-isa-overview"
+      ],
+      "probe": "isa",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-isa-transfer",
+      "question": "Can I transfer an ISA to a different provider?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-isa-overview"
+      ],
+      "probe": "transfer",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-isa-who-can-open",
+      "question": "Who is eligible to open an ISA?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-isa-overview"
+      ],
+      "probe": "resident",
+      "difficulty": "paraphrase"
+    },
+    {
+      "id": "ans-lisa-how-works",
+      "question": "How does a Lifetime ISA work?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-lifetime-isa"
+      ],
+      "probe": "bonus",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-lisa-bonus",
+      "question": "What government bonus do I get on a Lifetime ISA?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-lifetime-isa"
+      ],
+      "probe": "bonus",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-lisa-abbrev",
+      "question": "How much can I put in a LISA each year?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-lifetime-isa"
+      ],
+      "probe": "year",
+      "difficulty": "abbreviation"
+    },
+    {
+      "id": "ans-lisa-withdraw",
+      "question": "What happens if I withdraw from a Lifetime ISA early?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-lifetime-isa"
+      ],
+      "probe": "withdraw",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-jisa-overview",
+      "question": "What is a Junior ISA?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-junior-isa"
+      ],
+      "probe": "junior",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-jisa-abbrev",
+      "question": "Who can pay into a JISA?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-junior-isa"
+      ],
+      "probe": "pay",
+      "difficulty": "abbreviation"
+    },
+    {
+      "id": "ans-ctf-overview",
+      "question": "What is a Child Trust Fund?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-child-trust-fund"
+      ],
+      "probe": "trust",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-psa-overview",
+      "question": "What is the personal savings allowance?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-tax-on-savings-interest"
+      ],
+      "probe": "allowance",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-savings-tax-interest",
+      "question": "Do I pay tax on my savings interest?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-tax-on-savings-interest"
+      ],
+      "probe": "interest",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-savings-starting-rate",
+      "question": "What is the starting rate for savings?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-tax-on-savings-interest"
+      ],
+      "probe": "starting",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-help-to-save-bonus",
+      "question": "How does the Help to Save bonus work?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-help-to-save"
+      ],
+      "probe": "bonus",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-children-savings-interest",
+      "question": "Is interest on my child's savings taxable?",
+      "expect": "answer",
+      "supported_by": [
+        "savings_isas-children-savings-interest"
+      ],
+      "probe": "interest",
+      "difficulty": "paraphrase"
+    },
+    {
+      "id": "ans-state-pension-new",
+      "question": "How much is the new State Pension?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-new-state-pension"
+      ],
+      "probe": "pension",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-state-pension-qualify",
+      "question": "How many qualifying years do I need for the State Pension?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-new-state-pension"
+      ],
+      "probe": "qualifying",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-state-pension-forecast",
+      "question": "How do I check my State Pension forecast?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-check-state-pension-forecast"
+      ],
+      "probe": "forecast",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-workplace-auto-enrolment",
+      "question": "What is automatic enrolment into a workplace pension?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-workplace-pensions"
+      ],
+      "probe": "enrolment",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-workplace-employer-contrib",
+      "question": "How much does my employer have to contribute to my pension?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-workplace-pensions"
+      ],
+      "probe": "employer",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-workplace-opt-out",
+      "question": "Can I opt out of my workplace pension?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-workplace-pensions"
+      ],
+      "probe": "opt",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-pension-tax-relief",
+      "question": "How does pension tax relief work?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-tax-on-private-pension"
+      ],
+      "probe": "relief",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-pension-annual-allowance",
+      "question": "What is the pension annual allowance?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-tax-on-private-pension"
+      ],
+      "probe": "allowance",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-pension-abbrev-sipp",
+      "question": "How is a SIPP taxed?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-tax-on-private-pension"
+      ],
+      "probe": "pension",
+      "difficulty": "abbreviation"
+    },
+    {
+      "id": "ans-personal-pension-overview",
+      "question": "What is a personal pension?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-personal-pensions"
+      ],
+      "probe": "personal",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-retirement-income-options",
+      "question": "What are my options for taking my retirement income?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-plan-retirement-income"
+      ],
+      "probe": "retirement",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-voluntary-ni-topup",
+      "question": "Can I pay voluntary National Insurance to fill gaps in my record?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-voluntary-ni-contributions"
+      ],
+      "probe": "voluntary",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-pension-scam-warning",
+      "question": "How can I spot a pension scam?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-fca-pension-scams"
+      ],
+      "probe": "scam",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-income-tax-rates",
+      "question": "What are the income tax rates?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-income-tax-rates"
+      ],
+      "probe": "rate",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-personal-allowance",
+      "question": "What is the personal allowance for income tax?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-income-tax-rates"
+      ],
+      "probe": "allowance",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-income-tax-what-on",
+      "question": "What income do I pay tax on?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-income-tax-overview"
+      ],
+      "probe": "income",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-cgt-what-on",
+      "question": "What do I pay Capital Gains Tax on?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-capital-gains"
+      ],
+      "probe": "gain",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-cgt-abbrev",
+      "question": "What is the CGT rate on shares?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-capital-gains"
+      ],
+      "probe": "rate",
+      "difficulty": "abbreviation"
+    },
+    {
+      "id": "ans-cgt-allowance",
+      "question": "Is there a tax-free allowance for capital gains?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-capital-gains"
+      ],
+      "probe": "allowance",
+      "difficulty": "paraphrase"
+    },
+    {
+      "id": "ans-dividend-tax",
+      "question": "How much tax do I pay on dividends?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-dividends"
+      ],
+      "probe": "dividend",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-dividend-allowance",
+      "question": "What is the dividend allowance?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-dividends"
+      ],
+      "probe": "allowance",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-ni-overview",
+      "question": "What is National Insurance?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-national-insurance-overview"
+      ],
+      "probe": "insurance",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-ni-abbrev",
+      "question": "How much NI do I pay?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-national-insurance-overview"
+      ],
+      "probe": "insurance",
+      "difficulty": "abbreviation"
+    },
+    {
+      "id": "ans-ni-categories",
+      "question": "What are the National Insurance categories?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-ni-rates-categories"
+      ],
+      "probe": "categor",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-ni-self-employed",
+      "question": "What National Insurance do the self-employed pay?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-self-employed-ni-rates"
+      ],
+      "probe": "employ",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-marriage-allowance",
+      "question": "How do I claim Marriage Allowance?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-marriage-allowance"
+      ],
+      "probe": "marriage",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-self-assessment-who",
+      "question": "Do I need to send a Self Assessment tax return?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-self-assessment"
+      ],
+      "probe": "return",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-self-assessment-deadline",
+      "question": "What is the deadline for a Self Assessment tax return?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-self-assessment"
+      ],
+      "probe": "deadline",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-self-assessment-register",
+      "question": "How do I register for Self Assessment?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-self-assessment-register"
+      ],
+      "probe": "register",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-tax-code-meaning",
+      "question": "What does my tax code mean?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-tax-codes"
+      ],
+      "probe": "code",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-tax-code-wrong",
+      "question": "What do I do if my tax code is wrong?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-tax-codes"
+      ],
+      "probe": "code",
+      "difficulty": "paraphrase"
+    },
+    {
+      "id": "ans-iht-threshold",
+      "question": "What is the Inheritance Tax threshold?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-inheritance-tax"
+      ],
+      "probe": "threshold",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-iht-rate",
+      "question": "What rate is Inheritance Tax charged at?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-inheritance-tax"
+      ],
+      "probe": "rate",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-vat-register-when",
+      "question": "When do I have to register for VAT?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-register-for-vat"
+      ],
+      "probe": "register",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-vat-threshold",
+      "question": "What is the VAT registration threshold?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-register-for-vat"
+      ],
+      "probe": "threshold",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-vat-rates",
+      "question": "What are the VAT rates?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-vat-rates"
+      ],
+      "probe": "rate",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-ir35-what",
+      "question": "What is off-payroll working?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-off-payroll-ir35"
+      ],
+      "probe": "payroll",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-ir35-abbrev",
+      "question": "Does IR35 apply to my contract?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-off-payroll-ir35"
+      ],
+      "probe": "payroll",
+      "difficulty": "abbreviation"
+    },
+    {
+      "id": "ans-sdlt-what",
+      "question": "What is Stamp Duty Land Tax?",
+      "expect": "answer",
+      "supported_by": [
+        "mortgages-sdlt-guide"
+      ],
+      "probe": "stamp",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-sdlt-first-time",
+      "question": "Do first-time buyers pay Stamp Duty?",
+      "expect": "answer",
+      "supported_by": [
+        "mortgages-sdlt-guide"
+      ],
+      "probe": "buyer",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-smi-what",
+      "question": "What is Support for Mortgage Interest?",
+      "expect": "answer",
+      "supported_by": [
+        "mortgages-support-for-mortgage-interest"
+      ],
+      "probe": "mortgage",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-shared-ownership",
+      "question": "How does shared ownership work?",
+      "expect": "answer",
+      "supported_by": [
+        "mortgages-shared-ownership"
+      ],
+      "probe": "shared",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-first-homes",
+      "question": "What is the First Homes scheme?",
+      "expect": "answer",
+      "supported_by": [
+        "mortgages-first-homes-scheme"
+      ],
+      "probe": "home",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-help-to-buy-equity",
+      "question": "How does the Help to Buy equity loan work?",
+      "expect": "answer",
+      "supported_by": [
+        "mortgages-help-to-buy-equity-loan"
+      ],
+      "probe": "equity",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-mortgage-charter",
+      "question": "What is the Mortgage Charter?",
+      "expect": "answer",
+      "supported_by": [
+        "mortgages-mortgage-charter"
+      ],
+      "probe": "charter",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-mortgage-struggling",
+      "question": "What support is there if I am struggling with my mortgage payments?",
+      "expect": "answer",
+      "supported_by": [
+        "mortgages-fca-payment-support"
+      ],
+      "probe": "mortgage",
+      "difficulty": "paraphrase"
+    },
+    {
+      "id": "ans-council-tax-how",
+      "question": "How does Council Tax work?",
+      "expect": "answer",
+      "supported_by": [
+        "budgeting-council-tax"
+      ],
+      "probe": "council",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-council-tax-reduction",
+      "question": "Can I apply for a Council Tax Reduction?",
+      "expect": "answer",
+      "supported_by": [
+        "budgeting-council-tax-reduction"
+      ],
+      "probe": "reduction",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-debt-options",
+      "question": "What are my options for dealing with my debts?",
+      "expect": "answer",
+      "supported_by": [
+        "budgeting-debt-options"
+      ],
+      "probe": "debt",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-breathing-space",
+      "question": "What is the Breathing Space debt respite scheme?",
+      "expect": "answer",
+      "supported_by": [
+        "budgeting-breathing-space"
+      ],
+      "probe": "breathing",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-budgeting-loan",
+      "question": "What is a Budgeting Loan?",
+      "expect": "answer",
+      "supported_by": [
+        "budgeting-budgeting-loans"
+      ],
+      "probe": "budgeting",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-benefits-calculator",
+      "question": "Is there a calculator to check what benefits I can get?",
+      "expect": "answer",
+      "supported_by": [
+        "budgeting-benefits-calculators"
+      ],
+      "probe": "calculator",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-energy-bills-help",
+      "question": "What help is available with my energy bills?",
+      "expect": "answer",
+      "supported_by": [
+        "budgeting-help-energy-bills"
+      ],
+      "probe": "energy",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-warm-home-discount",
+      "question": "What is the Warm Home Discount?",
+      "expect": "answer",
+      "supported_by": [
+        "budgeting-warm-home-discount"
+      ],
+      "probe": "warm",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-cost-of-living-fca",
+      "question": "What should I do if I cannot keep up with my bills?",
+      "expect": "answer",
+      "supported_by": [
+        "budgeting-fca-cost-of-living"
+      ],
+      "probe": "bill",
+      "difficulty": "paraphrase"
+    },
+    {
+      "id": "ans-scam-protect",
+      "question": "How do I protect myself from financial scams?",
+      "expect": "answer",
+      "supported_by": [
+        "scams_protection-fca-protect-yourself-scams"
+      ],
+      "probe": "scam",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-firm-authorised",
+      "question": "How do I check whether a firm is authorised?",
+      "expect": "answer",
+      "supported_by": [
+        "scams_protection-fca-firm-checker"
+      ],
+      "probe": "firm",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-warning-list",
+      "question": "What is the FCA warning list?",
+      "expect": "answer",
+      "supported_by": [
+        "scams_protection-fca-warning-list"
+      ],
+      "probe": "warning",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-complain-firm",
+      "question": "How do I complain about a financial firm?",
+      "expect": "answer",
+      "supported_by": [
+        "scams_protection-fca-how-to-complain"
+      ],
+      "probe": "complain",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-firm-fails-compensation",
+      "question": "Can I claim compensation if a financial firm fails?",
+      "expect": "answer",
+      "supported_by": [
+        "scams_protection-fca-claim-compensation-firm-fails"
+      ],
+      "probe": "compensation",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-report-phishing",
+      "question": "How do I report a phishing email?",
+      "expect": "answer",
+      "supported_by": [
+        "scams_protection-govuk-report-internet-scams-phishing"
+      ],
+      "probe": "phishing",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-hmrc-genuine",
+      "question": "How do I know if a message from HMRC is genuine?",
+      "expect": "answer",
+      "supported_by": [
+        "scams_protection-hmrc-genuine-contacts"
+      ],
+      "probe": "hmrc",
+      "difficulty": "plain"
+    },
+    {
+      "id": "ans-fscs-protection",
+      "question": "How much of my money does FSCS protect?",
+      "expect": "answer",
+      "supported_by": [
+        "scams_protection-fca-claim-compensation-firm-fails"
+      ],
+      "probe": "fscs",
+      "difficulty": "paraphrase"
+    },
+    {
+      "id": "ans-hicbc",
+      "question": "What is the high income child benefit charge?",
+      "expect": "answer",
+      "supported_by": [
+        "tax-self-assessment"
+      ],
+      "probe": "child benefit",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "ans-salary-sacrifice",
+      "question": "How does salary sacrifice work?",
+      "expect": "answer",
+      "supported_by": [
+        "pensions-workplace-pensions"
+      ],
+      "probe": "salary sacrifice",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-oos-passport",
+      "question": "How do I renew my passport?",
+      "expect": "abstain",
+      "absent_concept": "passport",
+      "why": "not a personal-finance topic",
+      "difficulty": "plain"
+    },
+    {
+      "id": "abs-oos-driving",
+      "question": "How do I book a driving theory test?",
+      "expect": "abstain",
+      "absent_concept": "driving",
+      "why": "not a personal-finance topic",
+      "difficulty": "plain"
+    },
+    {
+      "id": "abs-oos-weather",
+      "question": "What is the weather forecast for tomorrow?",
+      "expect": "abstain",
+      "absent_concept": "weather",
+      "why": "not a personal-finance topic",
+      "difficulty": "plain"
+    },
+    {
+      "id": "abs-oos-solar",
+      "question": "How do I install solar panels?",
+      "expect": "abstain",
+      "absent_concept": "solar",
+      "why": "not a personal-finance topic",
+      "difficulty": "plain"
+    },
+    {
+      "id": "abs-oos-visa",
+      "question": "How do I apply for a spouse visa?",
+      "expect": "abstain",
+      "absent_concept": "visa",
+      "why": "not a personal-finance topic",
+      "difficulty": "plain"
+    },
+    {
+      "id": "abs-oos-recipe",
+      "question": "How do I cook a roast dinner?",
+      "expect": "abstain",
+      "absent_concept": "roast",
+      "why": "not a personal-finance topic",
+      "difficulty": "plain"
+    },
+    {
+      "id": "abs-oos-nhs",
+      "question": "How do I register with a dentist?",
+      "expect": "abstain",
+      "absent_concept": "dentist",
+      "why": "not a personal-finance topic",
+      "difficulty": "plain"
+    },
+    {
+      "id": "abs-oos-marriage-cert",
+      "question": "How do I order a copy of a marriage certificate?",
+      "expect": "abstain",
+      "absent_concept": "marriage certificate",
+      "why": "not a personal-finance topic",
+      "difficulty": "plain"
+    },
+    {
+      "id": "abs-nm-credit-score",
+      "question": "How do I improve my credit score?",
+      "expect": "abstain",
+      "absent_concept": "credit score",
+      "why": "credit scoring is not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-credit-report",
+      "question": "How do I get a copy of my credit report?",
+      "expect": "abstain",
+      "absent_concept": "credit report",
+      "why": "credit reference agencies are not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-energy-price-cap",
+      "question": "What is the energy price cap set at?",
+      "expect": "abstain",
+      "absent_concept": "price cap",
+      "why": "Ofgem price-cap levels are not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-open-banking",
+      "question": "What is open banking?",
+      "expect": "abstain",
+      "absent_concept": "open banking",
+      "why": "open banking is not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-compound-interest",
+      "question": "How does compound interest work?",
+      "expect": "abstain",
+      "absent_concept": "compound",
+      "why": "compound interest is not explained in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-emergency-fund",
+      "question": "How big should my emergency fund be?",
+      "expect": "abstain",
+      "absent_concept": "emergency fund",
+      "why": "budgeting rules of thumb are not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-crypto-tax",
+      "question": "How is cryptocurrency taxed?",
+      "expect": "abstain",
+      "absent_concept": "cryptocurrency",
+      "why": "crypto is not covered by the held sources",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-premium-bonds",
+      "question": "What are the odds of winning on Premium Bonds?",
+      "expect": "abstain",
+      "absent_concept": "premium bond",
+      "why": "NS&I products are not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-equity-release",
+      "question": "How does equity release work?",
+      "expect": "abstain",
+      "absent_concept": "equity release",
+      "why": "equity release is not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-annuity-rates",
+      "question": "What annuity rate would I get?",
+      "expect": "abstain",
+      "absent_concept": "annuity rate",
+      "why": "annuity pricing is not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-mortgage-fixed-tracker",
+      "question": "What is the difference between a fixed and a tracker mortgage?",
+      "expect": "abstain",
+      "absent_concept": "tracker",
+      "why": "mortgage product types are not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-overdraft",
+      "question": "How much does an unarranged overdraft cost?",
+      "expect": "abstain",
+      "absent_concept": "overdraft",
+      "why": "overdraft pricing is not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-student-loan-threshold",
+      "question": "What is the student loan repayment threshold?",
+      "expect": "abstain",
+      "absent_concept": "student loan",
+      "why": "student loans are not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-smp",
+      "question": "How much statutory maternity pay will I get?",
+      "expect": "abstain",
+      "absent_concept": "statutory maternity pay",
+      "why": "statutory pay is not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-ssp",
+      "question": "How much is statutory sick pay?",
+      "expect": "abstain",
+      "absent_concept": "statutory sick pay",
+      "why": "statutory pay is not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-universal-credit-rate",
+      "question": "What is the standard allowance for Universal Credit?",
+      "expect": "abstain",
+      "absent_concept": "standard allowance",
+      "why": "UC award rates are not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-inflation",
+      "question": "What is the current rate of inflation?",
+      "expect": "abstain",
+      "absent_concept": "inflation",
+      "why": "macroeconomic series are not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-base-rate",
+      "question": "What is the Bank of England base rate?",
+      "expect": "abstain",
+      "absent_concept": "base rate",
+      "why": "the policy rate is not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-business-rates",
+      "question": "How are business rates calculated?",
+      "expect": "abstain",
+      "absent_concept": "business rate",
+      "why": "business rates are not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-rent-a-room",
+      "question": "How does the Rent a Room scheme work?",
+      "expect": "abstain",
+      "absent_concept": "rent a room",
+      "why": "the scheme is not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-trading-allowance",
+      "question": "What is the trading allowance?",
+      "expect": "abstain",
+      "absent_concept": "trading allowance",
+      "why": "the trading allowance is not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-p60",
+      "question": "When should I receive my P60?",
+      "expect": "abstain",
+      "absent_concept": "p60",
+      "why": "employment forms are not in the corpus",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-jurisdiction-ireland",
+      "question": "What is the ISA allowance in the Republic of Ireland?",
+      "expect": "abstain",
+      "absent_concept": "republic of ireland",
+      "why": "non-UK jurisdiction; note plain 'ireland' appears throughout as Northern Ireland",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "abs-nm-jurisdiction-us",
+      "question": "How does a Roth IRA compare to an ISA?",
+      "expect": "abstain",
+      "absent_concept": "roth ira",
+      "why": "non-UK product",
+      "difficulty": "near_miss"
+    },
+    {
+      "id": "rte-adv-which-isa",
+      "question": "Which ISA should I open?",
+      "expect": "route",
+      "trigger": "which should I",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-should-i-lisa",
+      "question": "Should I open a Lifetime ISA or a pension?",
+      "expect": "route",
+      "trigger": "should I",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-worth-it",
+      "question": "Is a Lifetime ISA worth it for me?",
+      "expect": "route",
+      "trigger": "worth it for me",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-best-pension",
+      "question": "What is the best pension for me?",
+      "expect": "route",
+      "trigger": "best for me",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-how-much-save",
+      "question": "How much should I be saving each month?",
+      "expect": "route",
+      "trigger": "how much should I",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-invest-where",
+      "question": "Where should I invest my savings?",
+      "expect": "route",
+      "trigger": "where should I invest",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-pay-off-mortgage",
+      "question": "Should I pay off my mortgage or invest instead?",
+      "expect": "route",
+      "trigger": "should I",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-smart",
+      "question": "Is it smart to put all my savings in one ISA?",
+      "expect": "route",
+      "trigger": "is it smart",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-wise",
+      "question": "Would it be wise to opt out of my workplace pension?",
+      "expect": "route",
+      "trigger": "would it be wise",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-recommend",
+      "question": "Can you recommend a good stocks and shares ISA?",
+      "expect": "route",
+      "trigger": "recommend",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-my-situation",
+      "question": "Given my situation, what should I do with a 20k inheritance?",
+      "expect": "route",
+      "trigger": "what should I do",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-friend",
+      "question": "My friend wants to know if she should transfer her pension - should she?",
+      "expect": "route",
+      "trigger": "third-person on-behalf-of",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-if-you-were-me",
+      "question": "If you were me, would you take the 25% tax-free lump sum?",
+      "expect": "route",
+      "trigger": "hypothetical self-insertion",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-no-brainer",
+      "question": "Is maxing out my ISA a no-brainer?",
+      "expect": "route",
+      "trigger": "informal suitability framing",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-tell-me-to",
+      "question": "Just tell me to open a LISA and I will do it",
+      "expect": "route",
+      "trigger": "imperative",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-most-people",
+      "question": "What do most people in my position do with their pension?",
+      "expect": "route",
+      "trigger": "population framing",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-suggest",
+      "question": "Please suggest me the best way to save for a house",
+      "expect": "route",
+      "trigger": "ESL-style polite request",
+      "difficulty": "plain"
+    },
+    {
+      "id": "rte-adv-safer",
+      "question": "Which is safer for my money, an ISA or a pension?",
+      "expect": "route",
+      "trigger": "comparative suitability",
+      "difficulty": "plain"
+    }
+  ]
+}
