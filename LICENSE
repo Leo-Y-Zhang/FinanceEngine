@@ -1,0 +1,38 @@
+Proprietary — All Rights Reserved
+
+Copyright (c) 2026 GreenPandaTech
+
+This software, its source code, its documentation, its evaluation datasets and
+its curated corpus manifest are proprietary and confidential. All rights are
+reserved by the copyright holder.
+
+No permission is granted to any person to use, copy, modify, merge, publish,
+distribute, sublicense, or sell copies of this software or any substantial
+portion of it, in whole or in part, by any means, without the prior written
+permission of the copyright holder.
+
+This repository is made available, where it is shared at all, solely for
+personal portfolio review and technical evaluation. Reviewing the code does not
+grant any licence to it.
+
+THIRD-PARTY CONTENT
+-------------------
+The corpus this project retrieves over is NOT covered by this licence and is not
+owned by the copyright holder. Corpus documents are fetched from official UK
+sources and remain the property of their publishers:
+
+  * GOV.UK and HMRC content is used under the Open Government Licence v3.0
+    (OGL). Contains public sector information licensed under the OGL v3.0.
+  * Financial Conduct Authority (FCA) content remains © the FCA and is used for
+    reference; see docs/compliance-review-2026-07-21.md finding #6.
+
+Corpus snapshots are gitignored and are not distributed with this repository.
+Attribution to these sources is surfaced in the application's own UI footer.
+
+NO ADVICE, NO WARRANTY
+----------------------
+This software produces guidance sourced from published material. It is not
+financial advice, it is not a personal recommendation, and it is not authorised
+by the FCA. It is provided "AS IS", without warranty of any kind, express or
+implied. The copyright holder accepts no liability for any claim, damages or
+other liability arising from its use.
