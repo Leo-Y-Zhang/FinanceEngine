@@ -88,3 +88,27 @@ def test_uncovered_terms_is_deterministic(index):
     a = index.uncovered_terms(q, index.search(q))
     b = index.uncovered_terms(q, index.search(q))
     assert a == b and a
+
+
+def test_function_words_never_become_uncovered_concepts(index):
+    """A query word missing from STOPWORDS and absent from the corpus is scored
+    at MAXIMUM idf and is then named to the user as a concept "no trusted source
+    covers". Measured on the live 46-doc corpus, idf("am") was 6.966 — identical
+    to idf("vat"), a concept genuinely missing — so the word "am" dragged coverage
+    down as hard as a real gap AND explained the resulting refusal. Two real
+    questions were refused for it."""
+    for word in ("am", "were", "been", "being", "did", "done", "he", "she", "they", "them"):
+        assert tokenize(f"What is an ISA and {word} I eligible?").count(word) == 0, word
+
+    # End to end: the function word must not surface as a named gap.
+    hits = index.search("What is an ISA and am I eligible")
+    assert "am" not in index.uncovered_terms("What is an ISA and am I eligible", hits)
+
+
+def test_a_genuinely_missing_concept_still_surfaces(index):
+    """The positive control for the test above — the stoplist must not be so
+    broad that real gaps stop being named. Without this, silencing every term
+    would pass."""
+    query = "Do I need to register for cryptocurrency"
+    hits = index.search(query)
+    assert "cryptocurrency" in index.uncovered_terms(query, hits)

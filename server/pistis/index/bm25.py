@@ -19,12 +19,27 @@ B = 0.75
 
 _TOKEN = re.compile(r"[a-z0-9£]+(?:/[0-9]+)?")
 
+# Closed-class function words, dropped before matching. This list is
+# load-bearing for HONESTY, not just for ranking: a query word absent from the
+# list and absent from the corpus is scored at MAXIMUM idf by coverage(), and is
+# named to the user by uncovered_terms as a concept "no trusted source covers".
+# A missing function word therefore does real damage twice — it drags coverage
+# down as hard as a genuinely unknown finance term, pushing borderline questions
+# into a false refusal, and then it explains that refusal with a word like "am".
+# Measured on the live 46-doc corpus before "am" was added here: idf("am") =
+# 6.966, identical to idf("vat"), a concept the corpus really is missing.
+#
+# Only add words that cannot be a UK-finance concept. Deliberately NOT stopped,
+# because each can carry real meaning in a money question: over, under, before,
+# after, between, during, may (the month), less, up, down, out, off.
 STOPWORDS = frozenset(
     """a an and are as at be but by can do does for from has have how i if in
     into is it its me my of on or that the their there these this to was what
     when where which who will with you your
     us we our ours get got much many people whether need use like also work
-    works""".split()
+    works
+    am been being were did doing done
+    he she him her hers his they them theirs""".split()
 )
 
 
