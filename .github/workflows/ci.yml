@@ -11,8 +11,18 @@ name: CI
 on:
   push:
     branches: [main]
+  # Scoped to main. Unscoped, a branch that has an open PR fires BOTH this and
+  # the push trigger above, running the whole gate twice for one commit — and
+  # Actions minutes on private repos are a metered, exhaustible resource.
   pull_request:
+    branches: [main]
   workflow_dispatch:
+
+# One run per ref. A rapid series of pushes otherwise leaves superseded runs
+# grinding through the full matrix for a commit nobody is waiting on.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
