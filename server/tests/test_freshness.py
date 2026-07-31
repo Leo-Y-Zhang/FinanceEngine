@@ -60,6 +60,42 @@ def test_slash_and_dash_tax_year_formats():
     assert assess("the 2024/2025 allowance", _cite(), REF).tax_year == "2024-25"
 
 
+def test_govuk_long_form_past_tax_year_is_flagged():
+    """"6 April 2024 to 5 April 2025" is how GOV.UK itself writes a tax year.
+
+    The short pattern cannot match it: after "to" it wants two digits and finds
+    "5 April". So the span read as no tax year at all and a claim about a PAST
+    year was presented as current -- in the exact phrasing of the sources this
+    engine exists to quote.
+    """
+    f = assess(
+        "For the tax year 6 April 2024 to 5 April 2025 the ISA allowance was £20,000.",
+        _cite(), REF,
+    )
+    assert f.tax_year == "2024-25"
+    assert f.tax_year_current is False
+    assert f.verdict == "stale"
+
+
+def test_govuk_long_form_current_tax_year_stays_current():
+    f = assess(
+        "For 6 April 2026 to 5 April 2027 the ISA allowance is £20,000.",
+        _cite("2026-09-01"), REF,
+    )
+    assert f.tax_year == "2026-27"
+    assert f.tax_year_current is True
+    assert f.verdict == "current"
+
+
+def test_long_form_is_case_insensitive():
+    assert assess("from 6 april 2024 to 5 april 2025", _cite(), REF).tax_year == "2024-25"
+
+
+def test_a_lone_publication_date_is_not_a_tax_year():
+    f = assess("This page was updated on 6 April 2024.", _cite("2026-09-01"), REF)
+    assert f.tax_year is None
+
+
 def test_currency_amount_is_not_mistaken_for_a_tax_year():
     f = assess("You can save up to £20,000 each year.", _cite("2026-09-01"), REF)
     assert f.tax_year is None

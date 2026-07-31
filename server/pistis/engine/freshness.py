@@ -27,6 +27,17 @@ STALE_DAYS = 365
 # "2026 to 2027", "2026/27", "2026/2027", "2026-27", "2026–27".
 _TAX_YEAR = re.compile(r"\b(20\d{2})\s*(?:to|/|-|–|—)\s*(?:20)?\d{2}\b")
 
+# "6 April 2026 to 5 April 2027" -- GOV.UK's own canonical way of writing a tax
+# year, and the form most likely to appear in the very sources this engine is
+# built to quote. The short pattern above cannot match it: after "to" it needs
+# two digits and finds "5 April", so the whole span reads as no tax year at all
+# and a claim about a PAST year is presented as current. Tried first because it
+# is the more specific shape.
+_TAX_YEAR_LONG = re.compile(
+    r"\b\d{1,2}\s+April\s+(20\d{2})\s*(?:to|-|–|—)\s*\d{1,2}\s+April\s+20\d{2}\b",
+    re.IGNORECASE,
+)
+
 
 def current_tax_year_start(reference_date: date) -> int:
     """The calendar year in which the current UK tax year began."""
@@ -36,7 +47,7 @@ def current_tax_year_start(reference_date: date) -> int:
 
 
 def _detect_tax_year_start(text: str) -> int | None:
-    match = _TAX_YEAR.search(text)
+    match = _TAX_YEAR_LONG.search(text) or _TAX_YEAR.search(text)
     return int(match.group(1)) if match else None
 
 
