@@ -214,6 +214,84 @@ def test_worked_example_claims_capped_and_not_boosted(passages):
     assert decision.claims[0].citation.url.endswith("/rule")
 
 
+def test_worked_example_detected_in_the_phrasings_govuk_actually_uses():
+    """The marker only caught a capitalised "Example" opening a passage.
+
+    Measured against realistic phrasings it missed six of ten, including the
+    commonest of all - "For example, if you earn ...". Those sentences carry
+    currency figures, so they were not merely emitted as 'established' but also
+    won the factual boost and rose up the ledger: invented arithmetic shown to
+    the reader as settled fact.
+    """
+    from pistis.engine.gate import _EXAMPLE_MARK
+
+    introduces_an_example = [
+        "Example. Bill earns £50,000.",
+        "Example 1. Bill earns £50,000.",
+        "Example: Bill earns £50,000.",
+        "For example, if you earn £50,000 you pay £7,486.",
+        "Worked example. Bill earns £50,000.",
+        "Worked example: Bill earns £50,000.",
+        "example. Bill earns £50,000.",
+        "Here is an example. Bill earns £50,000.",
+        "Examples. Bill earns £50,000.",
+        "## Example",
+        "* Example: a basic rate taxpayer.",
+        "You pay tax on some income, e.g. £50,000 of salary.",
+        "Consider the following examples: Bill earns £50,000.",
+    ]
+    states_a_rule = [
+        "The ISA allowance for 2026 to 2027 is £20,000.",
+        "You can save up to £20,000 each tax year.",
+        "Higher rate tax applies above £50,270.",
+        "Capital gains tax is charged at 20% on most assets.",
+        # prose that merely mentions the word must not downgrade a real rule
+        "This rule has one example in Annex B of the guidance.",
+    ]
+
+    for text in introduces_an_example:
+        assert _EXAMPLE_MARK.search(text), f"should be marked illustrative: {text!r}"
+    for text in states_a_rule:
+        assert not _EXAMPLE_MARK.search(text), f"should stay a rule: {text!r}"
+
+
+def test_for_example_arithmetic_is_not_emitted_as_established(passages):
+    """The same guarantee as the test above, through the whole engine.
+
+    Identical to test_worked_example_claims_capped_and_not_boosted except that
+    the example is introduced the way GOV.UK usually introduces one. Before the
+    marker was widened this passage produced 'established' claims carrying
+    hypothetical figures.
+    """
+    from pistis.corpus.store import Document, passages_for
+    from pistis.index.bm25 import Bm25Index
+
+    rule = Document(
+        doc_id="rule", title="Tax on savings interest", org=SourceOrg.HMRC,
+        url="https://www.gov.uk/rule", fetched_at="2026-07-21",
+        last_updated="2026-04-06",
+        text="Your personal savings allowance for interest is £1,000 for basic rate taxpayers. "
+             "Savings interest above the personal savings allowance is taxed at your usual rate. "
+             "The personal savings allowance applies to interest from banks and building societies.",
+    )
+    example = Document(
+        doc_id="ex", title="Tax on savings interest", org=SourceOrg.HMRC,
+        url="https://www.gov.uk/ex", fetched_at="2026-07-21",
+        last_updated="2026-04-06",
+        text="For example, you earn £20,000 of wages and get £1,500 of savings interest "
+             "over your personal savings allowance. "
+             "You would pay tax on £500 of savings interest. "
+             "Your total taxable savings interest would be £500.",
+    )
+    index = Bm25Index(list(passages) + passages_for(rule) + passages_for(example))
+    decision = decide("What is the personal savings allowance for interest?", index)
+    assert decision.answerable
+    example_claims = [c for c in decision.claims if c.citation.url.endswith("/ex")]
+    assert example_claims, "example sentences can still be cited"
+    assert all(c.confidence == "uncertain" for c in example_claims)
+    assert decision.claims[0].citation.url.endswith("/rule")
+
+
 def _passage(doc_id, idx, title, text):
     return Passage(
         id=f"{doc_id}#{idx}",
