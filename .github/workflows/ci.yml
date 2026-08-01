@@ -31,6 +31,7 @@ jobs:
   server:
     name: server (lint, tests, coverage, deps)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: server
@@ -62,6 +63,7 @@ jobs:
   web:
     name: web (types, tests, build, deps)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: web
