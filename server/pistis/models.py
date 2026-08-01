@@ -64,6 +64,12 @@ class Passage:
     url: str
     fetched_at: str  # ISO date the snapshot captured the source
     last_updated: str | None = None  # source-declared update date, if any
+    # True when this chunk sits inside a worked example. Computed by the chunker,
+    # not by the gate, because it is a property of the DOCUMENT REGION and the
+    # gate only ever sees one chunk at a time: an example introduced in one chunk
+    # runs its arithmetic into the next, which carries no marker of its own and
+    # was therefore emitted as an established fact.
+    in_example: bool = False
 
 
 @dataclass(frozen=True)

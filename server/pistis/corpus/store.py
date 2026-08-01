@@ -40,13 +40,42 @@ def split_sentences(text: str) -> list[str]:
     return [s.strip() for s in _SENTENCE_END.split(cleaned) if s.strip()]
 
 
+# Introductions to a worked example. Lives here rather than in the gate because
+# it is used to mark a REGION of a document, and only the chunker sees document
+# order. Deliberately broad: labelling a real rule illustrative costs one
+# confidence tier, while failing to label an illustration states an invented
+# number as fact.
+EXAMPLE_MARK = re.compile(
+    r"""
+      \bfor\s+example\b
+    | \be\.g\.
+    | (?:^|[\n.:;!?]\s*|[#*>\-]\s*)(?:worked\s+)?examples?\b
+    | \bexamples?\s*[.:](?=\s|$)
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
+
+
 def passages_for(doc: Document) -> list[Passage]:
     sentences = split_sentences(doc.text)
+    chunks = [
+        " ".join(sentences[i : i + PASSAGE_SENTENCES])
+        for i in range(0, len(sentences), PASSAGE_SENTENCES)
+    ]
+    # A chunk is inside an example if it introduces one, OR if the chunk before it
+    # did. The marker and the arithmetic it introduces routinely land in different
+    # chunks -- PASSAGE_SENTENCES is 3 -- and the later chunk carries no marker of
+    # its own, so it used to ship as an established fact. Carrying the flag ONE
+    # chunk forward covers roughly six sentences from the marker, which is the
+    # span a worked example occupies; it deliberately does NOT latch to the end of
+    # the document, which would downgrade every real rule stated after an example.
+    marked = [bool(EXAMPLE_MARK.search(c)) for c in chunks]
     out: list[Passage] = []
-    for i in range(0, len(sentences), PASSAGE_SENTENCES):
-        chunk = " ".join(sentences[i : i + PASSAGE_SENTENCES])
+    for k, chunk in enumerate(chunks):
+        i = k * PASSAGE_SENTENCES
         out.append(
             Passage(
+                in_example=marked[k] or (k > 0 and marked[k - 1]),
                 id=f"{doc.doc_id}#{i // PASSAGE_SENTENCES}",
                 doc_id=doc.doc_id,
                 text=chunk,

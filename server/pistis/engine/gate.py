@@ -14,6 +14,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from pistis.corpus.store import EXAMPLE_MARK
 from pistis.engine.faithfulness import verify
 from pistis.index.bm25 import Bm25Index, Hit, tokenize
 from pistis.models import (
@@ -56,36 +57,14 @@ _DEPENDS = re.compile(
 )
 _FACTUAL = re.compile(r"(£[\d,]+|\b\d{1,3}(,\d{3})*\b|\b\d+(\.\d+)?%|\b20\d{2}\b)")
 
-# GOV.UK worked examples appear as an "Example." heading followed by
-# hypothetical arithmetic. Those figures are illustrative, not rules — they
-# must not be emitted as 'established' facts nor win the factual boost.
-#
-# The original pattern only caught a capitalised "Example" at a passage start or
-# directly after a full stop, which is one of several shapes GOV.UK actually
-# uses. Measured against ten realistic phrasings it missed six, including the
-# commonest of all — "For example, if you earn £50,000 you pay £7,486". That
-# sentence carries currency figures, so it was not merely emitted as
-# 'established' but also won the 1.15 factual boost and rose up the ledger:
-# hypothetical arithmetic presented to the reader as a settled fact, which is
-# the single worst thing a trust-first engine can do.
-#
-# Deliberately biased toward over-marking. Marking a real rule as illustrative
-# costs a confidence tier; failing to mark an illustration states a made-up
-# number as fact. The "example" word must still be introducing something — at a
-# start, after a sentence end, or behind a heading or bullet mark — so ordinary
-# prose like "this rule has one example in Annex B" is not swept up.
-_EXAMPLE_MARK = re.compile(
-    r"""
-      \bfor\s+example\b                     # "For example, if you earn ..."
-    | \be\.g\.                              # "e.g. someone earning ..."
-    | (?:^|[\n.:;!?]\s*|[#*>\-]\s*)         # start / after a sentence end / heading or bullet
-      (?:worked\s+)?examples?\b             # "Example.", "Example 1", "Worked example:"
-    | \bexamples?\s*[.:](?=\s|$)            # "... here is an example." - the word ends its
-                                            # own clause, which is what an introduction does,
-                                            # unlike "one example in Annex B"
-    """,
-    re.IGNORECASE | re.VERBOSE,
-)
+# The worked-example marker now lives with the CHUNKER (corpus/store.py), which
+# is the only thing that sees document order. Searching it per-chunk here was
+# not enough: an example introduced in one chunk runs its arithmetic into the
+# next, and that chunk carries no marker of its own, so it shipped as an
+# established fact. Passage.in_example is set for the introducing chunk AND the
+# one after it. Re-exported under the old private name because the tests that
+# pin the phrasings reference it.
+_EXAMPLE_MARK = EXAMPLE_MARK
 
 
 @dataclass(frozen=True)
@@ -165,7 +144,8 @@ def _sentence_claims(question: str, hits: list[Hit]) -> list[tuple[Claim, ClaimV
     candidates: list[tuple[float, str, str, Claim, ClaimVerdict]] = []
     seen_texts: set[str] = set()
     for hit in hits:
-        in_example = bool(_EXAMPLE_MARK.search(hit.passage.text))
+        # Region-scoped, not chunk-scoped - see the note above.
+        in_example = hit.passage.in_example or bool(_EXAMPLE_MARK.search(hit.passage.text))
         for sentence in _SENTENCE_END.split(hit.passage.text):
             sentence = sentence.strip()
             if len(sentence) < 20:
