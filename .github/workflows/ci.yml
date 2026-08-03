@@ -3,10 +3,13 @@ name: CI
 # Every gate this project claims to hold itself to, run on every push, so the
 # claims in the README are checked rather than asserted.
 #
-# NOTE: GitHub Actions is currently blocked at the account level (billing), so
-# runs will fail to start until that clears — the failure is not the code. Verify
-# locally with the same commands; they are deliberately identical to the ones in
-# docs/SESSION_HANDOFF.md.
+# Every step here is runnable locally with the same command; they are
+# deliberately identical to the ones in README.md and docs/SESSION_HANDOFF.md, so
+# a red run can always be reproduced without waiting on a runner.
+#
+# (A note that Actions was billing-blocked at account level stood here from
+# 2026-07 to 2026-08. It is no longer true — run 30820556169 on 2026-08-03 went
+# green on both jobs — so it has been removed rather than left to mislead.)
 
 on:
   push:

@@ -16,9 +16,8 @@ UK adults use AI for money questions at scale, but the top stated fears are
 inaccuracy and privacy. General LLMs cite fluently yet unreliably and almost
 never abstain. Finance Answer Engine inverts the posture: **the default is not
 to answer** — the system earns the right to answer, claim by claim, from a
-curated corpus of
-UK-authoritative sources (GOV.UK/HMRC, FCA, MoneyHelper/Pension Wise).
-Refusal is a feature, not a failure mode.
+curated corpus of UK-authoritative sources (GOV.UK/HMRC, FCA,
+MoneyHelper/Pension Wise). Refusal is a feature, not a failure mode.
 
 ## Architecture (MVP)
 
@@ -95,9 +94,8 @@ April.
 
 Finance Answer Engine's thesis is that **refusal is a feature, not a failure
 mode** — but a refusal is only credible if it can show its working, the way an
-answer does. So
-every refusal now carries an **abstention report**, symmetric with the trust
-report on an answer:
+answer does. So every refusal now carries an **abstention report**, symmetric
+with the trust report on an answer:
 
 - **The gate stage that fired** — `no_source` (nothing retrieved),
   `weak_coverage` (retrieved, but the answerability signals fell short),
@@ -139,7 +137,8 @@ python -m finance_answer_engine.gaps --json            # machine-readable record
 **Absent from the corpus is not the same as belongs in the corpus.** Nothing in
 the engine classifies topical scope, so the report cannot tell a real gap from a
 question Finance Answer Engine correctly refused as out of scope — it reports
-evidence and says so, leaving the triage to a human. Two sections report only what was measured:
+evidence and says so, leaving the triage to a human. Two sections report only
+what was measured:
 **no source shared any term** (every token absent from the whole corpus — the
 strongest evidence of absence the system can produce) and **partial match**
 (sources matched but fell short). They are listed apart so neither crowds the
@@ -171,8 +170,9 @@ simply stops appearing — the backlog stays honest.
 ## Answerability benchmark — measuring the gate, not asserting it
 
 The faithfulness eval proves every emitted claim is grounded. It never measured
-the **gate**, which is where the central claim lives. `finance_answer_engine.bench` scores 131
-labelled questions and reports the two failures **separately**, because a single
+the **gate**, which is where the central claim lives.
+`finance_answer_engine.bench` scores 131 labelled questions and reports the two
+failures **separately**, because a single
 accuracy figure would average a serious failure against a mild one:
 
 ```bash
@@ -184,9 +184,10 @@ python -m finance_answer_engine.bench --json       # machine-readable record
 ```
 
 **No label comes from Finance Answer Engine's output** — that would measure
-nothing. Each is derived from the corpus or from the question's form, and each is falsifiable: an
-`answer` label names a supporting document and a probe term that document must
-contain; an `abstain` label names a concept the corpus must be silent on; a
+nothing. Each is derived from the corpus or from the question's form, and each
+is falsifiable: an `answer` label names a supporting document and a probe term
+that document must contain; an `abstain` label names a concept the corpus must
+be silent on; a
 `route` label names the phrase that makes the question a request for advice.
 `--validate` re-checks every one against the current corpus, so labels cannot
 silently rot as it grows, and the CLI **refuses to score** against labels known
@@ -297,11 +298,8 @@ a11y to inspection. Coverage carries a floor, not a target: the network fetch
 paths are deliberately outside the unit suite, so chasing 100% would mean
 testing `urllib` rather than this product.
 
-Two things worth knowing before reading a CI badge:
+One thing worth knowing before reading a CI badge:
 
-- **GitHub Actions is blocked at the account level (billing)**, so runs fail to
-  start until that clears. That failure is not the code — the commands above are
-  the same ones CI runs, and they pass locally.
 - CI evaluates the **fixture** corpus, because the live snapshot is gitignored
   and needs a network fetch. Live-corpus numbers are recorded in the handoff with
   the date and document count they were measured against.

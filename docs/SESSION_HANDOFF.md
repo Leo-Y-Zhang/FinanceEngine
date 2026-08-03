@@ -878,10 +878,12 @@ the user says so.
 - Full local gate (identical to CI, see `.github/workflows/ci.yml`): from
   `server/` — `python -m ruff check finance_answer_engine tests`,
   `python -m pytest --cov=finance_answer_engine --cov-report=term-missing` (floor 90%, currently
-  95%), `python -m pip_audit --strict`, `python -m finance_answer_engine.eval`; from `web/` —
+  95%), `pip freeze --exclude-editable > audit-requirements.txt` then
+  `python -m pip_audit --strict -r audit-requirements.txt`,
+  `python -m finance_answer_engine.eval`; from `web/` —
   `npx tsc --noEmit`, `npm test -- --run`, `npm run build`, `npm audit`.
-  NOTE: Actions is billing-blocked at account level, so CI will not start until
-  that clears; the commands above are what it runs.
+  Actions runs these on every push and is NOT billing-blocked any more (the old
+  note here was stale; run 30820556169 went green 2026-08-03).
 - Honesty eval: `server/.venv/Scripts/python -m finance_answer_engine.eval --snapshot ../data/corpus/snapshot.json`
 - Answerability benchmark (session 9): from `server/`,
   `.venv/Scripts/python -m finance_answer_engine.bench --validate` to check the LABELS against
