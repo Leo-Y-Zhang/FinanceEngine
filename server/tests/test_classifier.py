@@ -6,7 +6,7 @@ regulatory guardrail's regression net — additions welcome, removals suspect.
 
 import pytest
 
-from pistis.engine.classifier import classify
+from finance_answer_engine.engine.classifier import classify
 
 PERSONAL_REC_QUESTIONS = [
     "What should I invest in?",

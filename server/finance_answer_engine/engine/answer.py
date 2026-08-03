@@ -8,12 +8,12 @@ from __future__ import annotations
 
 from datetime import date
 
-from pistis.engine.classifier import classify
-from pistis.engine.freshness import assess
-from pistis.engine.gate import decide
-from pistis.engine.routing import abstain_routing, default_routing
-from pistis.index.bm25 import Bm25Index
-from pistis.models import (
+from finance_answer_engine.engine.classifier import classify
+from finance_answer_engine.engine.freshness import assess
+from finance_answer_engine.engine.gate import decide
+from finance_answer_engine.engine.routing import abstain_routing, default_routing
+from finance_answer_engine.index.bm25 import Bm25Index
+from finance_answer_engine.models import (
     Abstention,
     AbstentionReport,
     AnswerCard,

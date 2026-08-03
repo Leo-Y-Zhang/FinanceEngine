@@ -12,7 +12,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from pistis.models import Passage, SourceOrg
+from finance_answer_engine.models import Passage, SourceOrg
 
 # Sentences per passage: small enough to cite precisely, large enough to rank.
 PASSAGE_SENTENCES = 3

@@ -1,6 +1,6 @@
 import pytest
 
-from pistis.models import (
+from finance_answer_engine.models import (
     DISCLAIMER,
     AnswerCard,
     Citation,

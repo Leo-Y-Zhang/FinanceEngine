@@ -102,7 +102,7 @@ const ROUTING: AskResponse = {
 const ABSTAIN: AskResponse = {
   kind: "abstain",
   question: "What is the weather forecast for Manchester?",
-  reason: "The sources Pistis trusts do not cover this well enough to answer reliably.",
+  reason: "The sources Finance Answer Engine trusts do not cover this well enough to answer reliably.",
   routing: {
     message: "Here is where to go next.",
     links: [{ label: "MoneyHelper", url: "https://www.moneyhelper.org.uk/en" }],
@@ -111,7 +111,7 @@ const ABSTAIN: AskResponse = {
   report: {
     stage: "weak_coverage",
     explanation:
-      "Pistis found related material but no trusted source covers 'weather', 'manchester' — the part it could not verify.",
+      "Finance Answer Engine found related material but no trusted source covers 'weather', 'manchester' — the part it could not verify.",
     signals: [
       { name: "retrieval strength", value: 2.5, threshold: 2.0, passed: true },
       { name: "source coverage", value: 0.33, threshold: 0.6, passed: false },
@@ -123,7 +123,7 @@ const ABSTAIN: AskResponse = {
 const ABSTAIN_NO_DIAGNOSTICS: AskResponse = {
   kind: "abstain",
   question: "the of an at",
-  reason: "The sources Pistis trusts do not cover this well enough to answer reliably.",
+  reason: "The sources Finance Answer Engine trusts do not cover this well enough to answer reliably.",
   routing: {
     message: "Here is where to go next.",
     links: [{ label: "MoneyHelper", url: "https://www.moneyhelper.org.uk/en" }],
@@ -131,7 +131,7 @@ const ABSTAIN_NO_DIAGNOSTICS: AskResponse = {
   disclaimer: "Guidance, not advice.",
   report: {
     stage: "no_source",
-    explanation: "No trusted source in Pistis's corpus addresses this question.",
+    explanation: "No trusted source in Finance Answer Engine's corpus addresses this question.",
     signals: [],
     uncovered_terms: [],
   },
@@ -319,7 +319,7 @@ describe("App", () => {
     // no longer showing the ask form while on the privacy page
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("link", { name: /back to pistis/i }));
+    await user.click(screen.getByRole("link", { name: /back to finance answer engine/i }));
     expect(screen.getByRole("textbox")).toBeInTheDocument();
   });
 

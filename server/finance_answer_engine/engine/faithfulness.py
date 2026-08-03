@@ -1,6 +1,6 @@
 """Deterministic, keyless per-claim faithfulness verification.
 
-Pistis emits each claim as a verbatim sentence extracted from one source
+Finance Answer Engine emits each claim as a verbatim sentence extracted from one source
 passage. This module *proves* that grounding: it checks a claim's text against
 the passage it was drawn from and returns a verdict with the exact matched
 span. It serves three roles:
@@ -23,8 +23,8 @@ from __future__ import annotations
 
 import re
 
-from pistis.index.bm25 import tokenize
-from pistis.models import ClaimVerdict, Passage
+from finance_answer_engine.index.bm25 import tokenize
+from finance_answer_engine.models import ClaimVerdict, Passage
 
 # A claim is grounded-by-paraphrase when at least this fraction of its content
 # tokens also appear in the source passage.

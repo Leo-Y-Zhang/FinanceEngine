@@ -12,7 +12,7 @@ import re
 from collections import Counter
 from dataclasses import dataclass
 
-from pistis.models import Passage
+from finance_answer_engine.models import Passage
 
 K1 = 1.5
 B = 0.75

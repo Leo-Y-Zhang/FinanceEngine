@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from pistis.gaps import DEFAULT_MIN_DISTINCT, corpus_gap_report, main
+from finance_answer_engine.gaps import DEFAULT_MIN_DISTINCT, corpus_gap_report, main
 
 FIXTURES = Path(__file__).parent / "fixtures"
 SNAPSHOT = FIXTURES / "snapshot.json"
@@ -415,7 +415,7 @@ def test_missing_snapshot_explains_itself_instead_of_a_traceback(tmp_path, capsy
     with pytest.raises(SystemExit) as exit_info:
         main(["--log", str(log), "--snapshot", str(tmp_path / "nope.json")])
     assert exit_info.value.code == 3
-    assert "pistis.corpus.refresh" in capsys.readouterr().err  # says what to run
+    assert "finance_answer_engine.corpus.refresh" in capsys.readouterr().err  # says what to run
 
 
 def test_top_cap_never_silently_truncates(tmp_path, capsys):

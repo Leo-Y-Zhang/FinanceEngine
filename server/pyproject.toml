@@ -1,5 +1,5 @@
 [project]
-name = "pistis"
+name = "finance-answer-engine"
 version = "0.1.0"
 description = "Trust-first UK personal-finance guidance engine with a default-deny honesty gate"
 requires-python = ">=3.12"
@@ -22,14 +22,14 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["pistis*"]
+include = ["finance_answer_engine*"]
 
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
 
 [tool.coverage.run]
-source = ["pistis"]
+source = ["finance_answer_engine"]
 
 [tool.coverage.report]
 # A floor, not a target. Set just under the current 95% so a genuine regression
@@ -79,4 +79,4 @@ ignore = [
 # The advice-boundary patterns are single regexes. Wrapping one across lines to
 # meet a character count makes a regulatory guardrail harder to read and review,
 # which is the opposite of what matters in that file.
-"pistis/engine/classifier.py" = ["E501"]
+"finance_answer_engine/engine/classifier.py" = ["E501"]

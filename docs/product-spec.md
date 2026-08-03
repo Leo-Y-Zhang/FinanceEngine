@@ -1,4 +1,4 @@
-# Pistis — Product Spec
+# Finance Answer Engine — Product Spec
 
 *A trust-first UK personal-finance AI answer engine, defined by a default-deny honesty gate: it answers only when it can ground the claim in a reliable, cited source — otherwise it says so and defers.*
 
@@ -35,7 +35,7 @@ The trust gap is structural, not incidental:
 
 **Explicitly out of scope (see §4):** telling an individual which specific product/fund/provider/action is right for them; collecting personal circumstances and outputting a single "right for you" answer; any product promotion or "apply here" journey.
 
-*Uncertain / undecided in research:* privacy is flagged as a top user concern (83%) but the research does not specify Pistis's data-handling model, and it does not resolve whether any personalisation over a user's own data would ever be offered. Treat as an open product decision (see §7).
+*Uncertain / undecided in research:* privacy is flagged as a top user concern (83%) but the research does not specify Finance Answer Engine's data-handling model, and it does not resolve whether any personalisation over a user's own data would ever be offered. Treat as an open product decision (see §7).
 
 ---
 
@@ -44,7 +44,7 @@ The trust gap is structural, not incidental:
 | Name | What it is | Sourcing / trust approach | Weakness for a citation-first, honesty-gated engine |
 |---|---|---|---|
 | **Ask MSE** (MoneySavingExpert) | Free ChatGPT-API chatbot in the MSE app, grounded on MSE's own guides/blogs (re-indexed weekly) | Answers only from MSE content; refuses product recommendations ("how do I" not "what's best"); disclaims fallibility, points to full human guide | Single-source (MSE only); no robust per-claim in-answer citations/links; no explicit abstain-when-uncertain gate; no HMRC/GOV.UK/FCA/MoneyHelper grounding |
-| **MoneyHelper** (Money & Pensions Service, gov-backed) | Free, impartial official guidance — 700+ guides, calculators, helplines, webchat/WhatsApp; includes Pension Wise | Highly authoritative and trusted; human specialists; but static content, no AI answer layer | Not an AI engine; slow to navigate. Better *cited by* Pistis than treated as a rival — but is also the obvious body to build an AI layer itself |
+| **MoneyHelper** (Money & Pensions Service, gov-backed) | Free, impartial official guidance — 700+ guides, calculators, helplines, webchat/WhatsApp; includes Pension Wise | Highly authoritative and trusted; human specialists; but static content, no AI answer layer | Not an AI engine; slow to navigate. Better *cited by* Finance Answer Engine than treated as a rival — but is also the obvious body to build an AI layer itself |
 | **Cleo** | Conversational AI budgeting assistant; Plaid read-only bank link; "roast/hype" persona | Personalises over the user's own transaction data, not external knowledge; no external citations | Not a knowledge/answer engine; monetises via cash advances & subscription (incentive conflict); no sourcing on savings/ISA/pension/tax facts |
 | **Plum** | Automated saving/investing app; AI agent (Google Gemini) on income/goals; Cash ISA & LISA | AI directs users toward products/actions | Product/upsell-driven, not neutral cited guidance; narrow to its own accounts |
 | **Nutmeg (J.P. Morgan) / Moneyfarm / Wealthify** (robo-advisers) | Automated ETF portfolios from a risk questionnaire; FCA-regulated & FSCS-protected; Nutmeg pilots full regulated advice | Regulated advice/guidance with clear disclosures; trust via authorisation | Investment-only; tied to their own products; not a broad Q&A engine for tax/mortgages/budgeting |
@@ -59,7 +59,7 @@ The trust gap is structural, not incidental:
 
 ## 4. Regulatory guardrail — guidance, never advice
 
-Pistis stays firmly on the **guidance** side of the advice/guidance boundary. The bright line is the **personal recommendation**: regulated advice is a personal recommendation about a specific investment; guidance is generic, non-personalised material. Crossing it as an unauthorised person is a criminal offence under FSMA.
+Finance Answer Engine stays firmly on the **guidance** side of the advice/guidance boundary. The bright line is the **personal recommendation**: regulated advice is a personal recommendation about a specific investment; guidance is generic, non-personalised material. Crossing it as an unauthorised person is a criminal offence under FSMA.
 
 **What makes a communication a regulated personal recommendation (all must hold — Art 53 RAO / MiFID; PERG 8.30B):** it is made to a person as an investor; it relates to a *specific/particular* investment (not just a product type); it is presented as suitable for them *or* based on their personal circumstances; and it is not issued exclusively to the public (i.e. individualised).
 
@@ -67,7 +67,7 @@ Pistis stays firmly on the **guidance** side of the advice/guidance boundary. Th
 - **Implicit suitability counts.** You needn't say "suitable." Framing like *"people like you tend to choose X"*, or narrowing to one product after collecting circumstances, is a personal recommendation. Substance over form.
 - **Filtering vs recommending.** Filtering on a *single factual factor* (e.g. "ISAs with no platform fee") is generally not advice; combining *multiple personal-circumstance inputs* into a result presented as meeting the user's specific requirements tips into a personal recommendation.
 
-**"Targeted support" is a separate, gated middle tier** (PS25/22): it lets firms suggest a course of action to a *segment* of similar consumers, but requires a specific FCA permission (final rules 26 Feb 2026; applications open 2 Mar 2026; live 6 Apr 2026). Pistis cannot lawfully do targeted-support-style suggestions without authorisation. Until/unless authorised, stay on pure guidance.
+**"Targeted support" is a separate, gated middle tier** (PS25/22): it lets firms suggest a course of action to a *segment* of similar consumers, but requires a specific FCA permission (final rules 26 Feb 2026; applications open 2 Mar 2026; live 6 Apr 2026). Finance Answer Engine cannot lawfully do targeted-support-style suggestions without authorisation. Until/unless authorised, stay on pure guidance.
 
 ### Concrete design rules (from the regulatory research)
 
@@ -86,7 +86,7 @@ Pistis stays firmly on the **guidance** side of the advice/guidance boundary. Th
 **C. Source-citation policy (build in):** every substantive answer cites and defers to authoritative sources — **GOV.UK/HMRC** (tax, allowances, state pension, benefits), **MoneyHelper** (pensions/investment/debt guidance and the "get proper guidance" signpost), **FCA** (scam warnings, the FCA Register, consumer explainers). Prefer primary/official over secondary; show URL and date so users can verify. Aligns with Consumer Duty "support" and "consumer understanding" outcomes.
 
 **D. Disclaimers & routing (necessary, not sufficient):**
-- Persistent, prominent disclaimer: *"Pistis provides information and guidance, not regulated financial advice or a personal recommendation. It does not consider your individual circumstances. For advice tailored to you, speak to an FCA-authorised adviser."*
+- Persistent, prominent disclaimer: *"Finance Answer Engine provides information and guidance, not regulated financial advice or a personal recommendation. It does not consider your individual circumstances. For advice tailored to you, speak to an FCA-authorised adviser."*
 - Do **not** rely on the disclaimer to cure advice-like content — the FCA looks at substance; a disclaimer rarely prevents a personal recommendation if the messaging implies suitability.
 - **Defer-to-adviser routing:** any "what should *I* do / which should *I* pick" is a routing event — decline to recommend and route to (i) MoneyHelper guidance and (ii) an FCA-authorised adviser (FCA Register + MoneyHelper "choosing a financial adviser"). Explain the *value* of regulated advice: it carries protections (FOS, FSCS, adviser accountability) guidance cannot.
 - Make clear users bear responsibility for decisions made on guidance.
@@ -99,12 +99,12 @@ Pistis stays firmly on the **guidance** side of the advice/guidance boundary. Th
 
 ## 5. The differentiator — the honesty / citation gate
 
-Pistis's defining mechanism is a **default-deny honesty gate**: the system's default posture is *not to answer*, and it earns the right to answer only when it can attach grounded, reliable citations to the claims it is about to make.
+Finance Answer Engine's defining mechanism is a **default-deny honesty gate**: the system's default posture is *not to answer*, and it earns the right to answer only when it can attach grounded, reliable citations to the claims it is about to make.
 
 **How it decides to answer vs defer (conceptual):**
-- **Ground-first, not generate-first.** For a given question, Pistis retrieves from a curated corpus of UK-authoritative sources (GOV.UK/HMRC, FCA, MoneyHelper/Pension Wise, reputable consumer bodies) *before* composing an answer. The answer is assembled from what the sources support, not the model's parametric memory.
+- **Ground-first, not generate-first.** For a given question, Finance Answer Engine retrieves from a curated corpus of UK-authoritative sources (GOV.UK/HMRC, FCA, MoneyHelper/Pension Wise, reputable consumer bodies) *before* composing an answer. The answer is assembled from what the sources support, not the model's parametric memory.
 - **Per-claim grounding check.** Each substantive claim in a candidate answer must map to a specific supporting source passage. Claims that cannot be tied to a source are not emitted. This directly targets the citation-mismatch failure that afflicts general LLMs (a real URL attached to a claim the source never made).
-- **Abstain when unground-able.** If the corpus does not cover the question, or coverage is stale/ambiguous, Pistis states that plainly and defers — to MoneyHelper and/or an FCA-authorised adviser — rather than guessing. Refusal is the feature, not a failure mode.
+- **Abstain when unground-able.** If the corpus does not cover the question, or coverage is stale/ambiguous, Finance Answer Engine states that plainly and defers — to MoneyHelper and/or an FCA-authorised adviser — rather than guessing. Refusal is the feature, not a failure mode.
 - **Advice-boundary classifier as a second gate.** Independently of grounding, any answer shaped as a personal recommendation (specific product + implied suitability, or a personalised "right for you" narrowing) is blocked and converted into a routing event (per §4B/§4D). An answer must clear *both* gates — grounded *and* guidance-only — to be shown.
 
 **How it cites:**
@@ -112,7 +112,7 @@ Pistis's defining mechanism is a **default-deny honesty gate**: the system's def
 - Primary/official sources are preferred over secondary.
 - The corpus is **continuously refreshed** so answers reflect current thresholds and rules, filling the middle ground between static gov guidance and stale ungrounded LLMs.
 
-**The calibration principle:** the gate must be *trustworthy without being useless*. Too eager to answer, and Pistis inherits the hallucination problem that destroys its only USP; too eager to abstain, and it loses to a ChatGPT that always answers. Tuning this threshold is the product's core execution challenge (see §7), and the target is a defensible, honest calibration — not maximal answer coverage.
+**The calibration principle:** the gate must be *trustworthy without being useless*. Too eager to answer, and Finance Answer Engine inherits the hallucination problem that destroys its only USP; too eager to abstain, and it loses to a ChatGPT that always answers. Tuning this threshold is the product's core execution challenge (see §7), and the target is a defensible, honest calibration — not maximal answer coverage.
 
 ---
 
@@ -148,19 +148,19 @@ Build the smallest thing that proves the two unoccupied positions (per-claim gro
 2. **Financial-promotion breach (s21 FSMA)** — an independent offence. Affiliate links, "buy now" nudges, or promoting specific products can trigger it. Mitigation: stay product-neutral; legal review of any monetisation touching specific products.
 3. **Accuracy liability & the honesty-gate paradox.** UK PF facts change constantly; one wrong cited answer on tax/pensions causes real harm and destroys the entire trust USP — yet an engine that abstains too often loses to always-answering rivals. Calibrating default-deny to be trustworthy without being useless is the core execution risk.
 4. **Entrenched incumbents own trust, distribution, and source content.** MSE (brand + proprietary content), MoneyHelper (gov backing), OpenAI/Perplexity (default distribution) are hard to displace; the best content may need licensing.
-5. **Consumer Duty exposure** if Pistis becomes/partners with an authorised firm — inaccurate info = foreseeable harm. (A purely unauthorised info service isn't directly under the Duty, but partnerships/promotions can pull it in.)
+5. **Consumer Duty exposure** if Finance Answer Engine becomes/partners with an authorised firm — inaccurate info = foreseeable harm. (A purely unauthorised info service isn't directly under the Duty, but partnerships/promotions can pull it in.)
 6. **A moving regulatory perimeter.** Targeted support live 6 Apr 2026; CP26/10 (simplifying pensions/investment advice) in consultation; the Mills Review recommends the FCA adapt the perimeter for AI. Treat compliance as a living process.
 
 **Open questions / uncertainties the research left unresolved (flagged honestly):**
-- **Advice classification is fact-specific.** Whether a *given* Pistis feature is "guidance," "targeted support," or a "personal recommendation" turns on exact wording/UX and needs a compliance lawyer against PERG 8 Annex 1 worked examples — which the regulatory research could not fully extract (the page renders via JS; analysis relied on PERG 8.30B + FCA "Helping firms…" guidance instead).
-- **Consumer Duty applicability** depends on Pistis's authorisation/partnership structure, which is not specified — must be checked.
+- **Advice classification is fact-specific.** Whether a *given* Finance Answer Engine feature is "guidance," "targeted support," or a "personal recommendation" turns on exact wording/UX and needs a compliance lawyer against PERG 8 Annex 1 worked examples — which the regulatory research could not fully extract (the page renders via JS; analysis relied on PERG 8.30B + FCA "Helping firms…" guidance instead).
+- **Consumer Duty applicability** depends on Finance Answer Engine's authorisation/partnership structure, which is not specified — must be checked.
 - **FG24/1 social-media detail** is summarised only at a high level here.
-- **Privacy / personalisation model is undefined.** 83% of UK AI-money users worry about privacy, but the research does not specify Pistis's data handling, nor resolve whether any personalisation over a user's own data is in scope. This is an open product decision with direct trust implications.
+- **Privacy / personalisation model is undefined.** 83% of UK AI-money users worry about privacy, but the research does not specify Finance Answer Engine's data handling, nor resolve whether any personalisation over a user's own data is in scope. This is an open product decision with direct trust implications.
 - **OpenAI's PF experience** positioning is drawn from the announcement URL surfaced in search, not verified page content (the page returned HTTP 403). Treat competitor detail there as indicative, not confirmed.
 - **Content licensing** for proprietary UK sources (MSE, Which?) is a commercial dependency the research flags but does not price or resolve.
 - **Whether MoneyHelper builds its own AI layer** is named as an obvious threat (the authoritative body best placed to do so), but its intentions are unknown.
 
-> **Bottom line:** ship Pistis as an information-and-guidance engine — generic, factual, product-neutral, per-claim source-cited, with hard guardrails against personalised/product-specific recommendations and against inducements to invest. Treat "which should I pick / what should I do" as a routing event, never an answer. Keep monitoring the moving perimeter and obtain compliance/legal sign-off before launch and before any monetisation touching specific products.
+> **Bottom line:** ship Finance Answer Engine as an information-and-guidance engine — generic, factual, product-neutral, per-claim source-cited, with hard guardrails against personalised/product-specific recommendations and against inducements to invest. Treat "which should I pick / what should I do" as a routing event, never an answer. Keep monitoring the moving perimeter and obtain compliance/legal sign-off before launch and before any monetisation touching specific products.
 
 ---
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Pistis answerability benchmark. Labels are derived from the CORPUS and from question FORM, never from the engine's output - see bench_build.py for the labelling protocol and its stated limits.",
+  "description": "Finance Answer Engine answerability benchmark. Labels are derived from the CORPUS and from question FORM, never from the engine's output - see bench_build.py for the labelling protocol and its stated limits.",
   "counts": {
     "answer": 81,
     "abstain": 32,

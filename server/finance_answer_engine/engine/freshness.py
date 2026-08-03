@@ -15,7 +15,7 @@ from __future__ import annotations
 import re
 from datetime import date
 
-from pistis.models import Citation, Freshness
+from finance_answer_engine.models import Citation, Freshness
 
 # UK tax year runs 6 April Y -> 5 April Y+1.
 _TAX_YEAR_START_MONTH_DAY = (4, 6)

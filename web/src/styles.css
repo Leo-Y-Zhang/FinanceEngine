@@ -40,11 +40,16 @@ body {
   margin-bottom: 0.4rem;
 }
 
+/* Tracking is 0.18em, not the 0.35em a one-word wordmark could carry: the name
+   is three words and 21 characters, and at 0.35em it ran to ~32rem — wider than
+   the 27rem the masthead rule wants and enough to wrap into three lines on a
+   phone. Size is clamped for the same reason, so the mark still sits on one or
+   two lines at 320px. */
 .wordmark {
   font-family: var(--mono);
-  font-size: 1.6rem;
+  font-size: clamp(1rem, 4.6vw, 1.6rem);
   font-weight: 700;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.18em;
   margin: 0;
   text-transform: uppercase;
 }

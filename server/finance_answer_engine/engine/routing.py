@@ -7,10 +7,10 @@ accountability), then links the official next steps.
 
 from __future__ import annotations
 
-from pistis.models import Routing, RoutingLink
+from finance_answer_engine.models import Routing, RoutingLink
 
 ROUTING_MESSAGE = (
-    "Pistis can explain how things work, but it cannot tell you what is right "
+    "Finance Answer Engine can explain how things work, but it cannot tell you what is right "
     "for your situation — that is regulated financial advice, and it comes "
     "with protections guidance cannot offer: an FCA-authorised adviser is "
     "accountable to you, you can complain to the Financial Ombudsman Service, "
@@ -19,7 +19,7 @@ ROUTING_MESSAGE = (
 )
 
 ABSTAIN_MESSAGE = (
-    "Pistis answers only what it can verify against its trusted UK sources — "
+    "Finance Answer Engine answers only what it can verify against its trusted UK sources — "
     "guessing is how money answers go wrong. These official services can help "
     "instead."
 )

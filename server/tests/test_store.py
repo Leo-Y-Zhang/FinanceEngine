@@ -1,11 +1,11 @@
-from pistis.corpus.store import (
+from finance_answer_engine.corpus.store import (
     Document,
     load_snapshot,
     passages_for,
     save_snapshot,
     split_sentences,
 )
-from pistis.models import SourceOrg
+from finance_answer_engine.models import SourceOrg
 
 
 def make_doc(text, **overrides):
@@ -65,8 +65,8 @@ def test_snapshot_round_trip(tmp_path):
 # established fact: invented figures presented as GOV.UK rules.
 
 def test_an_example_spanning_a_chunk_boundary_stays_marked() -> None:
-    from pistis.corpus.store import EXAMPLE_MARK, Document, passages_for
-    from pistis.models import SourceOrg
+    from finance_answer_engine.corpus.store import EXAMPLE_MARK, Document, passages_for
+    from finance_answer_engine.models import SourceOrg
 
     doc = Document(
         doc_id="d", title="T", org=SourceOrg.GOVUK, url="u",

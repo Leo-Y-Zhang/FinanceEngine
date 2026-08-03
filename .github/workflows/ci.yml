@@ -46,19 +46,31 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Lint
-        run: ruff check pistis tests
+        run: ruff check finance_answer_engine tests
 
       - name: Tests with coverage floor
-        run: pytest --cov=pistis --cov-report=term-missing
+        run: pytest --cov=finance_answer_engine --cov-report=term-missing
 
+      # Audits a frozen list of the THIRD-PARTY dependencies rather than the
+      # whole environment, because the environment also contains this project
+      # itself as an editable install and pip-audit tries to resolve every
+      # installed distribution against PyPI. `--strict` (fail when anything
+      # could not be audited) is kept: it is the point of the step.
+      #
+      # This is not cosmetic. Under the old project name the environment audit
+      # "passed" only because an UNRELATED package of that name exists on PyPI,
+      # so the step was silently auditing a stranger's releases. Excluding the
+      # local project is what the step always meant to do.
       - name: Dependency audit
-        run: pip-audit --strict
+        run: |
+          pip freeze --exclude-editable > audit-requirements.txt
+          pip-audit --strict -r audit-requirements.txt
 
       # The gate's honesty promise, run over the committed fixture corpus. The
       # live snapshot is gitignored and needs a network fetch, so CI checks the
       # reproducible half; the live number is recorded in the handoff.
       - name: Honesty eval (fixture corpus)
-        run: python -m pistis.eval
+        run: python -m finance_answer_engine.eval
 
   web:
     name: web (types, tests, build, deps)

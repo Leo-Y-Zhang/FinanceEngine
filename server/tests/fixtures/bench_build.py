@@ -1,4 +1,4 @@
-"""Author the Pistis answerability benchmark (`bench.json`).
+"""Author the Finance Answer Engine answerability benchmark (`bench.json`).
 
 Run:  python tests/fixtures/bench_build.py
 
@@ -9,12 +9,12 @@ the authoring in code keeps the protocol visible next to the data.
 LABELLING PROTOCOL — the point of the whole exercise
 ====================================================
 A benchmark whose labels come from the system under test measures nothing. So no
-label here is derived from Pistis's output. Each is derived from the CORPUS or
+label here is derived from Finance Answer Engine's output. Each is derived from the CORPUS or
 from the QUESTION'S FORM, and each is falsifiable:
 
   expect="answer"   The corpus genuinely covers this. The label names the
                     ``supported_by`` document and a ``probe`` term that document
-                    must actually contain. ``python -m pistis.bench --validate``
+                    must actually contain. ``python -m finance_answer_engine.bench --validate``
                     asserts both, so a wrong label fails loudly instead of
                     quietly scoring the engine against a fiction.
 
@@ -254,7 +254,7 @@ def build() -> dict:
     return {
         "schema_version": 1,
         "description": (
-            "Pistis answerability benchmark. Labels are derived from the CORPUS "
+            "Finance Answer Engine answerability benchmark. Labels are derived from the CORPUS "
             "and from question FORM, never from the engine's output - see "
             "bench_build.py for the labelling protocol and its stated limits."
         ),

@@ -72,7 +72,7 @@ export type AbstainStage =
   // Sources matched the words but none of them is ABOUT the subject raised.
   // Kept distinct from no_groundable_statement, where a source IS on topic and
   // merely holds no quotable sentence — conflating the two would give the user
-  // a confidently wrong account of why Pistis declined.
+  // a confidently wrong account of why Finance Answer Engine declined.
   | "off_topic"
   | "no_groundable_statement"
   | "empty_question";

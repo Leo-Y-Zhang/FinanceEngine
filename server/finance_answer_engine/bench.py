@@ -1,11 +1,11 @@
 """Answerability benchmark — measuring the promise instead of asserting it.
 
-``pistis.eval`` proves the faithfulness promise on 21 golden questions: every
+``finance_answer_engine.eval`` proves the faithfulness promise on 21 golden questions: every
 claim grounded, every citation dated. That is necessary but it is not a
 measurement of the *gate*, and the gate is where this product's central claim
 lives. Two numbers were missing:
 
-  * **How often does Pistis answer something it should have refused?** This is
+  * **How often does Finance Answer Engine answer something it should have refused?** This is
     the failure that matters. A confidently-cited answer to a question the corpus
     cannot support is exactly the harm the whole architecture exists to prevent.
   * **How often does it refuse something it could have answered?** The cost of
@@ -16,12 +16,12 @@ against a mild one. So this module never reports one. It reports the two rates
 separately, under an explicit and arguable cost model, broken down by how hard
 each question was.
 
-    python -m pistis.bench --validate     # check the LABELS, not the engine
-    python -m pistis.bench                # score the engine
-    python -m pistis.bench --json         # machine-readable record
-    python -m pistis.bench --by-difficulty
+    python -m finance_answer_engine.bench --validate     # check the LABELS, not the engine
+    python -m finance_answer_engine.bench                # score the engine
+    python -m finance_answer_engine.bench --json         # machine-readable record
+    python -m finance_answer_engine.bench --by-difficulty
 
-On the labels: none of them come from Pistis's output. See
+On the labels: none of them come from Finance Answer Engine's output. See
 ``tests/fixtures/bench_build.py`` for the protocol and its stated limits, and run
 ``--validate`` to confirm the dataset still describes the corpus it was written
 against.
@@ -35,10 +35,10 @@ import re as _re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from pistis.corpus.store import load_snapshot
-from pistis.engine.answer import Engine
-from pistis.index.bm25 import Bm25Index
-from pistis.models import Passage
+from finance_answer_engine.corpus.store import load_snapshot
+from finance_answer_engine.engine.answer import Engine
+from finance_answer_engine.index.bm25 import Bm25Index
+from finance_answer_engine.models import Passage
 
 _FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 DEFAULT_BENCH = _FIXTURES / "bench.json"
@@ -337,8 +337,8 @@ def format_report(r: BenchReport, by_difficulty: bool = False) -> str:
         else "n/a - it answered nothing, so there is no rate to report"
     )
     lines = [
-        "Pistis answerability benchmark",
-        "==============================",
+        "Finance Answer Engine answerability benchmark",
+        "=" * len("Finance Answer Engine answerability benchmark"),
         f"Questions                 : {r.total}",
         f"Snapshot                  : {r.snapshot or 'unknown'}",
         f"Snapshot fetched          : {r.snapshot_fetched or 'unknown'}",
@@ -391,7 +391,7 @@ def format_report(r: BenchReport, by_difficulty: bool = False) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Pistis answerability benchmark")
+    parser = argparse.ArgumentParser(description="Finance Answer Engine answerability benchmark")
     parser.add_argument("--snapshot", type=Path, default=DEFAULT_SNAPSHOT)
     parser.add_argument("--bench", type=Path, default=DEFAULT_BENCH)
     parser.add_argument("--validate", action="store_true",
@@ -402,7 +402,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if not Path(args.snapshot).exists():
         parser.exit(3, f"No corpus snapshot at {args.snapshot}.\n"
-                       "Build one with:  python -m pistis.corpus.refresh\n")
+                       "Build one with:  python -m finance_answer_engine.corpus.refresh\n")
     try:
         bench = load_bench(args.bench)
     except FileNotFoundError:

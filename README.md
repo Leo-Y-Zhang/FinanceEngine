@@ -1,21 +1,22 @@
-# Pistis
+# Finance Answer Engine
 
 A trust-first, UK-first personal-finance **answer engine** defined by a
 **default-deny honesty gate**: it answers only when it can attach a named,
 dated, per-claim citation from a UK-authoritative source — otherwise it says
 so plainly and routes you to proper guidance.
 
-> **Pistis provides information and guidance, not regulated financial advice
-> or a personal recommendation. It does not consider your individual
-> circumstances. For advice tailored to you, speak to an FCA-authorised
-> adviser.**
+> **Finance Answer Engine provides information and guidance, not regulated
+> financial advice or a personal recommendation. It does not consider your
+> individual circumstances. For advice tailored to you, speak to an
+> FCA-authorised adviser.**
 
 ## Why this exists
 
 UK adults use AI for money questions at scale, but the top stated fears are
 inaccuracy and privacy. General LLMs cite fluently yet unreliably and almost
-never abstain. Pistis inverts the posture: **the default is not to answer** —
-the system earns the right to answer, claim by claim, from a curated corpus of
+never abstain. Finance Answer Engine inverts the posture: **the default is not
+to answer** — the system earns the right to answer, claim by claim, from a
+curated corpus of
 UK-authoritative sources (GOV.UK/HMRC, FCA, MoneyHelper/Pension Wise).
 Refusal is a feature, not a failure mode.
 
@@ -47,10 +48,10 @@ answer card: claims, each with named + dated citation, confidence tier
 ## Proving the claims — faithfulness layer
 
 Every answer carries a **trust report** that proves, claim by claim, that what
-Pistis asserts is grounded in the source it cites — the literal expression of
-the project's thesis, *software that proves its own claims*.
+Finance Answer Engine asserts is grounded in the source it cites — the literal
+expression of the project's thesis, *software that proves its own claims*.
 
-- **Faithfulness verifier** (`server/pistis/engine/faithfulness.py`) — a
+- **Faithfulness verifier** (`server/finance_answer_engine/engine/faithfulness.py`) — a
   deterministic, keyless check that grounds each claim's text against the exact
   source passage it was drawn from, returning a verdict (`grounded` / `partial`
   / `unsupported`), a score, and the char **span** of the backing text. It runs
@@ -66,8 +67,9 @@ the project's thesis, *software that proves its own claims*.
 - **Reproducible honesty eval** — quantifies the promise over a golden set:
 
   ```bash
-  cd server && python -m pistis.eval        # human-readable report
-  python -m pistis.eval --json              # machine-readable record
+  cd server
+  python -m finance_answer_engine.eval          # human-readable report
+  python -m finance_answer_engine.eval --json   # machine-readable record
   ```
 
   Reports answerability accuracy (answer/abstain/route vs expected), citation
@@ -80,7 +82,7 @@ the project's thesis, *software that proves its own claims*.
 
 Faithfulness proves a claim is *in* its source; freshness asks whether that
 source is still current. A deterministic, keyless check
-(`server/pistis/engine/freshness.py`) flags any claim that names a **past UK
+(`server/finance_answer_engine/engine/freshness.py`) flags any claim that names a **past UK
 tax year** (finance figures are tax-year-bound) or comes from an aged snapshot,
 assessed against a reference date (today in production, pinned in tests). Every
 answer carries a `freshness` report; the ledger shows a
@@ -91,8 +93,9 @@ April.
 
 ## Explaining the refusal — proving a refusal, not just an answer
 
-Pistis's thesis is that **refusal is a feature, not a failure mode** — but a
-refusal is only credible if it can show its working, the way an answer does. So
+Finance Answer Engine's thesis is that **refusal is a feature, not a failure
+mode** — but a refusal is only credible if it can show its working, the way an
+answer does. So
 every refusal now carries an **abstention report**, symmetric with the trust
 report on an answer:
 
@@ -120,22 +123,23 @@ ungrounded claim. Design:
 ## Corpus-gap report — refusals as a roadmap
 
 If refusal is a feature, the refusals are also a signal: they say which concepts
-people ask about that no trusted source in the corpus covers. `pistis.gaps`
+people ask about that no trusted source in the corpus covers. `finance_answer_engine.gaps`
 turns that into a **keyless backlog** — replay the local ask-log through the
 engine, aggregate the `uncovered_terms` of each abstention, and rank them.
 
 ```bash
-cd server && python -m pistis.gaps            # ranked corpus-gap report
-python -m pistis.gaps --min-distinct 3        # raise the repetition floor (default 2)
-python -m pistis.gaps --top 50                # list more per section (default 25)
-python -m pistis.gaps --all                   # no cap at all
-python -m pistis.gaps --json                  # machine-readable record
+cd server
+python -m finance_answer_engine.gaps                   # ranked corpus-gap report
+python -m finance_answer_engine.gaps --min-distinct 3  # repetition floor (default 2)
+python -m finance_answer_engine.gaps --top 50          # more per section (default 25)
+python -m finance_answer_engine.gaps --all             # no cap at all
+python -m finance_answer_engine.gaps --json            # machine-readable record
 ```
 
 **Absent from the corpus is not the same as belongs in the corpus.** Nothing in
 the engine classifies topical scope, so the report cannot tell a real gap from a
-question Pistis correctly refused as out of scope — it reports evidence and says
-so, leaving the triage to a human. Two sections report only what was measured:
+question Finance Answer Engine correctly refused as out of scope — it reports
+evidence and says so, leaving the triage to a human. Two sections report only what was measured:
 **no source shared any term** (every token absent from the whole corpus — the
 strongest evidence of absence the system can produce) and **partial match**
 (sources matched but fell short). They are listed apart so neither crowds the
@@ -167,19 +171,20 @@ simply stops appearing — the backlog stays honest.
 ## Answerability benchmark — measuring the gate, not asserting it
 
 The faithfulness eval proves every emitted claim is grounded. It never measured
-the **gate**, which is where the central claim lives. `pistis.bench` scores 131
+the **gate**, which is where the central claim lives. `finance_answer_engine.bench` scores 131
 labelled questions and reports the two failures **separately**, because a single
 accuracy figure would average a serious failure against a mild one:
 
 ```bash
-cd server && python -m pistis.bench --validate      # check the LABELS, not the engine
-python -m pistis.bench                              # score the engine
-python -m pistis.bench --by-difficulty              # plain / paraphrase / abbreviation / near_miss
-python -m pistis.bench --json                       # machine-readable record
+cd server
+python -m finance_answer_engine.bench --validate   # check the LABELS, not the engine
+python -m finance_answer_engine.bench              # score the engine
+python -m finance_answer_engine.bench --by-difficulty  # by question difficulty class
+python -m finance_answer_engine.bench --json       # machine-readable record
 ```
 
-**No label comes from Pistis's output** — that would measure nothing. Each is
-derived from the corpus or from the question's form, and each is falsifiable: an
+**No label comes from Finance Answer Engine's output** — that would measure
+nothing. Each is derived from the corpus or from the question's form, and each is falsifiable: an
 `answer` label names a supporting document and a probe term that document must
 contain; an `abstain` label names a concept the corpus must be silent on; a
 `route` label names the phrase that makes the question a request for advice.
@@ -257,9 +262,9 @@ for me" routed, because the rule recognised only a pronoun subject.
 
 | Path | What |
 |---|---|
-| `server/` | Python engine + FastAPI API (`pistis/`) and tests |
+| `server/` | Python engine + FastAPI API (`finance_answer_engine/`) and tests |
 | `web/` | React + Vite + TypeScript answer-card UI |
-| `data/` | Corpus snapshots (gitignored; rebuild via `pistis.corpus`) |
+| `data/` | Corpus snapshots (gitignored; rebuild via `finance_answer_engine.corpus`) |
 | `docs/` | Design spec, implementation plan, session handoff |
 
 ## Development & quality gates
@@ -270,11 +275,12 @@ one can be run locally with the same command.
 ```bash
 # server
 cd server && pip install -e ".[dev]"
-ruff check pistis tests                       # lint, rules pinned in pyproject
-pytest --cov=pistis --cov-report=term-missing # 276 tests, 95% coverage, floor 90%
-pip-audit --strict                            # dependency CVEs
-python -m pistis.eval                         # the honesty promise, fixture corpus
-python -m pistis.bench --validate             # the benchmark's labels vs the corpus
+ruff check finance_answer_engine tests                       # lint, rules pinned in pyproject
+pytest --cov=finance_answer_engine --cov-report=term-missing # 283 tests, 95% coverage, floor 90%
+pip freeze --exclude-editable > audit-requirements.txt       # third-party deps only
+pip-audit --strict -r audit-requirements.txt                 # dependency CVEs
+python -m finance_answer_engine.eval                         # the honesty promise, fixture corpus
+python -m finance_answer_engine.bench --validate             # the benchmark's labels vs the corpus
 
 # web
 cd web && npm ci

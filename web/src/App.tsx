@@ -6,7 +6,7 @@ import { RefusalCard } from "./components/RefusalCard";
 import type { AskResponse } from "./types";
 
 const DISCLAIMER =
-  "Pistis provides information and guidance, not regulated financial advice " +
+  "Finance Answer Engine provides information and guidance, not regulated financial advice " +
   "or a personal recommendation. It does not consider your individual " +
   "circumstances. For advice tailored to you, speak to an FCA-authorised adviser.";
 
@@ -37,8 +37,8 @@ export default function App() {
   useEffect(() => {
     document.title =
       route === "#/privacy"
-        ? "Privacy notice — Pistis"
-        : "Pistis — UK money questions, answered only when provable";
+        ? "Privacy notice — Finance Answer Engine"
+        : "Finance Answer Engine — UK money questions, answered only when provable";
   }, [route]);
 
   if (route === "#/privacy") {
@@ -64,7 +64,7 @@ export default function App() {
   return (
     <main className="shell">
       <header className="masthead">
-        <h1 className="wordmark">Pistis</h1>
+        <h1 className="wordmark">Finance Answer Engine</h1>
         <p className="register-line">
           UK money questions · answered only when provable · GOV.UK / HMRC /
           FCA sources

@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from pistis.bench import (
+from finance_answer_engine.bench import (
     FALSE_ANSWER_WEIGHT,
     BenchReport,
     format_report,
@@ -21,7 +21,7 @@ from pistis.bench import (
     run_bench,
     validate_labels,
 )
-from pistis.models import Passage, SourceOrg
+from finance_answer_engine.models import Passage, SourceOrg
 
 FIXTURES = Path(__file__).parent / "fixtures"
 SNAPSHOT = FIXTURES / "snapshot.json"
@@ -254,7 +254,7 @@ def _mini_bench() -> dict:
 
 
 def test_mini_bench_labels_hold_against_the_fixture_corpus():
-    from pistis.corpus.store import load_snapshot
+    from finance_answer_engine.corpus.store import load_snapshot
 
     assert validate_labels(_mini_bench(), load_snapshot(SNAPSHOT)) == []
 
@@ -323,7 +323,7 @@ def test_report_never_prints_a_bare_average_of_the_two_failures():
 
 
 def test_passages_may_be_supplied_so_the_snapshot_is_parsed_once():
-    from pistis.corpus.store import load_snapshot
+    from finance_answer_engine.corpus.store import load_snapshot
 
     passages = load_snapshot(SNAPSHOT)
     assert run_bench(SNAPSHOT, _mini_bench(), passages) == run_bench(SNAPSHOT, _mini_bench())
@@ -367,7 +367,7 @@ def test_cli_scores_and_reports(tmp_path, capsys):
                  "--by-difficulty"])
     out = capsys.readouterr().out
     assert code == 0
-    assert "Pistis answerability benchmark" in out
+    assert "Finance Answer Engine answerability benchmark" in out
     assert "THE FAILURE THAT MATTERS" in out
     assert "By difficulty" in out
 

@@ -6,12 +6,12 @@ adversarial-review fixes `6d06b99`)
 
 ## Problem
 
-Pistis proves its *answers* claim-by-claim (trust report + freshness), but its
+Finance Answer Engine proves its *answers* claim-by-claim (trust report + freshness), but its
 *refusals* are opaque: every abstain collapses to one generic sentence — "The
-sources Pistis trusts do not cover this well enough to answer reliably." For a
+sources Finance Answer Engine trusts do not cover this well enough to answer reliably." For a
 product whose thesis is **"refusal is a feature, not a failure mode,"** that is
 the biggest gap in the story: the refusal cannot show its working, so a user
-cannot tell *why* Pistis declined or *what* it would need to answer.
+cannot tell *why* Finance Answer Engine declined or *what* it would need to answer.
 
 ## Goal
 

@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from pistis.corpus.manifest import load_excluded, load_manifest
+from finance_answer_engine.corpus.manifest import load_excluded, load_manifest
 
 
 def write_manifest(tmp_path, entries):

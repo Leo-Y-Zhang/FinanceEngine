@@ -5,17 +5,17 @@
 // category) data, with no privacy notice. This page is the fix — it is a
 // real, linked route (see the "#/privacy" hash route wired in App.tsx), not
 // a docs file a user would never see. The 30-day retention figure below is
-// enforced server-side by `pistis.privacy.retention.purge_expired`.
+// enforced server-side by `finance_answer_engine.privacy.retention.purge_expired`.
 export function PrivacyNotice() {
   return (
     <main className="shell">
       <header className="masthead">
-        <h1 className="wordmark">Pistis</h1>
+        <h1 className="wordmark">Finance Answer Engine</h1>
         <p className="register-line">Privacy notice · last updated 21 July 2026</p>
       </header>
 
       <a className="back-link" href="#/">
-        &larr; Back to Pistis
+        &larr; Back to Finance Answer Engine
       </a>
 
       <h2 className="question-echo">Privacy notice</h2>
@@ -23,7 +23,7 @@ export function PrivacyNotice() {
       <article className="privacy-notice">
         <p>
           This notice explains what happens to the text of the questions you
-          ask Pistis. Pistis is a pre-launch build — not yet a live public
+          ask Finance Answer Engine. Finance Answer Engine is a pre-launch build — not yet a live public
           service — but we want to be straightforward about this from the
           start.
         </p>
@@ -32,7 +32,7 @@ export function PrivacyNotice() {
         <p>
           When you ask a question, the server stores three things in a local
           log file (<code>logs/ask.jsonl</code>, kept on the machine running
-          Pistis — nothing is sent to any third party, analytics service, or
+          Finance Answer Engine — nothing is sent to any third party, analytics service, or
           cloud store):
         </p>
         <ul>
@@ -43,9 +43,9 @@ export function PrivacyNotice() {
         <p>
           We do not use cookies, accounts, session identifiers, or any
           client-side storage. We do not capture your IP address at the
-          application level (the web server software Pistis runs on may
+          application level (the web server software Finance Answer Engine runs on may
           write your IP to its own transient console/access output,
-          separately from the file above — Pistis itself does not read,
+          separately from the file above — Finance Answer Engine itself does not read,
           store, or process that).
         </p>
         <p>
@@ -61,11 +61,11 @@ export function PrivacyNotice() {
         </p>
 
         <h2>Why we log it</h2>
-        <p>We log questions for two purposes, both about the safety and quality of Pistis itself:</p>
+        <p>We log questions for two purposes, both about the safety and quality of Finance Answer Engine itself:</p>
         <ol>
           <li>
             To check whether the advice-boundary classifier (the safeguard
-            that stops Pistis giving anything that looks like a personal
+            that stops Finance Answer Engine giving anything that looks like a personal
             recommendation) is working correctly, and to find and fix cases
             it misses.
           </li>
@@ -73,23 +73,23 @@ export function PrivacyNotice() {
         </ol>
         <p>
           We do not use this log for advertising, profiling, or any purpose
-          unrelated to building and checking Pistis.
+          unrelated to building and checking Finance Answer Engine.
         </p>
 
         <h2>Our lawful basis</h2>
         <p>
-          Pistis is currently a build-only, pre-launch product with no public
+          Finance Answer Engine is currently a build-only, pre-launch product with no public
           deployment and no real user base &mdash; you are most likely a
           developer, tester, or reviewer rather than a member of the public.
           For that reason, our lawful basis under UK&nbsp;GDPR
           Article&nbsp;6(1)(f) is <strong>legitimate interests</strong>: it is
-          necessary and proportionate, while we build and test Pistis, to
+          necessary and proportionate, while we build and test Finance Answer Engine, to
           review question logs so we can verify the safety-critical
           classifier is working and improve the product before any real
           launch. There is no consent tick-box because there is currently no
           live, public-facing collection point &mdash; this notice is the
           transparency step for the pre-launch testing that does happen. If
-          and when Pistis launches to real members of the public, this basis
+          and when Finance Answer Engine launches to real members of the public, this basis
           and this notice will be reviewed again as part of the compliance
           sign-off gate that already applies before any launch.
         </p>
@@ -98,7 +98,7 @@ export function PrivacyNotice() {
         <p>
           We keep log entries for <strong>30 days</strong> from when they
           were written, then delete them automatically &mdash; entries older
-          than 30 days are purged whenever the Pistis server starts. We chose
+          than 30 days are purged whenever the Finance Answer Engine server starts. We chose
           30 days because it is enough time to review and act on classifier
           misses, without keeping free-text financial questions any longer
           than needed.
@@ -119,11 +119,11 @@ export function PrivacyNotice() {
 
         <h2>Contact</h2>
         <p>
-          Pistis does not yet have a public company entity or a monitored
+          Finance Answer Engine does not yet have a public company entity or a monitored
           public contact address &mdash; it is a pre-launch build. Until it
           launches, please raise any privacy question or deletion request
           with <strong>the site operator</strong> through the project&rsquo;s
-          private repository. Once Pistis launches for real users, a
+          private repository. Once Finance Answer Engine launches for real users, a
           monitored contact address will be published here and this notice
           will be updated accordingly. You also always have the right to
           complain to the UK Information Commissioner&rsquo;s Office

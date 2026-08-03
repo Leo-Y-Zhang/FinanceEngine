@@ -1,10 +1,54 @@
-# SESSION_HANDOFF — Pistis
+# SESSION_HANDOFF — Finance Answer Engine
 
-**Updated:** 2026-07-27 (session 10: acted on the benchmark's finding - built the
-missing RELEVANCE guard and fixed a pronoun that could veto a correct source.
-False answers 24% -> 12% AND false refusals 4.9% -> 3.7%, both down together;
-all green, pushed. Exposed one open corpus defect: nav chrome is indexed as
-content - see the end of this section.)
+**Updated:** 2026-08-03 (session 11: repo renamed Pistis -> FinanceAnswerEngine,
+Python package `pistis` -> `finance_answer_engine`; four design documents added
+under `docs/`. The rename exposed a real defect in the dependency-audit gate -
+see "Session 11" below. Nothing else changed; the engine is untouched.)
+
+---
+
+## Session 11 (2026-08-03) — rename hygiene and the design documents
+
+**The rename.** GitHub repo and git remote were already `FinanceAnswerEngine`;
+this session made the tree agree with them. `server/pistis/` ->
+`server/finance_answer_engine/` (a plain directory rename plus import rewrites -
+the package is imported only by this repo, so nothing external breaks), the
+distribution name in `pyproject.toml`, the npm package name, the CI commands,
+every doc, and the user-facing product name in prose and UI strings. The dated
+sections below still describe the same code; only the name has changed.
+
+**A defect the rename exposed - the dependency audit was auditing a stranger.**
+`pip-audit --strict` audits every distribution installed in the environment,
+including this project, which is installed editable. It passed under the old name
+only because an unrelated package called `pistis` exists on PyPI, so the gate was
+resolving the local project against someone else's releases and reporting the
+result as ours. `finance-answer-engine` is not on PyPI, so the step failed
+immediately after the rename - which is the correct behaviour finally showing up.
+The audit now freezes the third-party dependencies and audits those:
+
+    pip freeze --exclude-editable > audit-requirements.txt
+    pip-audit --strict -r audit-requirements.txt
+
+`--strict` is kept; only the local project is excluded, which is what the step
+always meant. `--skip-editable` does not work here: under `--strict` a skipped
+distribution is itself a failure.
+
+**Two knock-on fixes, both caused by the longer name:** one line in `gate.py`
+crossed the 100-character ruff limit and was wrapped (the emitted string is
+byte-identical), and the `.wordmark` letter-spacing was cut from 0.35em to
+0.18em with a clamped font-size, because a 21-character three-word name at the
+old tracking ran wider than the masthead and wrapped to three lines on a phone.
+
+**The design documents.** `docs/PRD.md`, `docs/TDD.md`, `docs/APP_FLOW.md` and
+`docs/DESIGN_BRIEF.md`, written retrospectively against the code as built and
+marked `built`. They are descriptive, not a plan; the project remains parked.
+
+**Gate after the rename (local, all green):** ruff clean · **283 pytest**, 95.21%
+coverage (floor 90%) · `pip-audit --strict -r audit-requirements.txt` clean ·
+honesty eval **PASS** (21/21, 33/33 grounded, refusals explained 4/4) · web
+`tsc` clean, **17 vitest** green, build clean, `npm audit` 0 vulnerabilities.
+`python -m finance_answer_engine.bench --validate` was NOT run: it needs the live
+`data/corpus/snapshot.json`, which is gitignored and requires a network fetch.
 
 ---
 
@@ -16,9 +60,9 @@ of their statements were true only on the day they were written.
 
 | | |
 |---|---|
-| Repo | `GreenPandaTech/Pistis` (private), local `C:\dev\Pistis` |
+| Repo | `GreenPandaTech/FinanceAnswerEngine` (private), local `C:\dev\FinanceAnswerEngine` |
 | State | working tree clean, `main` == `origin/main` |
-| Server | **276 pytest**, ruff clean, **95% coverage** (floor 90%), `pip-audit` clean |
+| Server | **283 pytest**, ruff clean, **95% coverage** (floor 90%), `pip-audit` clean |
 | Web | **17 vitest** (incl. axe), `tsc` clean, build clean, `npm audit` 0 vulns |
 | Honesty eval | **PASS** on fixture *and* live corpus (21/21, 42/42 grounded) |
 | Benchmark | 131 labels valid · false answers **12.0%** · false refusals **3.7%** · routing 18/18 |
@@ -88,7 +132,7 @@ Two things it had to get right:
 Refusals get their own **`off_topic`** stage rather than reusing
 `no_groundable_statement`. That distinction is not cosmetic: the latter means a
 source IS on topic but holds no quotable sentence, and reusing it would have
-given the user a confidently wrong account of why Pistis declined. Mirrored in
+given the user a confidently wrong account of why Finance Answer Engine declined. Mirrored in
 `web/src/types.ts`.
 
 **Measured on the live 53-doc corpus — the whole point of having the benchmark:**
@@ -229,16 +273,16 @@ live advice-boundary escape; all green, pushed.
 ## Session 9 (2026-07-27) — the answerability benchmark, finished and run in anger
 
 **Picked up work left uncommitted when the previous session ended.** The working
-tree held `server/pistis/bench.py` plus `tests/fixtures/bench_build.py` and
+tree held `server/finance_answer_engine/bench.py` plus `tests/fixtures/bench_build.py` and
 `bench.json` — written, but never run, never tested, and never committed. It is
 now all three. Commits `6976d62` (benchmark) and `2aed2f0` (the escape it found).
 
-**What it is.** `pistis.eval` proves every *emitted* claim is grounded. It never
+**What it is.** `finance_answer_engine.eval` proves every *emitted* claim is grounded. It never
 measured the **gate**, which is where the product's central claim lives.
-`python -m pistis.bench` scores 131 labelled questions and reports the two
+`python -m finance_answer_engine.bench` scores 131 labelled questions and reports the two
 failures separately — never averaged into one accuracy figure, because that
 would hide a serious failure inside a mild one — under a stated 5x cost model,
-broken down by difficulty. No label comes from Pistis's output; each is derived
+broken down by difficulty. No label comes from Finance Answer Engine's output; each is derived
 from the corpus or the question's form, and `--validate` re-checks every one
 against the current corpus so labels cannot rot as it grows. The CLI **refuses
 to score** against labels known to be broken.
@@ -313,7 +357,7 @@ principle for the stemmer and it applies here with more force: `MIN_TOP_SCORE` /
 `MIN_COVERAGE` were calibrated against this tokenizer on real data, and moving
 them needs re-derivation plus a golden set well beyond 21 questions — a project,
 not a bump. What changed is that the instrument now exists: any such attempt is
-measured against `python -m pistis.bench` before and after, and must move false
+measured against `python -m finance_answer_engine.bench` before and after, and must move false
 answers down *without* trading it for false refusals (currently 4.9%, the number
 to protect). The near-miss class is the target; the rest is already strong.
 
@@ -322,8 +366,8 @@ guard from a faithfulness check, and the product currently has only the latter.
 
 **Verification:** server **221 -> 260 pytest** green (30 new in `test_bench.py`,
 9 new red-team fixtures); all 131 labels validate against the live 53-document
-corpus; `python -m pistis.eval --snapshot ../data/corpus/snapshot.json` still
-**PASS**. Pushed to GreenPandaTech/Pistis.
+corpus; `python -m finance_answer_engine.eval --snapshot ../data/corpus/snapshot.json` still
+**PASS**. Pushed to GreenPandaTech/FinanceAnswerEngine.
 
 ---
 
@@ -473,15 +517,15 @@ publish one person's single wording).
 `tsc` + `vite build` clean, `npm audit` 0 vulns.
 
 **Live-corpus production run (2026-07-27):** rebuilt the snapshot
-(`python -m pistis.corpus.refresh` -> **46 documents**; the 2 failures are the
+(`python -m finance_answer_engine.corpus.refresh` -> **46 documents**; the 2 failures are the
 known prose-less GOV.UK calculator pages, pre-existing) and evaluated against the
 real GOV.UK/HMRC/FCA data rather than the fixture:
 
-    python -m pistis.eval --snapshot ../data/corpus/snapshot.json
+    python -m finance_answer_engine.eval --snapshot ../data/corpus/snapshot.json
     21/21 answerability · 42/42 claims grounded · 0 unsupported
     citations complete · refusals explained 4/4 · RESULT: PASS
 
-`python -m pistis.gaps` re-run on that fresh corpus prints
+`python -m finance_answer_engine.gaps` re-run on that fresh corpus prints
 `Snapshot fetched : 2026-07-27` — the provenance line added this session doing
 exactly its job, letting a reader confirm the backlog reflects today's corpus
 rather than a stale one.
@@ -500,7 +544,7 @@ avoids. So the composer was **deliberately not built** (would be low-value
 make-work), and the MVP-scope decision is treated as user-approved (private
 build). Delivered the one genuinely valuable keyless item instead.
 
-**What shipped:** `server/pistis/gaps.py` + `python -m pistis.gaps` — replays the
+**What shipped:** `server/finance_answer_engine/gaps.py` + `python -m finance_answer_engine.gaps` — replays the
 local ask-log through the engine, aggregates each abstention's `uncovered_terms`,
 and ranks the concepts users most ask about that no trusted source covers = a
 corpus-expansion backlog. **Privacy by construction:** aggregate-only (raw
@@ -532,9 +576,9 @@ adversarial review was deferred (context budget) — worth running on resume.
 
 ## Session 5 (2026-07-24) — Explainable Refusal
 
-Standout feature completing the thesis's other half: Pistis already *proved its
+Standout feature completing the thesis's other half: Finance Answer Engine already *proved its
 answers* (trust report + freshness); now it *proves its refusals* too. Built
-autonomously under the standing directive; pushed to GreenPandaTech/Pistis,
+autonomously under the standing directive; pushed to GreenPandaTech/FinanceAnswerEngine,
 each increment green. Design spec:
 `docs/superpowers/specs/2026-07-24-explainable-refusal-design.md`.
 
@@ -575,7 +619,7 @@ response carries no `report` key at all.
 refusals explained 4/4**; web **15 -> 17 vitest** green; `tsc` + `vite build`
 clean; **END-TO-END over real HTTP** (uvicorn + JSON on the fixture snapshot):
 `no_source` and `weak_coverage` refusals serialise their report, an answer
-carries none. Pistis GitHub Actions are disabled; pushes are safe (not an
+carries none. Finance Answer Engine GitHub Actions are disabled; pushes are safe (not an
 auto-deploy repo).
 
 **Next options (unchanged, all still gated / need a human decision):** MVP-scope
@@ -617,7 +661,7 @@ Claude-composer build (needs an API key), and the MoneyHelper partnership.
 
 Standout feature making the thesis *software that proves its own claims*
 literal, visible, and measurable. Built autonomously (owner offline, under the
-standing autonomous-work directive); pushed to GreenPandaTech/Pistis, each
+standing autonomous-work directive); pushed to GreenPandaTech/FinanceAnswerEngine, each
 increment green. Design spec:
 `docs/superpowers/specs/2026-07-23-provenance-faithfulness-design.md`.
 
@@ -630,7 +674,7 @@ increment green. Design spec:
    plus a strengthened invariant — an ungrounded claim cannot be constructed.
    `models.py` adds `ClaimVerdict` / `TrustReport`; the API surfaces it via
    `asdict` (additive, no schema break, existing tests unaffected).
-3. `feat:` reproducible honesty-eval CLI `python -m pistis.eval` — `0fe08ff`.
+3. `feat:` reproducible honesty-eval CLI `python -m finance_answer_engine.eval` — `0fe08ff`.
    Over `server/tests/fixtures/golden.json` (21 questions): 100% answerability,
    41/41 claims grounded, 0 unsupported → PASS. Deterministic + offline;
    `--snapshot` to evaluate the live corpus; `--json` for a machine record.
@@ -648,8 +692,8 @@ increment green. Design spec:
    chip + a stale-answer caveat.
 
 **Live-corpus production honesty number (2026-07-23):** rebuilt the live
-snapshot (`python -m pistis.corpus.refresh` → 46 docs, gitignored) and ran
-`python -m pistis.eval --snapshot ...` → **21/21 answerability, 42/42 claims
+snapshot (`python -m finance_answer_engine.corpus.refresh` → 46 docs, gitignored) and ran
+`python -m finance_answer_engine.eval --snapshot ...` → **21/21 answerability, 42/42 claims
 grounded, 0 unsupported → PASS** on real GOV.UK/HMRC/FCA data. End-to-end over
 real HTTP confirmed both layers: an answer returns `trust_report` (6/6 grounded)
 + `freshness` (overall current, tax-year 2026-27 detected + recognised current,
@@ -661,7 +705,7 @@ output). Add via `providers/` when the key is supplied.
 all green; web `tsc` + `vite build` clean; **END-TO-END over real HTTP**
 (uvicorn + curl on the fixture snapshot): an answer returns `trust_report` with
 per-claim grounded verdicts + source spans, while routing/abstain carry none.
-Pistis GitHub Actions are disabled (no CI trigger); pushes are safe (not an
+Finance Answer Engine GitHub Actions are disabled (no CI trigger); pushes are safe (not an
 auto-deploy repo).
 
 **Next options:** run the eval against the live corpus for a production honesty
@@ -686,15 +730,15 @@ bottom of `docs/compliance-review-2026-07-21.md` itself — summary here:
    for this pre-launch build), retention (30 days), user rights, and a
    placeholder contact ("the site operator", no invented email/company).
    Added the retention mechanism that didn't exist before:
-   `server/pistis/privacy/retention.py` (`purge_expired`), wired into
+   `server/finance_answer_engine/privacy/retention.py` (`purge_expired`), wired into
    `create_app()` to run at server startup, also runnable standalone
-   (`python -m pistis.privacy.retention`). New tests:
+   (`python -m finance_answer_engine.privacy.retention`). New tests:
    `server/tests/test_retention.py` (6 tests) + 1 startup-integration test
    in `test_api.py` + `web/src/__tests__/PrivacyNotice.test.tsx` (3 tests,
    incl. axe) + 2 new cases in `App.test.tsx`.
 2. **Finding #1 (classifier false-negative tail) — narrowed, not closed
    (not closable by construction; documented as such).** Adversarial
-   hardening pass 2 in `server/pistis/engine/classifier.py`: 5 new
+   hardening pass 2 in `server/finance_answer_engine/engine/classifier.py`: 5 new
    paraphrase categories covered — third-person/on-behalf-of framing
    ("my friend wants to know if she should..."), hypothetical
    self-insertion ("if you were me...", "in my shoes..."), informal/slang
@@ -737,7 +781,7 @@ bottom of `docs/compliance-review-2026-07-21.md` itself — summary here:
      Covers FCA perimeter (Art 53 RAO / s21 FSMA), content licensing
      (OGL/FCA/MoneyHelper), UK GDPR, disclaimer prominence, and
      accessibility beyond axe. Top 3 findings for a real lawyer: (1) FCA
-     copyright terms may require written permission for Pistis's
+     copyright terms may require written permission for Finance Answer Engine's
      verbatim-extraction pattern — genuine judgement call, not code; (2) the
      rule-based advice-boundary classifier has an inherent, unbounded
      false-negative tail — sound architecture, but "how much red-team
@@ -776,7 +820,7 @@ bottom of `docs/compliance-review-2026-07-21.md` itself — summary here:
 
 **Pushing to GitHub is ON HOLD per current user instruction** (recent
 free-tier limit) — this session's changes are **local commits only**.
-Nothing in this session was pushed to GreenPandaTech/Pistis. Push when
+Nothing in this session was pushed to GreenPandaTech/FinanceAnswerEngine. Push when
 the user says so.
 
 ## Exact next step — SUPERSEDED, see PROJECT STATUS at the top
@@ -824,26 +868,26 @@ the user says so.
 - ~~Push-to-GitHub: ON HOLD~~ — expired 2026-07-21; pushing is normal.
 
 ## How to run
-- Snapshot: `server/.venv/Scripts/python -m pistis.corpus.refresh`
-- API: `server/.venv/Scripts/python -m uvicorn --factory pistis.api.app:create_app --port 8000`
+- Snapshot: `server/.venv/Scripts/python -m finance_answer_engine.corpus.refresh`
+- API: `server/.venv/Scripts/python -m uvicorn --factory finance_answer_engine.api.app:create_app --port 8000`
   (also purges expired `logs/ask.jsonl` entries on startup — see
-  `pistis/privacy/retention.py`)
+  `finance_answer_engine/privacy/retention.py`)
 - UI: `cd web && npm run dev` (proxies /api -> :8000); privacy notice at
   `#/privacy` or via the link in the disclaimer banner
 - Tests: `server/.venv/Scripts/python -m pytest` · `cd web && npm test`
 - Full local gate (identical to CI, see `.github/workflows/ci.yml`): from
-  `server/` — `python -m ruff check pistis tests`,
-  `python -m pytest --cov=pistis --cov-report=term-missing` (floor 90%, currently
-  95%), `python -m pip_audit --strict`, `python -m pistis.eval`; from `web/` —
+  `server/` — `python -m ruff check finance_answer_engine tests`,
+  `python -m pytest --cov=finance_answer_engine --cov-report=term-missing` (floor 90%, currently
+  95%), `python -m pip_audit --strict`, `python -m finance_answer_engine.eval`; from `web/` —
   `npx tsc --noEmit`, `npm test -- --run`, `npm run build`, `npm audit`.
   NOTE: Actions is billing-blocked at account level, so CI will not start until
   that clears; the commands above are what it runs.
-- Honesty eval: `server/.venv/Scripts/python -m pistis.eval --snapshot ../data/corpus/snapshot.json`
+- Honesty eval: `server/.venv/Scripts/python -m finance_answer_engine.eval --snapshot ../data/corpus/snapshot.json`
 - Answerability benchmark (session 9): from `server/`,
-  `.venv/Scripts/python -m pistis.bench --validate` to check the LABELS against
-  the current corpus, then `-m pistis.bench --by-difficulty` to score the gate.
+  `.venv/Scripts/python -m finance_answer_engine.bench --validate` to check the LABELS against
+  the current corpus, then `-m finance_answer_engine.bench --by-difficulty` to score the gate.
   Rebuild the dataset with `.venv/Scripts/python tests/fixtures/bench_build.py`
   after editing the labelling script — never hand-edit `bench.json` (a test
   pins it to the build script's output).
 - Manual log purge (optional — startup already does this):
-  `server/.venv/Scripts/python -m pistis.privacy.retention`
+  `server/.venv/Scripts/python -m finance_answer_engine.privacy.retention`

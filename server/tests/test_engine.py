@@ -1,6 +1,6 @@
 """End-to-end: the three response states over the fixture corpus."""
 
-from pistis.models import DISCLAIMER, Abstention, AnswerCard, RoutingEvent
+from finance_answer_engine.models import DISCLAIMER, Abstention, AnswerCard, RoutingEvent
 
 
 def test_guidance_question_returns_answer_card(engine):

@@ -1,7 +1,7 @@
 """Corpus-gap report — the refusals turned into a roadmap.
 
 Reads the local ask-log, replays each distinct question through the engine, and
-aggregates the concepts that make Pistis abstain — the query terms no trusted
+aggregates the concepts that make Finance Answer Engine abstain — the query terms no trusted
 source covers (the same ``uncovered_terms`` diagnostic the refusal shows the
 user). The result is a keyless backlog of the concepts people ask about that no
 trusted source in the corpus covers. Refusal is a feature; this makes the
@@ -10,7 +10,7 @@ refusals *actionable*.
 **Absent from the corpus is not the same as belongs in the corpus.** Nothing in
 the engine classifies topical scope (the advice-boundary classifier detects
 personal-recommendation *shape*, and the gate decides on retrieval strength and
-coverage), so this report cannot tell a real gap from a question Pistis
+coverage), so this report cannot tell a real gap from a question Finance Answer Engine
 correctly refused as out of scope. It reports evidence and leaves the triage to
 a human. The two sections say only what was measured:
 
@@ -51,9 +51,9 @@ Privacy posture — what is and is not guaranteed:
   * Deterministic and offline — no network, no keys. The report names its own
     inputs (log, snapshot, snapshot date) so a reader can check what it read.
 
-    python -m pistis.gaps                 # human-readable report
-    python -m pistis.gaps --all           # list every concept above the floor
-    python -m pistis.gaps --json          # machine-readable record
+    python -m finance_answer_engine.gaps                 # human-readable report
+    python -m finance_answer_engine.gaps --all           # list every concept above the floor
+    python -m finance_answer_engine.gaps --json          # machine-readable record
 """
 
 from __future__ import annotations
@@ -65,12 +65,12 @@ from collections import Counter
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from pistis.corpus.store import load_snapshot
-from pistis.engine.answer import Engine
-from pistis.index.bm25 import Bm25Index, tokenize
-from pistis.models import Abstention, RoutingEvent
+from finance_answer_engine.corpus.store import load_snapshot
+from finance_answer_engine.engine.answer import Engine
+from finance_answer_engine.index.bm25 import Bm25Index, tokenize
+from finance_answer_engine.models import Abstention, RoutingEvent
 
-# Paths mirror pistis.api.app (kept local so this CLI does not import FastAPI).
+# Paths mirror finance_answer_engine.api.app (kept local so this CLI does not import FastAPI).
 _ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_LOG = _ROOT / "logs" / "ask.jsonl"
 DEFAULT_SNAPSHOT = _ROOT / "data" / "corpus" / "snapshot.json"
@@ -299,7 +299,7 @@ def corpus_gap_report(
     top: int | None = None,
 ) -> GapReport:
     """Replay the ask-log against the current corpus and aggregate the concepts
-    that still make Pistis abstain. Re-asking (rather than trusting the logged
+    that still make Finance Answer Engine abstain. Re-asking (rather than trusting the logged
     outcome) means the report reflects the corpus as it stands now: a gap the
     corpus has since filled simply stops appearing.
 
@@ -412,7 +412,7 @@ def _format_section(section: GapSection, heading: str, blind: int) -> list[str]:
 
 def _format(r: GapReport) -> str:
     lines = [
-        "Pistis corpus-gap report",
+        "Finance Answer Engine corpus-gap report",
         "========================",
         f"Ask-log                   : {r.log_path}"
         + ("" if r.log_found else "   *** NOT FOUND — nothing was analysed ***"),
@@ -440,7 +440,7 @@ def _format(r: GapReport) -> str:
         "",
         "Repeat asks of the same wording count once, so a frequently-asked gap",
         "phrased identically can fall below the floor and be withheld. An",
-        "uncovered concept may be a real corpus gap OR a question Pistis",
+        "uncovered concept may be a real corpus gap OR a question Finance Answer Engine",
         "correctly refused as out of scope; this report cannot tell them apart.",
         "Triage before adding anything.",
     ]
@@ -458,7 +458,7 @@ def _format(r: GapReport) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Pistis corpus-gap report")
+    parser = argparse.ArgumentParser(description="Finance Answer Engine corpus-gap report")
     parser.add_argument("--log", type=Path, default=DEFAULT_LOG)
     parser.add_argument("--snapshot", type=Path, default=DEFAULT_SNAPSHOT)
     parser.add_argument(
@@ -488,7 +488,7 @@ def main(argv: list[str] | None = None) -> int:
         parser.exit(
             EXIT_NO_SNAPSHOT,
             f"No corpus snapshot at {args.snapshot}.\n"
-            "Build one with:  python -m pistis.corpus.refresh\n",
+            "Build one with:  python -m finance_answer_engine.corpus.refresh\n",
         )
 
     try:

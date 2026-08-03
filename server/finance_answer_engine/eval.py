@@ -1,4 +1,4 @@
-"""Reproducible honesty evaluation — Pistis proving its own promises.
+"""Reproducible honesty evaluation — Finance Answer Engine proving its own promises.
 
 Runs a golden question set through the engine over a snapshot and reports:
 
@@ -12,8 +12,8 @@ Deterministic and network-free over the committed fixture snapshot, so it runs
 anywhere (and in the test suite). Point ``--snapshot`` at the live corpus to
 evaluate production.
 
-    python -m pistis.eval            # human-readable report over the fixtures
-    python -m pistis.eval --json     # machine-readable record
+    python -m finance_answer_engine.eval            # human-readable report over the fixtures
+    python -m finance_answer_engine.eval --json     # machine-readable record
 """
 
 from __future__ import annotations
@@ -23,9 +23,9 @@ import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from pistis.corpus.store import load_snapshot
-from pistis.engine.answer import Engine
-from pistis.index.bm25 import Bm25Index
+from finance_answer_engine.corpus.store import load_snapshot
+from finance_answer_engine.engine.answer import Engine
+from finance_answer_engine.index.bm25 import Bm25Index
 
 _FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 DEFAULT_SNAPSHOT = _FIXTURES / "snapshot.json"
@@ -117,8 +117,8 @@ def run_eval(snapshot_path: Path, golden_path: Path) -> EvalReport:
 
 def _format(r: EvalReport) -> str:
     lines = [
-        "Pistis honesty eval",
-        "===================",
+        "Finance Answer Engine honesty eval",
+        "=" * len("Finance Answer Engine honesty eval"),
         f"Golden questions       : {r.questions}",
         (
             f"Answerability accuracy : {r.answerability_correct}/{r.questions}"
@@ -138,7 +138,7 @@ def _format(r: EvalReport) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Pistis honesty evaluation")
+    parser = argparse.ArgumentParser(description="Finance Answer Engine honesty evaluation")
     parser.add_argument("--snapshot", type=Path, default=DEFAULT_SNAPSHOT)
     parser.add_argument("--golden", type=Path, default=DEFAULT_GOLDEN)
     parser.add_argument("--json", action="store_true", help="machine-readable output")

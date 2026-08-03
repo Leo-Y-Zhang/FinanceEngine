@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from pistis.corpus.store import load_snapshot
-from pistis.engine.answer import Engine
-from pistis.index.bm25 import Bm25Index
+from finance_answer_engine.corpus.store import load_snapshot
+from finance_answer_engine.engine.answer import Engine
+from finance_answer_engine.index.bm25 import Bm25Index
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

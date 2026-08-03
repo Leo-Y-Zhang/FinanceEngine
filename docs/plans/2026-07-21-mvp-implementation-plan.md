@@ -1,17 +1,17 @@
-# Pistis MVP — Implementation Plan (2026-07-21)
+# Finance Answer Engine MVP — Implementation Plan (2026-07-21)
 
-Design: `docs/superpowers/specs/2026-07-21-pistis-mvp-design.md`.
+Design: `docs/superpowers/specs/2026-07-21-mvp-design.md`.
 Each task = commit+push increment (resumability directive). Order chosen so
 the repo is always green and the highest-risk piece (the gate) lands first.
 
 ## Tasks
 
 1. **Scaffold + docs** — repo, README, .gitignore, design doc, this plan,
-   SESSION_HANDOFF. Private GitHub repo `GreenPandaTech/Pistis`. ✅ when pushed.
+   SESSION_HANDOFF. Private GitHub repo `GreenPandaTech/FinanceAnswerEngine`. ✅ when pushed.
 2. **Corpus curation (background workflow)** — 6 domain agents fan out over
    GOV.UK/FCA/MoneyHelper, verify each GOV.UK Content API path resolves,
-   return manifest entries. Merge → `server/pistis/corpus/manifest.json`.
-3. **Core models + manifest** (`pistis/models.py`, `corpus/manifest.py`) —
+   return manifest entries. Merge → `server/finance_answer_engine/corpus/manifest.json`.
+3. **Core models + manifest** (`finance_answer_engine/models.py`, `corpus/manifest.py`) —
    dataclasses for Passage, Claim, Citation, AnswerCard, Abstention,
    RoutingEvent; manifest load/validate. Tests.
 4. **Passage store + splitter** (`corpus/store.py`) — normalise docs into
@@ -23,7 +23,7 @@ the repo is always green and the highest-risk piece (the gate) lands first.
 7. **Grounding gate + composer + routing** (`engine/`) — thresholds,
    answer/abstain/route assembly, citation-integrity invariant. Tests.
 8. **Fetchers** (`corpus/fetch.py`) — GOV.UK Content API + curated HTML,
-   snapshot writer; `python -m pistis.corpus.refresh`. Network code excluded
+   snapshot writer; `python -m finance_answer_engine.corpus.refresh`. Network code excluded
    from unit tests (fixture-driven); one manual smoke run.
 9. **FastAPI app** (`api/app.py`) — /ask, /corpus/status, /health, JSONL
    outcome log, disclaimer in every response. Tests via TestClient.

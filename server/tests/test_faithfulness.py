@@ -6,9 +6,9 @@ report, and the strengthened AnswerCard invariant.
 
 import pytest
 
-from pistis.engine.faithfulness import verify
-from pistis.engine.gate import decide
-from pistis.models import (
+from finance_answer_engine.engine.faithfulness import verify
+from finance_answer_engine.engine.gate import decide
+from finance_answer_engine.models import (
     AnswerCard,
     Citation,
     Claim,

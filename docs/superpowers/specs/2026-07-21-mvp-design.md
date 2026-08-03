@@ -1,6 +1,6 @@
-# Pistis MVP — Design (2026-07-21)
+# Finance Answer Engine MVP — Design (2026-07-21)
 
-Parent spec: `Pistis - Product Spec.md` (iCloud Task Register, 2026-07-19).
+Parent spec: `docs/product-spec.md` (drafted 2026-07-19).
 That document defines the product thesis, competitive gap, and regulatory
 guardrails. This document records the **MVP build-shape decision** and the
 concrete design. Decision made autonomously in the 2026-07-21 session under
@@ -27,7 +27,7 @@ assembled from what the sources support, not the model's parametric memory").
 
 ## 2. Components
 
-### 2.1 Corpus (`pistis/corpus`)
+### 2.1 Corpus (`finance_answer_engine/corpus`)
 - **Manifest-driven** (`corpus/manifest.json` in-repo): each entry =
   `{id, domain, title, org, kind, locator, why, licence}`.
   - `kind: govuk` → fetched via the GOV.UK Content API
@@ -43,12 +43,12 @@ assembled from what the sources support, not the model's parametric memory").
 - Six domains from the spec: savings/ISAs, pensions, mortgages, tax,
   budgeting, scams/consumer-protection.
 
-### 2.2 Retrieval (`pistis/index`)
+### 2.2 Retrieval (`finance_answer_engine/index`)
 - BM25 over passages (own small implementation — no heavyweight deps on this
   locked-down box), with domain filtering and simple UK-finance synonym
   expansion (e.g. "LISA" ↔ "Lifetime ISA"). Deterministic scoring.
 
-### 2.3 Engine (`pistis/engine`) — the product
+### 2.3 Engine (`finance_answer_engine/engine`) — the product
 - **Advice-boundary classifier** (`classifier.py`): rule-based detection of
   personal-recommendation-shaped *questions* ("which should I pick", "what
   should I do", "best X for me", named products + suitability) → returns a
@@ -71,9 +71,9 @@ assembled from what the sources support, not the model's parametric memory").
 - Both gates must pass — grounded AND guidance-only — before anything is shown
   (spec §5).
 
-### 2.4 Providers (`pistis/providers`) — optional, off by default
+### 2.4 Providers (`finance_answer_engine/providers`) — optional, off by default
 > **Implementation status (as of 2026-07-23): NOT BUILT.** This subsection is
-> aspirational design, not a description of shipped code. `pistis/providers/`
+> aspirational design, not a description of shipped code. `finance_answer_engine/providers/`
 > does **not** exist (no package, no `base.py`/`extractive.py`/`claude.py`).
 > The live MVP is 100% deterministic and extractive — there is no code path
 > today by which an LLM could rephrase or generate answer text. Anyone
@@ -89,7 +89,7 @@ assembled from what the sources support, not the model's parametric memory").
   form. Absent `ANTHROPIC_API_KEY`, the engine runs fully extractive.
 
 ### 2.5 API + UI
-- **FastAPI** (`pistis/api/app.py`): `POST /ask` → `AnswerCard | Abstention |
+- **FastAPI** (`finance_answer_engine/api/app.py`): `POST /ask` → `AnswerCard | Abstention |
   RoutingEvent` (discriminated union), `GET /corpus/status` (doc counts,
   fetch dates), `GET /health`. Runs read-only over the snapshot; logs every
   Q→outcome (spec §4F monitoring) to a local JSONL — no user accounts, no
