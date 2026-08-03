@@ -3,7 +3,7 @@
 Derived from the code on 2026-08-03, not from the README.
 Requirements: [PRD.md](PRD.md).
 
-## Two gates, four checks
+## Nothing reaches the screen without clearing both gates
 
 A question passes through two independent gates before anything is shown.
 
@@ -146,7 +146,7 @@ answer to "how would we know if we were attacked" is that we would not.
 None of these is acceptable for a public deployment, and all of them are why the
 project is build-only.
 
-## Failure modes
+## What breaks, and what the user is told
 
 | What breaks | Who notices | How we detect it | How we undo it |
 |---|---|---|---|
@@ -187,7 +187,7 @@ before refreshing.
 promise — and correctly not undoable. **Deployment** has nothing to roll back,
 because there is no deployment.
 
-## Test plan
+## The suite, and why the coverage floor is a floor
 
 283 pytest plus 17 vitest, 95.21% line coverage against a 90% floor. The floor is
 a floor rather than a target: the network fetch paths are deliberately outside
@@ -220,7 +220,7 @@ asserted a tokenizer tautology and passed with the entire privacy layer deleted.
 **Accessibility.** `jest-axe` assertions in the web suite, so a11y is gated
 rather than inspected.
 
-## Build order — every instrument found a defect
+## The order, and why every instrument came second
 
 1. Models, corpus manifest, fetch and store, BM25 index.
 2. Advice-boundary classifier, then the grounding gate, then the engine
@@ -235,7 +235,7 @@ The ordering has a point. Every measurement instrument was built **after** the
 thing it measures, and immediately found a defect in it: the benchmark caught the
 `worth it for me` classifier escape on its first run.
 
-## Two open questions
+## Still open
 
 A question-type signal — does this passage state the *kind* of fact asked for, a
 rate, a threshold, a deadline? — is the only credible route past the residual six

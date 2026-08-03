@@ -64,12 +64,6 @@ API, no network at query time, no secret to leak.
 - An answerability benchmark that scores the *gate* rather than the answers.
 - A corpus-gap report, so refusals become a backlog.
 
-**Won't, this time**
-
-- Accounts, sessions, personalisation, or any memory of who is asking.
-- An LLM composer. Considered seriously and dropped; the reason is below.
-- Any figure the engine computes itself. It quotes; it never calculates.
-
 ## The regulatory line, and why the engine sits on the wrong side of it
 
 Under FSMA s21 and Art 53 RAO, a communication presented as suitable for a
@@ -88,7 +82,15 @@ written to give a real one a head start.
 
 ## Also out of scope
 
-**Arithmetic.** The engine never adds up a user's numbers. If a source states a
+**Whoever is asking.** No accounts, no sessions, no personalisation, and no
+memory of who asked what.
+
+**A composer.** No language model writes any part of an answer. The option was
+considered seriously and dropped, for the reason set out in the rejections
+table below.
+
+**Arithmetic.** It quotes; it never calculates. The engine never adds up a
+user's numbers. If a source states a
 figure it may be quoted; if the figure has to be derived, the engine abstains.
 Worked examples inside sources are detected and downgraded to `uncertain`,
 because an illustration presented as a rule is exactly the defect this product
@@ -168,12 +170,12 @@ shapes, both halves of a full postcode) are dropped, while short letter-led code
 like `p60` and `ir35` are deliberately kept because they are real corpus
 concepts. Best-effort scrubbing, described as best-effort.
 
-## Rejected
+## Built or measured, then dropped
 
 Each was built or measured before being dropped. None should be reopened without
 reading the reason.
 
-| Alternative | Why it was rejected |
+| Alternative | Why it was dropped |
 |---|---|
 | **LLM composer behind `providers/`** | The value of a composer is fluency, which needs a paid API key. A *keyless* composer could only re-arrange source sentences, and connective prose implies relationships the sources never asserted — precisely the failure an extractive product exists to avoid. The faithfulness verifier was still built as the guard a composer would need, so the slot stays open. |
 | **`snowballstemmer` for morphology** | Correct and properly confluent, and still declined. The gate thresholds were calibrated against *this* tokenizer, so stemming needs re-derivation rather than a bump. Worse, it widened the false-match surface in the dangerous direction: `listed→list`, `building→build` let generic corpus text satisfy coverage. Measured upside was about 3 more answers in 80. |
@@ -185,7 +187,7 @@ reading the reason.
 | **A scope classifier over `AbstentionReport.stage`** | Measured: `stage` does not discriminate topical scope. The gap report says so rather than inferring it. |
 | **MoneyHelper corpus entries** | 21 curated entries sit in the manifest's `excluded` array with their reasons. There is no licensed fetch path and the standing rule is no scraping around WAFs. A partnership programme appears to exist; that is a content decision, not code. |
 
-## Two questions that would reopen it
+## What would reopen this
 
 Nothing is blocking and nothing is in flight.
 
