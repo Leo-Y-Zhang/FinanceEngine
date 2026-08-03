@@ -1,12 +1,11 @@
 # Design Brief — Finance Answer Engine
 
-**Date:** 2026-08-03 (retrospective, derived from `web/src/styles.css` and the
-components) · **PRD:** [PRD.md](PRD.md) · **App Flow:** [APP_FLOW.md](APP_FLOW.md)
+Derived from `web/src/styles.css` and the components.
+[PRD.md](PRD.md) · [APP_FLOW.md](APP_FLOW.md)
 
-## Intent
+## A document, not a chat
 
-It should feel like **a document, not a chat** — something with a fetch date on
-it that you could print and hand to someone. Calm, dense, slightly bureaucratic
+Something with a fetch date on it that you could print and hand to someone. Calm, dense, slightly bureaucratic
 in the way an official form is bureaucratic: the trustworthiness comes from the
 provenance being on the page, not from the interface reassuring you.
 
@@ -17,7 +16,7 @@ ungrounded answer feel exactly like a grounded one, which is the specific failur
 this product exists to counter. A refusal must not feel like an apology either;
 it is a result, and it is laid out with the same weight as an answer.
 
-## Who is looking at it
+## Someone mildly anxious, about to spend money
 
 Someone mid-task with a specific money question — often on a phone, often
 mildly anxious, often about to make a decision with real money in it. They are
@@ -26,7 +25,7 @@ The design assumes they will read the claim, glance at the source badge and the
 date, and leave. Everything else on the page is there for the moment they *do*
 look closer.
 
-## Precedents
+## Borrowed from
 
 - **GOV.UK** — the register line and the date stamp. GOV.UK puts "Last updated"
   on the page as a first-class element rather than as metadata in a footer, and
@@ -40,7 +39,7 @@ look closer.
   comfortable sans. The mixture is the point: the prose is readable, the
   metadata reads as metadata.
 
-## Anti-patterns for this project
+## Refusals
 
 Specific enough to enforce in review:
 
@@ -61,7 +60,7 @@ Specific enough to enforce in review:
   second-surface design. This is a real limitation, chosen rather than
   overlooked.
 
-## Type
+## Type and measure
 
 One sans for prose, one mono for anything that is a record. No third family.
 
@@ -105,7 +104,7 @@ is hard-coded at a call site.
 Note that the refusal colour is a muted brick rather than a warning red. A
 refusal is not an error, and it should not be coloured like one.
 
-## Spacing and layout
+## Spacing
 
 A single centred column, `max-width: 46rem`, `padding: 0 1.25rem 5rem`. Stack,
 not grid — every element is full-width and vertical order is reading order,
@@ -114,7 +113,7 @@ which is also the screen-reader order. Spacing runs on rough 0.3/0.45/0.6/0.9/
 page and does the same job a masthead rule does on a newspaper: it says the page
 has started.
 
-## Components touched
+## The components that carry it
 
 Four, all existing, none near-duplicates:
 
@@ -138,7 +137,7 @@ Four, all existing, none near-duplicates:
 - **Loading** — three grey skeleton rows, animated, inside the live region.
 - **Error** — a single `role="alert"` line, no card, no illustration.
 
-## Accessibility floor
+## Accessibility floor, measured
 
 - Contrast: measured above; body text and every chip clear 4.5:1, the focus ring
   clears 3:1.

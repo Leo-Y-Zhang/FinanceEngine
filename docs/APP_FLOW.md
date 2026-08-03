@@ -1,13 +1,13 @@
 # App Flow — Finance Answer Engine
 
-**Date:** 2026-08-03 (retrospective, derived from `web/src/`) · **PRD:** [PRD.md](PRD.md)
+Derived from `web/src/`. Requirements: [PRD.md](PRD.md).
 
 The interactive surface is two hash routes and one form. That is the whole
 application, and the flow document is short because the product is. What is
 worth documenting is not the navigation — it is that **three of the four
 terminal states are non-answers**, and each has to be as legible as an answer.
 
-## Entry points
+## Getting in
 
 - `http://localhost:5173/` — the ask page. There is no deep link to a result:
   answers are not addressable, because nothing is stored.
@@ -19,7 +19,7 @@ terminal states are non-answers**, and each has to be as legible as an answer.
 There is no email, notification or invitation path. There are no accounts, so
 there is no sign-in, no invite and no expiry.
 
-## The happy path
+## The one path that ends in an answer
 
 1. **Land.** The masthead, a persistent guidance-not-advice banner (present
    before any question is asked, not revealed with the first result), the input,
@@ -43,7 +43,7 @@ there is no sign-in, no invite and no expiry.
      (FOS, FSCS, an accountable adviser).
 5. **Ask again.** The form is not cleared; the previous result is replaced.
 
-## Every state of every screen
+## Every state of both routes
 
 | Screen | Loading | Empty | Populated | Error | Unauthorised | Offline / slow |
 |---|---|---|---|---|---|---|
@@ -95,7 +95,7 @@ stateDiagram-v2
 The three non-answer terminals are ordinary states, not error branches. That is
 the product thesis expressed in the state machine: an abstention is a result.
 
-## Permissions per state
+## Permissions, of which there are none
 
 Every state is reachable by anyone who can load the page. There is nothing to
 gate and nothing that changes when access is revoked, because there is no access
@@ -103,7 +103,7 @@ to revoke. The one thing that *is* scoped is data retention rather than
 visibility: the question text a user typed is deleted from the local log 30 days
 later, whether or not anyone asks.
 
-## Dead ends
+## Where a user can get stuck
 
 None. Every terminal state carries a forward path:
 
@@ -119,7 +119,7 @@ at all when there are no uncovered terms and no signals — a stopword-only quer
 is the case — rather than an empty bordered container with stray margin. An
 empty box that looks like a broken box is its own defect.
 
-## Accessibility
+## Accessibility, gated by axe
 
 Gated by `jest-axe` in the web suite, not left to inspection. 17 vitest cases,
 including axe assertions on the idle state, the answer state, the loading state
@@ -144,7 +144,7 @@ and the privacy notice.
   it can never contradict the glyph (a raw 0.599 would otherwise render as
   "0.6 / 0.6 needed" beside a cross).
 
-## Non-interactive flows
+## The flows with no screen at all
 
 Four operator CLIs sit beside the web app. They are not user interfaces and get
 no screens, but each is a flow with failure states worth stating:
