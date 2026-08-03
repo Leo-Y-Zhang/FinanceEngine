@@ -265,7 +265,12 @@ for me" routed, because the rule recognised only a pronoun subject.
 | `server/` | Python engine + FastAPI API (`finance_answer_engine/`) and tests |
 | `web/` | React + Vite + TypeScript answer-card UI |
 | `data/` | Corpus snapshots (gitignored; rebuild via `finance_answer_engine.corpus`) |
-| `docs/` | Design spec, implementation plan, session handoff |
+| `docs/` | Design documents, specs, compliance review, session handoff |
+
+The four design documents were written retrospectively, against the code rather
+than ahead of it, and say plainly what is not built:
+[PRD](docs/PRD.md) · [TDD](docs/TDD.md) · [App Flow](docs/APP_FLOW.md) ·
+[Design Brief](docs/DESIGN_BRIEF.md).
 
 ## Development & quality gates
 

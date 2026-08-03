@@ -23,9 +23,9 @@ export function PrivacyNotice() {
       <article className="privacy-notice">
         <p>
           This notice explains what happens to the text of the questions you
-          ask Finance Answer Engine. Finance Answer Engine is a pre-launch build — not yet a live public
-          service — but we want to be straightforward about this from the
-          start.
+          ask Finance Answer Engine. It is a pre-launch build — not yet a live
+          public service — but we want to be straightforward about this from
+          the start.
         </p>
 
         <h2>What we log</h2>
