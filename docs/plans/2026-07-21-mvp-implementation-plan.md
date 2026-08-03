@@ -1,5 +1,9 @@
 # Finance Answer Engine MVP — Implementation Plan (2026-07-21)
 
+> **Historical plan, kept as written.** Dated 2026-07-21 and left at its original
+> wording. One name has moved since: the "Triton" referenced under Risks / notes
+> was renamed to **FireSuppressionTurret**.
+
 Design: `docs/superpowers/specs/2026-07-21-mvp-design.md`.
 Each task = commit+push increment (resumability directive). Order chosen so
 the repo is always green and the highest-risk piece (the gate) lands first.
