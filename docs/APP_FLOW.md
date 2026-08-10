@@ -1,4 +1,4 @@
-# App Flow — Finance Answer Engine
+# App Flow — FinanceEngine
 
 Derived from `web/src/`. Requirements: [PRD.md](PRD.md).
 

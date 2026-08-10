@@ -17,7 +17,7 @@ describe("PrivacyNotice", () => {
 
   it("links back to the main app", () => {
     render(<PrivacyNotice />);
-    expect(screen.getByRole("link", { name: /back to finance answer engine/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /back to financeengine/i })).toHaveAttribute(
       "href",
       "#/",
     );

@@ -10,9 +10,9 @@ import json
 
 import pytest
 
-from finance_answer_engine.corpus import refresh as refresh_mod
-from finance_answer_engine.corpus.refresh import MIN_TEXT_CHARS, refresh
-from finance_answer_engine.models import ManifestEntry, SourceOrg
+from finance_engine.corpus import refresh as refresh_mod
+from finance_engine.corpus.refresh import MIN_TEXT_CHARS, refresh
+from finance_engine.models import ManifestEntry, SourceOrg
 
 PROSE = "A sentence about the ISA allowance. " * 20  # comfortably over the floor
 

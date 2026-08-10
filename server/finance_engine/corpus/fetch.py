@@ -188,7 +188,7 @@ def _get(url: str, allowed_prefixes: tuple[str, ...]) -> bytes:
 
 def fetch_entry_text(kind: str, locator: str) -> tuple[str, str | None]:
     """Fetch one manifest entry. Returns (text, last_updated)."""
-    from finance_answer_engine.corpus.manifest import ALLOWED_HTML_HOSTS
+    from finance_engine.corpus.manifest import ALLOWED_HTML_HOSTS
 
     time.sleep(FETCH_DELAY_SECONDS)
     if kind == "govuk":

@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from finance_answer_engine.privacy.retention import RETENTION_DAYS, RETENTION_SECONDS, purge_expired
+from finance_engine.privacy.retention import RETENTION_DAYS, RETENTION_SECONDS, purge_expired
 
 
 def _write(log_path: Path, records: list[dict]) -> None:

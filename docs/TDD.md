@@ -1,4 +1,4 @@
-# Finance Answer Engine — technical design
+# FinanceEngine — technical design
 
 Derived from the code on 2026-08-03, not from the README.
 Requirements: [PRD.md](PRD.md).
@@ -46,7 +46,7 @@ where each is used.
 
 No database. Their shapes are the data model.
 
-**`finance_answer_engine/corpus/manifest.json`** declares what the engine is
+**`finance_engine/corpus/manifest.json`** declares what the engine is
 allowed to ground on: 55 live entries (26 GOV.UK, 21 HMRC, 8 FCA) plus an
 `excluded` array of 21 curated-but-unfetchable MoneyHelper and Pension Wise
 entries retained for provenance. Validated on load — duplicate ids and locators
@@ -107,7 +107,7 @@ to run without a corpus rather than serving an empty one.
 Python on purpose: no native dependency, and scoring stays reproducible, which
 the gate's calibration tests rely on.
 
-**CLIs** — `python -m finance_answer_engine.{corpus.refresh, eval, bench, gaps,
+**CLIs** — `python -m finance_engine.{corpus.refresh, eval, bench, gaps,
 privacy.retention}`. All stdout-only, all offline except `corpus.refresh`.
 
 **Web** — `POST /api/ask` through the Vite dev proxy to `127.0.0.1:8000`.
@@ -150,8 +150,8 @@ project is build-only.
 
 | What breaks | Who notices | How we detect it | How we undo it |
 |---|---|---|---|
-| Snapshot missing or unreadable | Whoever starts the server | `create_app` raises at startup naming the refresh command; the CLIs print how to build one instead of a traceback | Run `python -m finance_answer_engine.corpus.refresh` |
-| A source page changes shape and extracts as navigation chrome | Nobody, without the benchmark — this actually happened | `python -m finance_answer_engine.bench --validate` re-checks every label against the current corpus; a before/after character count per document catches it | Fix the extraction rule in `corpus/fetch.py` and re-fetch |
+| Snapshot missing or unreadable | Whoever starts the server | `create_app` raises at startup naming the refresh command; the CLIs print how to build one instead of a traceback | Run `python -m finance_engine.corpus.refresh` |
+| A source page changes shape and extracts as navigation chrome | Nobody, without the benchmark — this actually happened | `python -m finance_engine.bench --validate` re-checks every label against the current corpus; a before/after character count per document catches it | Fix the extraction rule in `corpus/fetch.py` and re-fetch |
 | A source's URL dies | The refresh run | Named in the failure list at the end of the run; the corpus is still written from what succeeded | Fix or remove the manifest entry |
 | Thresholds drift out of calibration as the corpus grows | Nobody automatically | The 131-question benchmark, scoring false answers and false refusals **separately** — a single accuracy figure would average a serious failure against a mild one | Revert the change; the constants are all in one file |
 | Labels rot as the corpus grows | The benchmark itself | `--validate` refuses to score against labels known to be broken | Re-derive the labels in `tests/fixtures/bench_build.py`; never hand-edit `bench.json`, which a test pins to the build script's output |
@@ -168,7 +168,7 @@ state can be corrupted by a code change.
 migration, no stored derived data, nothing to backfill.
 
 **The corpus** is rebuilt by re-running
-`python -m finance_answer_engine.corpus.refresh`. It takes a few minutes, because
+`python -m finance_engine.corpus.refresh`. It takes a few minutes, because
 of the deliberate inter-fetch delay, and needs network. The refresh is safe by
 construction: it writes only if at least one document was fetched, individual
 failures are reported and skipped rather than aborting the run, and any document

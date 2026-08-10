@@ -1,4 +1,4 @@
-"""Snapshot the corpus: `python -m finance_answer_engine.corpus.refresh`.
+"""Snapshot the corpus: `python -m finance_engine.corpus.refresh`.
 
 Fetches every manifest entry and writes data/corpus/snapshot.json at the
 repo root. Failures are reported and skipped — a partial corpus with honest
@@ -11,9 +11,9 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from finance_answer_engine.corpus.fetch import fetch_entry_text
-from finance_answer_engine.corpus.manifest import load_manifest
-from finance_answer_engine.corpus.store import Document, save_snapshot
+from finance_engine.corpus.fetch import fetch_entry_text
+from finance_engine.corpus.manifest import load_manifest
+from finance_engine.corpus.store import Document, save_snapshot
 
 SNAPSHOT_PATH = Path(__file__).parents[3] / "data" / "corpus" / "snapshot.json"
 

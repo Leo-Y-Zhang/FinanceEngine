@@ -8,7 +8,7 @@ The question log can contain personal (occasionally special-category)
 data by virtue of free-text question content — see the privacy notice
 (`web/src/components/PrivacyNotice.tsx`, linked from the app's disclaimer
 banner) for what is logged, why, and the retention period. Retention is
-enforced by `finance_answer_engine.privacy.retention.purge_expired`, run once at app
+enforced by `finance_engine.privacy.retention.purge_expired`, run once at app
 startup below.
 """
 
@@ -23,10 +23,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from finance_answer_engine.corpus.store import load_snapshot
-from finance_answer_engine.engine.answer import Engine
-from finance_answer_engine.index.bm25 import Bm25Index
-from finance_answer_engine.privacy.retention import purge_expired
+from finance_engine.corpus.store import load_snapshot
+from finance_engine.engine.answer import Engine
+from finance_engine.index.bm25 import Bm25Index
+from finance_engine.privacy.retention import purge_expired
 
 DEFAULT_SNAPSHOT = Path(__file__).parents[3] / "data" / "corpus" / "snapshot.json"
 DEFAULT_LOG = Path(__file__).parents[3] / "logs" / "ask.jsonl"
@@ -43,7 +43,7 @@ def create_app(
     if not snapshot_path.exists():
         raise FileNotFoundError(
             f"No corpus snapshot at {snapshot_path}. "
-            "Run: python -m finance_answer_engine.corpus.refresh"
+            "Run: python -m finance_engine.corpus.refresh"
         )
     passages = load_snapshot(snapshot_path)
     engine = Engine(Bm25Index(passages))
@@ -54,7 +54,7 @@ def create_app(
         # no-op when the file is missing or already within the window.
         purge_expired(log_path)
 
-    app = FastAPI(title="Finance Answer Engine", version="0.1.0")
+    app = FastAPI(title="FinanceEngine", version="0.1.0")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],

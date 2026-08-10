@@ -1,4 +1,4 @@
-# Finance Answer Engine — record of a build
+# FinanceEngine — record of a build
 
 Written 2026-08-03 against the code as it stands, not before it. The project was
 built between 2026-07-21 and 2026-07-27 and is parked; this is written down
@@ -38,7 +38,7 @@ A false refusal is treated as roughly five times cheaper than a false answer in
 the benchmark's cost model, which is why the defaults point at refusal and why
 the advice classifier runs before retrieval rather than after.
 
-`python -m finance_answer_engine.eval` reproduces both figures from a committed
+`python -m finance_engine.eval` reproduces both figures from a committed
 fixture corpus. The whole engine is deterministic, offline and keyless — no model
 API, no network at query time, no secret to leak.
 

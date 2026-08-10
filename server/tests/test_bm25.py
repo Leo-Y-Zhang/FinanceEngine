@@ -1,4 +1,4 @@
-from finance_answer_engine.index.bm25 import Bm25Index, tokenize
+from finance_engine.index.bm25 import Bm25Index, tokenize
 
 
 def test_tokenize_drops_stopwords_keeps_figures():
@@ -125,7 +125,7 @@ def test_a_genuinely_missing_concept_still_surfaces(index):
 
 
 def _doc(doc_id, title, *texts):
-    from finance_answer_engine.models import Passage, SourceOrg
+    from finance_engine.models import Passage, SourceOrg
 
     return [
         Passage(

@@ -1,4 +1,4 @@
-# Design Brief — Finance Answer Engine
+# Design Brief — FinanceEngine
 
 Derived from `web/src/styles.css` and the components.
 [PRD.md](PRD.md) · [APP_FLOW.md](APP_FLOW.md)

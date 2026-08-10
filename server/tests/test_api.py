@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from finance_answer_engine.api.app import create_app
-from finance_answer_engine.privacy.retention import RETENTION_SECONDS
+from finance_engine.api.app import create_app
+from finance_engine.privacy.retention import RETENTION_SECONDS
 
 FIXTURE_SNAPSHOT = Path(__file__).parent / "fixtures" / "snapshot.json"
 

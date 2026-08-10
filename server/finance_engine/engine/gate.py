@@ -14,10 +14,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from finance_answer_engine.corpus.store import EXAMPLE_MARK
-from finance_answer_engine.engine.faithfulness import verify
-from finance_answer_engine.index.bm25 import Bm25Index, Hit, tokenize
-from finance_answer_engine.models import (
+from finance_engine.corpus.store import EXAMPLE_MARK
+from finance_engine.engine.faithfulness import verify
+from finance_engine.index.bm25 import Bm25Index, Hit, tokenize
+from finance_engine.models import (
     AbstentionReport,
     Citation,
     Claim,
@@ -186,10 +186,10 @@ def decide(question: str, index: Bm25Index, k: int = 8) -> GateDecision:
     if not hits:
         uncovered = tuple(index.uncovered_terms(question, []))
         explanation = (
-            f"No trusted source in Finance Answer Engine's corpus covers "
+            f"No trusted source in FinanceEngine's corpus covers "
             f"{_phrase_terms(uncovered)}."
             if uncovered
-            else "No trusted source in Finance Answer Engine's corpus addresses this question."
+            else "No trusted source in FinanceEngine's corpus addresses this question."
         )
         return GateDecision(
             answerable=False,
@@ -205,7 +205,7 @@ def decide(question: str, index: Bm25Index, k: int = 8) -> GateDecision:
     if top < MIN_TOP_SCORE or cov < MIN_COVERAGE:
         uncovered = tuple(index.uncovered_terms(question, hits))
         explanation = (
-            f"Finance Answer Engine found related material but no trusted source covers "
+            f"FinanceEngine found related material but no trusted source covers "
             f"{_phrase_terms(uncovered)} — the part it could not verify."
             if uncovered
             else (
@@ -216,7 +216,7 @@ def decide(question: str, index: Bm25Index, k: int = 8) -> GateDecision:
         return GateDecision(
             answerable=False,
             reason=(
-                "The sources Finance Answer Engine trusts do not cover this well enough to "
+                "The sources FinanceEngine trusts do not cover this well enough to "
                 "answer reliably."
             ),
             top_score=top,
@@ -234,7 +234,7 @@ def decide(question: str, index: Bm25Index, k: int = 8) -> GateDecision:
         return GateDecision(
             answerable=False,
             reason=(
-                "The sources Finance Answer Engine trusts mention this, but none of them is "
+                "The sources FinanceEngine trusts mention this, but none of them is "
                 "about it in enough depth to answer."
             ),
             top_score=top,

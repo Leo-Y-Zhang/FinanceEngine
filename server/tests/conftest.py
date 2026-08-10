@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from finance_answer_engine.corpus.store import load_snapshot
-from finance_answer_engine.engine.answer import Engine
-from finance_answer_engine.index.bm25 import Bm25Index
+from finance_engine.corpus.store import load_snapshot
+from finance_engine.engine.answer import Engine
+from finance_engine.index.bm25 import Bm25Index
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

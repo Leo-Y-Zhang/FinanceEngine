@@ -1,6 +1,6 @@
 import pytest
 
-from finance_answer_engine.models import (
+from finance_engine.models import (
     DISCLAIMER,
     AnswerCard,
     Citation,

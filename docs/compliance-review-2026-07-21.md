@@ -4,7 +4,7 @@
 **Reviewer:** Claude (agent), acting as a free "lawyer function" first pass
 **Scope:** MVP scope decision in `docs/superpowers/specs/2026-07-21-mvp-design.md`
 §1 (gate-first, extractive-core, LLM-optional) and §4 (regulatory posture), and
-the live code in `server/finance_answer_engine/` and `web/` as of this date.
+the live code in `server/finance_engine/` and `web/` as of this date.
 
 ## THIS IS NOT LEGAL ADVICE
 
@@ -66,14 +66,14 @@ lawyer has actually looked.
 
 ### What exists
 
-- `server/finance_answer_engine/engine/classifier.py`: a rule-based classifier
+- `server/finance_engine/engine/classifier.py`: a rule-based classifier
   (`classify()`) runs **before retrieval** on every question. It matches
   14 named regex patterns (direct "should I", suitability framing,
   product superlatives, "people like me" implicit-suitability framing,
   named-provider + decision-verb combinations, etc.) plus a
   named-commercial-provider list (Vanguard, Nutmeg, Halifax, Monzo, …).
   A match returns a `RoutingEvent` — never an answer.
-- `server/finance_answer_engine/engine/answer.py` (`Engine.ask`): the classifier gate
+- `server/finance_engine/engine/answer.py` (`Engine.ask`): the classifier gate
   runs strictly before the grounding gate. Confirmed by
   `test_engine.py::test_personal_rec_wins_even_when_corpus_could_answer` —
   a question the corpus *could* answer still routes if it's
@@ -93,7 +93,7 @@ lawyer has actually looked.
   affiliate link.
 - I checked whether the LLM-composer path described in design doc §2.4
   (`providers/base.py`, `extractive.py`, `claude.py`) actually exists:
-  **it does not.** `server/finance_answer_engine/providers/` is an empty directory (no
+  **it does not.** `server/finance_engine/providers/` is an empty directory (no
   files at all, not even `__init__.py`). The live MVP is 100% extractive
   — there is no code path today that could have an LLM rephrase or
   generate suitability-adjacent language. This is reassuring from a
@@ -118,7 +118,7 @@ lawyer has actually looked.
   commitment (see next point), is required before this is safe to expose
   to real users.
 - **The question log exists but nothing currently reviews it for
-  classifier misses.** `server/finance_answer_engine/api/app.py` already writes every
+  classifier misses.** `server/finance_engine/api/app.py` already writes every
   `{ts, question, kind}` to `logs/ask.jsonl` (spec §4F "monitoring"), so
   the raw material for a misses-review process exists — there's just no
   process, cadence, or owner defined yet for actually looking at
@@ -128,11 +128,11 @@ lawyer has actually looked.
 - **Verbatim second-person source text.** Because claims are extracted
   sentences from GOV.UK/HMRC prose, some cited text is itself phrased
   imperatively ("You must register for Self Assessment if…"). That's the
-  source instructing the reader, not Finance Answer Engine recommending a course of
+  source instructing the reader, not FinanceEngine recommending a course of
   action, and each claim carries a visible citation "receipt" (org badge,
   link, dates) that should make the quotation nature clear — but a lawyer
   should sanity-check that the visual design (`web/src/components/AnswerLedger.tsx`)
-  makes the "this is a quotation, not Finance Answer Engine's advice" framing
+  makes the "this is a quotation, not FinanceEngine's advice" framing
   unambiguous enough, especially for the `depends`-confidence tier which
   sits directly next to factual content.
 
@@ -148,7 +148,7 @@ needs to set the bar for "enough" before real users arrive.
 ### GOV.UK / HMRC (`kind: "govuk"`)
 
 Fetched via the official GOV.UK Content API
-(`server/finance_answer_engine/corpus/fetch.py`) and correctly licensed: GOV.UK/HMRC
+(`server/finance_engine/corpus/fetch.py`) and correctly licensed: GOV.UK/HMRC
 content is published under the **Open Government Licence v3.0**, which
 permits copying, adapting, and commercial or non-commercial use, subject
 to attribution. This is genuinely clean.
@@ -170,7 +170,7 @@ lawyer will likely ask for anyway.
 ### FCA and MoneyHelper (`kind: "html"`)
 
 These are **not** under OGL, and I found a real bug during this review:
-`server/finance_answer_engine/corpus/manifest.py`'s loader was defaulting **every**
+`server/finance_engine/corpus/manifest.py`'s loader was defaulting **every**
 manifest entry's `licence` field to `"OGL v3.0"` regardless of `org` or
 `kind` (`e.get("licence", "OGL v3.0")`), which silently mislabelled FCA
 (and previously MoneyHelper) entries. **I fixed this** in the same commit
@@ -192,12 +192,12 @@ own published terms:
   than as explicitly permitted... is prohibited unless prior written
   permission... has been obtained," and specifically calls out that
   reproducing material on external websites or "creating data feeds"
-  requires prior written permission. **Finance Answer Engine's actual pattern —
+  requires prior written permission. **FinanceEngine's actual pattern —
   extracting and republishing verbatim sentences from FCA pages, with
   attribution, as part of a structured product — is arguably closer to
   "a data feed" than "a short incidental extract."** This is the single
   content-licensing item most worth a lawyer's direct read: is what
-  Finance Answer Engine does within FCA's permitted-use carve-outs, or does it need
+  FinanceEngine does within FCA's permitted-use carve-outs, or does it need
   the FCA's written permission? I can't make that call; a lawyer should.
 - **MoneyHelper/MaPS**: downloadable materials are under
   **CC BY-NC-ND 2.0 UK** (non-commercial, no-derivatives) per MoneyHelper's
@@ -231,7 +231,7 @@ with no revenue and effectively no reach, but it is a real pre-launch gate.
 
 Checked `web/src/` (no cookies, no `localStorage`/`sessionStorage`, no
 analytics/tracking scripts — `index.html` and `main.tsx` load nothing
-beyond the app bundle) and `server/finance_answer_engine/api/app.py`. The only
+beyond the app bundle) and `server/finance_engine/api/app.py`. The only
 persistence anywhere in the system is:
 
 ```python
@@ -293,7 +293,7 @@ deploy-gate checklist, not left until the day of.
 
 ### What exists
 
-- `DISCLAIMER` (`server/finance_answer_engine/models.py`) is a field with a default
+- `DISCLAIMER` (`server/finance_engine/models.py`) is a field with a default
   value on **all three** response dataclasses (`AnswerCard`, `Abstention`,
   `RoutingEvent`) — meaning it is structurally impossible for an API
   response to omit it, not just a UI convention. `test_engine.py::test_no_response_ever_lacks_disclaimer`
@@ -361,13 +361,13 @@ accurate" pitch.
 ### What axe won't catch — flagged per the task brief
 
 - **Automated tools like axe catch roughly a third to half of real
-  WCAG issues** (this is a widely cited industry figure, not a Finance Answer Engine-
+  WCAG issues** (this is a widely cited industry figure, not a FinanceEngine-
   specific measurement) — a clean axe run is a good baseline signal, not
   a WCAG conformance claim. Before any real launch, recommend an actual
   manual keyboard-only pass and a real screen-reader pass (NVDA/JAWS/
   VoiceOver), which nothing in the current test suite does.
 - **Plain-language reading level of cited content.** This is the item
-  the task brief specifically asked about, and it's real: Finance Answer Engine quotes
+  the task brief specifically asked about, and it's real: FinanceEngine quotes
   GOV.UK/HMRC prose verbatim. GOV.UK content is generally written to a
   plain-English house style, which helps, but HMRC guidance in
   particular can still be technical (SDLT bands, MPAA taper rules,
@@ -422,7 +422,7 @@ given the intended audience.
 
 To avoid shipping a known-wrong labelling bug while writing this document,
 I fixed finding #4 in the same session (small, low-risk, test-covered):
-`server/finance_answer_engine/corpus/manifest.py` now computes a licence label based on
+`server/finance_engine/corpus/manifest.py` now computes a licence label based on
 `kind`/`org` instead of defaulting everything to `"OGL v3.0"`, with new
 tests in `server/tests/test_manifest.py`. I did **not** attempt to resolve
 findings #6, #8, #9, #10, #11, or #12 — those need either a lawyer's
@@ -444,7 +444,7 @@ Added a real, linked privacy notice and a retention/purge mechanism for
 
 - **`web/src/components/PrivacyNotice.tsx`** — a plain-English notice
   covering what is logged (question text, outcome kind, timestamp — verified
-  against the actual `log_outcome()` code in `server/finance_answer_engine/api/app.py`,
+  against the actual `log_outcome()` code in `server/finance_engine/api/app.py`,
   not assumed), why (classifier-miss review and general quality
   improvement), lawful basis (UK GDPR Art 6(1)(f) legitimate interests —
   accurate for a pre-launch, no-accounts, build-only product with no
@@ -456,14 +456,14 @@ Added a real, linked privacy notice and a retention/purge mechanism for
   (`#/privacy`, no new dependency) and a link is placed directly in the
   disclaimer banner — the one place a user is already looking, and the
   natural home for it per the original finding's own reasoning.
-- **`server/finance_answer_engine/privacy/retention.py`** (`purge_expired`) — there was no
+- **`server/finance_engine/privacy/retention.py`** (`purge_expired`) — there was no
   retention/purge mechanism at all before this change (confirmed: neither
   `refresh.py` nor `app.py` had one). Added a small, pragmatic one: entries
   older than `RETENTION_DAYS = 30` are dropped from `ask.jsonl`, malformed
   lines are treated as expired rather than crashing the purge, and a
   missing file is a no-op. Wired into `create_app()` so it runs once at
   server startup — no scheduler needed for a single-machine, pre-launch
-  build. Also runnable standalone: `python -m finance_answer_engine.privacy.retention`.
+  build. Also runnable standalone: `python -m finance_engine.privacy.retention`.
 - Tests: `server/tests/test_retention.py` (6 tests: no-op on missing file,
   keeps recent entries, removes stale entries, empty-file-not-missing-file
   edge case, malformed-line handling, retention constant sanity) plus a
@@ -474,7 +474,7 @@ Added a real, linked privacy notice and a retention/purge mechanism for
   and back from the page works). All green (137 pytest, 12 vitest).
 
 This closes the concrete gap identified in finding #8. It does not replace
-the lawyer's eventual review of the lawful-basis choice once Finance Answer Engine has
+the lawyer's eventual review of the lawful-basis choice once FinanceEngine has
 real, public users and (potentially) a consent-capable collection point —
 that re-review is called out in the notice itself and remains an open item
 for launch.
@@ -486,7 +486,7 @@ has an unbounded tail of paraphrases it cannot enumerate in advance, and
 that remains true after this pass. What changed is a genuine best-effort
 adversarial hardening round targeting five specific paraphrase categories
 identified as gaps in the existing 14-pattern set plus provider list
-(`server/finance_answer_engine/engine/classifier.py`):
+(`server/finance_engine/engine/classifier.py`):
 
 1. **Third-person / on-behalf-of framing** — "my friend wants to know if
    she should...", "asking for a friend...". PERG 8.30B doesn't stop
@@ -557,7 +557,7 @@ need a qualified reviewer.
   This does **not** resolve finding #6 (whether verbatim FCA-sentence reuse
   is within FCA's permitted use) — that remains the top lawyer item.
 - **Finding #3 (doc describes a `providers/` path that does not exist) —
-  closed.** `server/finance_answer_engine/providers/` still does not exist. Rather than
+  closed.** `server/finance_engine/providers/` still does not exist. Rather than
   build it, the design spec is now explicit: §2.4 carries a bold
   "Implementation status: NOT BUILT" note directing any reviewer to review
   the extractive engine only, and §2.3's `composer.py` reference is corrected

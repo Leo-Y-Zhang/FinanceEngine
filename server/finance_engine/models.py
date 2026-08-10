@@ -12,7 +12,7 @@ from enum import Enum
 from typing import Literal
 
 DISCLAIMER = (
-    "Finance Answer Engine provides information and guidance, not regulated financial advice "
+    "FinanceEngine provides information and guidance, not regulated financial advice "
     "or a personal recommendation. It does not consider your individual "
     "circumstances. For advice tailored to you, speak to an FCA-authorised "
     "adviser."
@@ -220,7 +220,7 @@ AbstainStage = Literal[
     # Sources matched the words strongly, but none of them is ABOUT the subject
     # raised — distinct from no_groundable_statement, where a source IS on topic
     # and merely has no quotable sentence. Conflating the two would give the user
-    # a confidently wrong account of why Finance Answer Engine declined.
+    # a confidently wrong account of why FinanceEngine declined.
     "off_topic",
     "no_groundable_statement",
     "empty_question",
@@ -240,7 +240,7 @@ class SignalCheck:
 
 @dataclass(frozen=True)
 class AbstentionReport:
-    """Why Finance Answer Engine declined to answer — the refusal proving itself, symmetric
+    """Why FinanceEngine declined to answer — the refusal proving itself, symmetric
     with the TrustReport that proves an answer. Deterministic and keyless: the
     gate stage that fired, each answerability signal against its threshold, and
     the specific query terms no trusted source covers. 'Refusal is a feature'

@@ -1,4 +1,4 @@
-# Finance Answer Engine MVP — Implementation Plan (2026-07-21)
+# FinanceEngine MVP — Implementation Plan (2026-07-21)
 
 > **Historical plan, kept as written.** Dated 2026-07-21 and left at its original
 > wording. One name has moved since: the "Triton" referenced under Risks / notes
@@ -14,8 +14,8 @@ the repo is always green and the highest-risk piece (the gate) lands first.
    SESSION_HANDOFF. Private GitHub repo `Leo-Y-Zhang/FinanceEngine`. ✅ when pushed.
 2. **Corpus curation (background workflow)** — 6 domain agents fan out over
    GOV.UK/FCA/MoneyHelper, verify each GOV.UK Content API path resolves,
-   return manifest entries. Merge → `server/finance_answer_engine/corpus/manifest.json`.
-3. **Core models + manifest** (`finance_answer_engine/models.py`, `corpus/manifest.py`) —
+   return manifest entries. Merge → `server/finance_engine/corpus/manifest.json`.
+3. **Core models + manifest** (`finance_engine/models.py`, `corpus/manifest.py`) —
    dataclasses for Passage, Claim, Citation, AnswerCard, Abstention,
    RoutingEvent; manifest load/validate. Tests.
 4. **Passage store + splitter** (`corpus/store.py`) — normalise docs into
@@ -27,7 +27,7 @@ the repo is always green and the highest-risk piece (the gate) lands first.
 7. **Grounding gate + composer + routing** (`engine/`) — thresholds,
    answer/abstain/route assembly, citation-integrity invariant. Tests.
 8. **Fetchers** (`corpus/fetch.py`) — GOV.UK Content API + curated HTML,
-   snapshot writer; `python -m finance_answer_engine.corpus.refresh`. Network code excluded
+   snapshot writer; `python -m finance_engine.corpus.refresh`. Network code excluded
    from unit tests (fixture-driven); one manual smoke run.
 9. **FastAPI app** (`api/app.py`) — /ask, /corpus/status, /health, JSONL
    outcome log, disclaimer in every response. Tests via TestClient.

@@ -3,14 +3,14 @@
 **Date:** 2026-07-23
 **Status:** Approved (self-approved under the owner's standing autonomous-work
 directive; owner was offline for the build. Reversible; additive-only.)
-**Scope:** One cohesive feature that makes Finance Answer Engine's core promise — *every claim
+**Scope:** One cohesive feature that makes FinanceEngine's core promise — *every claim
 is grounded in an official source; nothing is asserted that a cited source does
 not support* — **explicit, enforced, visible, and measurable.** This is the
 literal expression of the portfolio thesis "software that proves its own claims."
 
 ## Motivation
 
-Today Finance Answer Engine emits each answer claim as a **verbatim sentence** extracted from a
+Today FinanceEngine emits each answer claim as a **verbatim sentence** extracted from a
 single source passage (`gate.py:_sentence_claims`), and provenance attaches via
 `Citation.from_passage` — which **drops the passage text and id**, keeping only
 doc-level metadata. So the grounding of a claim is *structurally true today* but
@@ -90,9 +90,9 @@ effect: **the engine cannot emit an answer containing an ungrounded claim.**
 already tolerates extra fields; the field is optional so refusals/old shapes are
 unaffected.
 
-## Component 3 — Reproducible honesty-eval CLI (`finance_answer_engine/eval.py`)
+## Component 3 — Reproducible honesty-eval CLI (`finance_engine/eval.py`)
 
-`python -m finance_answer_engine.eval [--snapshot PATH] [--json]` — mirrors the existing
+`python -m finance_engine.eval [--snapshot PATH] [--json]` — mirrors the existing
 `python -m …` module pattern (`corpus/refresh.py`, `privacy/retention.py`).
 Loads a snapshot → `Bm25Index` → `Engine`, runs a **shared golden set** and
 reports metrics:
@@ -143,5 +143,5 @@ Gate: full suite stays green (137 pytest + 12 vitest baseline) and grows.
 
 Server first (verifier → models → gate wiring → eval), each increment green and
 committed+pushed under the anonymous identity; then web; then docs
-(`README` "Trust report" section + `SESSION_HANDOFF`). Finance Answer Engine is not an
+(`README` "Trust report" section + `SESSION_HANDOFF`). FinanceEngine is not an
 auto-deploy repo, so pushes are safe.

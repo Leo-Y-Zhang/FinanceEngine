@@ -1,6 +1,6 @@
 """Load and validate the corpus manifest.
 
-The manifest is the single declaration of what Finance Answer Engine is allowed to ground
+The manifest is the single declaration of what FinanceEngine is allowed to ground
 on. Anything not in it does not exist as far as the engine is concerned.
 """
 
@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from finance_answer_engine.models import ManifestEntry, SourceOrg
+from finance_engine.models import ManifestEntry, SourceOrg
 
 MANIFEST_PATH = Path(__file__).with_name("manifest.json")
 

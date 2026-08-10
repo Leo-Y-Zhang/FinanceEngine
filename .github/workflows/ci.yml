@@ -49,10 +49,10 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Lint
-        run: ruff check finance_answer_engine tests
+        run: ruff check finance_engine tests
 
       - name: Tests with coverage floor
-        run: pytest --cov=finance_answer_engine --cov-report=term-missing
+        run: pytest --cov=finance_engine --cov-report=term-missing
 
       # Audits a frozen list of the THIRD-PARTY dependencies rather than the
       # whole environment, because the environment also contains this project
@@ -73,7 +73,7 @@ jobs:
       # live snapshot is gitignored and needs a network fetch, so CI checks the
       # reproducible half; the live number is recorded in the handoff.
       - name: Honesty eval (fixture corpus)
-        run: python -m finance_answer_engine.eval
+        run: python -m finance_engine.eval
 
   web:
     name: web (types, tests, build, deps)

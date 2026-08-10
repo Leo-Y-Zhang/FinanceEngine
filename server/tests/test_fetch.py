@@ -1,6 +1,6 @@
 """Pure-reducer tests for fetch — no network."""
 
-from finance_answer_engine.corpus.fetch import govuk_text, strip_html
+from finance_engine.corpus.fetch import govuk_text, strip_html
 
 
 def test_strip_html_scopes_to_main():

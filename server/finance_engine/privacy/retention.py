@@ -2,13 +2,13 @@
 
 Compliance context: `docs/compliance-review-2026-07-21.md` finding #8 flagged
 that `logs/ask.jsonl` (every question, its outcome kind, and a timestamp —
-see `finance_answer_engine.api.app.log_outcome`) had no defined retention or purge policy.
+see `finance_engine.api.app.log_outcome`) had no defined retention or purge policy.
 The user-facing privacy notice (`web/src/components/PrivacyNotice.tsx`)
 promises a 30-day retention period; this module is what actually enforces
 it. `create_app()` calls `purge_expired()` once at startup so the promise
 holds without needing a separate cron job or scheduler for this pre-launch,
 single-machine build. For manual/scheduled use there is also a CLI entry
-point: `python -m finance_answer_engine.privacy.retention`.
+point: `python -m finance_engine.privacy.retention`.
 """
 
 from __future__ import annotations
@@ -80,7 +80,7 @@ def purge_expired(
 
 def purge_expired_default() -> int:
     """Purge the default `logs/ask.jsonl` path used by the running app."""
-    from finance_answer_engine.api.app import DEFAULT_LOG
+    from finance_engine.api.app import DEFAULT_LOG
 
     return purge_expired(DEFAULT_LOG)
 

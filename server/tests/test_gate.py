@@ -7,8 +7,8 @@ has drifted.
 
 import pytest
 
-from finance_answer_engine.engine.gate import _confidence_for, _phrase_terms, _signal_pair, decide
-from finance_answer_engine.models import AbstentionReport, Passage, SourceOrg
+from finance_engine.engine.gate import _confidence_for, _phrase_terms, _signal_pair, decide
+from finance_engine.models import AbstentionReport, Passage, SourceOrg
 
 ANSWERABLE = [
     "How does a Lifetime ISA work?",
@@ -116,7 +116,7 @@ def test_no_groundable_statement_stage_when_matched_but_uncitable(passages):
     # answerability signals pass), yet every sentence sits below the per-sentence
     # overlap bar, so nothing is citable. Also the only path that exercises the
     # both-signals-passed rendering.
-    from finance_answer_engine.index.bm25 import Bm25Index
+    from finance_engine.index.bm25 import Bm25Index
 
     terms = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel"]
     text = " ".join(f"The {t} paragraph explains one separate idea here." for t in terms)
@@ -185,8 +185,8 @@ def test_confidence_uncertain_for_undated_unfigured():
 def test_worked_example_claims_capped_and_not_boosted(passages):
     # A GOV.UK-style worked example must not be emitted as 'established'
     # fact, and its arithmetic must not win the figure boost over a real rule.
-    from finance_answer_engine.corpus.store import Document, passages_for
-    from finance_answer_engine.index.bm25 import Bm25Index
+    from finance_engine.corpus.store import Document, passages_for
+    from finance_engine.index.bm25 import Bm25Index
 
     rule = Document(
         doc_id="rule", title="Tax on savings interest", org=SourceOrg.HMRC,
@@ -223,7 +223,7 @@ def test_worked_example_detected_in_the_phrasings_govuk_actually_uses():
     won the factual boost and rose up the ledger: invented arithmetic shown to
     the reader as settled fact.
     """
-    from finance_answer_engine.engine.gate import _EXAMPLE_MARK
+    from finance_engine.engine.gate import _EXAMPLE_MARK
 
     introduces_an_example = [
         "Example. Bill earns £50,000.",
@@ -263,8 +263,8 @@ def test_for_example_arithmetic_is_not_emitted_as_established(passages):
     marker was widened this passage produced 'established' claims carrying
     hypothetical figures.
     """
-    from finance_answer_engine.corpus.store import Document, passages_for
-    from finance_answer_engine.index.bm25 import Bm25Index
+    from finance_engine.corpus.store import Document, passages_for
+    from finance_engine.index.bm25 import Bm25Index
 
     rule = Document(
         doc_id="rule", title="Tax on savings interest", org=SourceOrg.HMRC,
@@ -314,7 +314,7 @@ def test_off_topic_sources_are_refused_and_told_apart_from_uncitable_ones():
     drawn from it is perfectly grounded in its own passage. It still does not
     answer how cryptocurrency is taxed.
     """
-    from finance_answer_engine.index.bm25 import Bm25Index
+    from finance_engine.index.bm25 import Bm25Index
 
     passages = [
         _passage("iht", 0, "Inheritance Tax",
@@ -340,9 +340,9 @@ def test_the_relevance_guard_cannot_turn_a_refusal_into_an_answer():
     """Safety property: it only ever removes material.
 
     Anything the gate would previously have refused it must still refuse, so the
-    guard can never widen what Finance Answer Engine is willing to say.
+    guard can never widen what FinanceEngine is willing to say.
     """
-    from finance_answer_engine.index.bm25 import Bm25Index
+    from finance_engine.index.bm25 import Bm25Index
 
     index = Bm25Index([
         _passage("d", 0, "Some guide", "This document is about something else entirely."),

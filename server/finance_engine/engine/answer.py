@@ -8,12 +8,12 @@ from __future__ import annotations
 
 from datetime import date
 
-from finance_answer_engine.engine.classifier import classify
-from finance_answer_engine.engine.freshness import assess
-from finance_answer_engine.engine.gate import decide
-from finance_answer_engine.engine.routing import abstain_routing, default_routing
-from finance_answer_engine.index.bm25 import Bm25Index
-from finance_answer_engine.models import (
+from finance_engine.engine.classifier import classify
+from finance_engine.engine.freshness import assess
+from finance_engine.engine.gate import decide
+from finance_engine.engine.routing import abstain_routing, default_routing
+from finance_engine.index.bm25 import Bm25Index
+from finance_engine.models import (
     Abstention,
     AbstentionReport,
     AnswerCard,

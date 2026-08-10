@@ -6,8 +6,8 @@ aged snapshot. This suite pins the deterministic freshness assessment.
 
 from datetime import date
 
-from finance_answer_engine.engine.freshness import assess, current_tax_year_start
-from finance_answer_engine.models import Citation, Freshness, FreshnessReport, SourceOrg
+from finance_engine.engine.freshness import assess, current_tax_year_start
+from finance_engine.models import Citation, Freshness, FreshnessReport, SourceOrg
 
 # 1 September 2026 falls in the 2026-27 UK tax year (started 6 Apr 2026).
 REF = date(2026, 9, 1)

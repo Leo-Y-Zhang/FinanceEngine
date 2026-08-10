@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from finance_answer_engine.eval import main, run_eval
+from finance_engine.eval import main, run_eval
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
