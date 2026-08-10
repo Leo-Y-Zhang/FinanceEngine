@@ -11,7 +11,7 @@ the repo is always green and the highest-risk piece (the gate) lands first.
 ## Tasks
 
 1. **Scaffold + docs** — repo, README, .gitignore, design doc, this plan,
-   SESSION_HANDOFF. Private GitHub repo `GreenPandaTech/FinanceAnswerEngine`. ✅ when pushed.
+   SESSION_HANDOFF. Private GitHub repo `Leo-Y-Zhang/FinanceEngine`. ✅ when pushed.
 2. **Corpus curation (background workflow)** — 6 domain agents fan out over
    GOV.UK/FCA/MoneyHelper, verify each GOV.UK Content API path resolves,
    return manifest entries. Merge → `server/finance_answer_engine/corpus/manifest.json`.

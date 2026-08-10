@@ -60,7 +60,7 @@ of their statements were true only on the day they were written.
 
 | | |
 |---|---|
-| Repo | `GreenPandaTech/FinanceAnswerEngine` (private), local `C:\dev\FinanceAnswerEngine` |
+| Repo | `Leo-Y-Zhang/FinanceEngine` (private), local `C:\dev\FinanceAnswerEngine` |
 | State | working tree clean, `main` == `origin/main` |
 | Server | **283 pytest**, ruff clean, **95% coverage** (floor 90%), `pip-audit` clean |
 | Web | **17 vitest** (incl. axe), `tsc` clean, build clean, `npm audit` 0 vulns |
@@ -74,7 +74,7 @@ of their statements were true only on the day they were written.
 - **The lawyer gate does not block development.** User decided 2026-07-27 that
   there will be no launch or monetisation, so it does not apply. It returns in
   full the moment anyone wants to make this public or take money for it.
-- Anonymity: GreenPandaTech noreply identity, no personal identifiers.
+- Anonymity: noreply commit identity, no personal identifiers.
 - Corpus: OGL/official sources only; no scraping around WAFs.
 
 **IF RESUMED, the honest options** (none is outstanding work — the project is
@@ -367,7 +367,7 @@ guard from a faithfulness check, and the product currently has only the latter.
 **Verification:** server **221 -> 260 pytest** green (30 new in `test_bench.py`,
 9 new red-team fixtures); all 131 labels validate against the live 53-document
 corpus; `python -m finance_answer_engine.eval --snapshot ../data/corpus/snapshot.json` still
-**PASS**. Pushed to GreenPandaTech/FinanceAnswerEngine.
+**PASS**. Pushed to Leo-Y-Zhang/FinanceEngine.
 
 ---
 
@@ -578,7 +578,7 @@ adversarial review was deferred (context budget) — worth running on resume.
 
 Standout feature completing the thesis's other half: Finance Answer Engine already *proved its
 answers* (trust report + freshness); now it *proves its refusals* too. Built
-autonomously under the standing directive; pushed to GreenPandaTech/FinanceAnswerEngine,
+autonomously under the standing directive; pushed to Leo-Y-Zhang/FinanceEngine,
 each increment green. Design spec:
 `docs/superpowers/specs/2026-07-24-explainable-refusal-design.md`.
 
@@ -661,7 +661,7 @@ Claude-composer build (needs an API key), and the MoneyHelper partnership.
 
 Standout feature making the thesis *software that proves its own claims*
 literal, visible, and measurable. Built autonomously (owner offline, under the
-standing autonomous-work directive); pushed to GreenPandaTech/FinanceAnswerEngine, each
+standing autonomous-work directive); pushed to Leo-Y-Zhang/FinanceEngine, each
 increment green. Design spec:
 `docs/superpowers/specs/2026-07-23-provenance-faithfulness-design.md`.
 
@@ -820,7 +820,7 @@ bottom of `docs/compliance-review-2026-07-21.md` itself — summary here:
 
 **Pushing to GitHub is ON HOLD per current user instruction** (recent
 free-tier limit) — this session's changes are **local commits only**.
-Nothing in this session was pushed to GreenPandaTech/FinanceAnswerEngine. Push when
+Nothing in this session was pushed to Leo-Y-Zhang/FinanceEngine. Push when
 the user says so.
 
 ## Exact next step — SUPERSEDED, see PROJECT STATUS at the top
@@ -863,7 +863,7 @@ the user says so.
 > anonymity and corpus gates all still stand.
 
 - Build-only: NO deploy, NO launch, NO monetisation.
-- Anonymity: GreenPandaTech noreply identity; no personal identifiers.
+- Anonymity: noreply commit identity; no personal identifiers.
 - Corpus content: OGL/official sources only; no scraping around WAFs.
 - ~~Push-to-GitHub: ON HOLD~~ — expired 2026-07-21; pushing is normal.
 
