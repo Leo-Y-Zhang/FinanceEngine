@@ -93,7 +93,12 @@ def run_eval(snapshot_path: Path, golden_path: Path) -> EvalReport:
     accuracy = correct / n if n else 0.0
     grounded_rate = grounded / total_claims if total_claims else 1.0
     passed = (
-        correct == n
+        # An empty golden set would otherwise satisfy every clause below and
+        # report a flawless zero-question eval — a clean bill of health from
+        # nothing. `bench.validate_labels` already refuses an empty dataset for
+        # this reason; this is the gate CI runs, so it has to refuse one too.
+        n > 0
+        and correct == n
         and unsupported == 0
         and grounded == total_claims
         and citations_complete
@@ -131,6 +136,12 @@ def _format(r: EvalReport) -> str:
         f"Refusals explained     : {r.abstentions_explained}/{r.abstentions}  (must be all)",
         f"RESULT                 : {'PASS' if r.passed else 'FAIL'}",
     ]
+    if r.questions == 0:
+        lines += [
+            "",
+            "The golden set holds no questions, so there is nothing to measure and",
+            "every figure above is over an empty set. That is not a pass.",
+        ]
     if r.mismatches:
         lines += ["", "Answerability mismatches:"]
         lines += [f"  - {m}" for m in r.mismatches]

@@ -189,7 +189,7 @@ because there is no deployment.
 
 ## The suite, and why the coverage floor is a floor
 
-283 pytest plus 17 vitest, 95.21% line coverage against a 90% floor. The floor is
+284 pytest plus 17 vitest, 95.21% line coverage against a 90% floor. The floor is
 a floor rather than a target: the network fetch paths are deliberately outside
 the unit suite, so chasing 100% would mean testing `urllib` rather than this
 product.

@@ -42,6 +42,30 @@ def test_eval_cli_exits_zero_and_reports_pass(capsys):
     assert "Unsupported claims     : 0" in out
 
 
+def test_eval_refuses_to_pass_over_an_empty_golden_set(tmp_path, capsys):
+    """Zero questions is an absent measurement, not a clean bill of health.
+
+    `bench.validate_labels` already refuses an empty dataset for exactly this
+    reason. The honesty eval is the gate CI actually runs, and a golden file
+    truncated to `{"questions": []}` reported "RESULT: PASS" at exit 0, with
+    "Claims grounded: 0/0 (100%)" — a perfect score over nothing at all.
+    """
+    empty = tmp_path / "golden.json"
+    empty.write_text('{"questions": []}', encoding="utf-8")
+
+    r = run_eval(FIXTURES / "snapshot.json", empty)
+    assert r.questions == 0
+    assert not r.passed
+
+    code = main(
+        ["--snapshot", str(FIXTURES / "snapshot.json"), "--golden", str(empty)]
+    )
+    out = capsys.readouterr().out
+    assert code == 1
+    assert "PASS" not in out
+    assert "nothing to measure" in out
+
+
 def test_eval_cli_json(capsys):
     code = main(
         [

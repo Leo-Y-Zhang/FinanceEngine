@@ -282,7 +282,7 @@ one can be run locally with the same command.
 # server
 cd server && pip install -e ".[dev]"
 ruff check finance_engine tests                       # lint, rules pinned in pyproject
-pytest --cov=finance_engine --cov-report=term-missing # 283 tests, 95% coverage, floor 90%
+pytest --cov=finance_engine --cov-report=term-missing # 284 tests, 95% coverage, floor 90%
 pip freeze --exclude-editable > audit-requirements.txt       # third-party deps only
 pip-audit --strict -r audit-requirements.txt                 # dependency CVEs
 python -m finance_engine.eval                         # the honesty promise, fixture corpus

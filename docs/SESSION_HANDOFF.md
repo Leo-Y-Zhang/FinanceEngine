@@ -62,7 +62,7 @@ of their statements were true only on the day they were written.
 |---|---|
 | Repo | `Leo-Y-Zhang/FinanceEngine` (private), local `C:\dev\FinanceAnswerEngine` |
 | State | working tree clean, `main` == `origin/main` |
-| Server | **283 pytest**, ruff clean, **95% coverage** (floor 90%), `pip-audit` clean |
+| Server | **284 pytest**, ruff clean, **95% coverage** (floor 90%), `pip-audit` clean |
 | Web | **17 vitest** (incl. axe), `tsc` clean, build clean, `npm audit` 0 vulns |
 | Honesty eval | **PASS** on fixture *and* live corpus (21/21, 42/42 grounded) |
 | Benchmark | 131 labels valid · false answers **12.0%** · false refusals **3.7%** · routing 18/18 |
