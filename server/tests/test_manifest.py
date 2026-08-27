@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from conftest import host_is
 
 from finance_engine.corpus.manifest import load_excluded, load_manifest
 
@@ -87,11 +88,11 @@ def test_explicit_licence_is_respected(tmp_path):
 def test_load_excluded_returns_moneyhelper_waf_blocked_entries():
     excluded = load_excluded()
     assert len(excluded) == 21
-    assert all("moneyhelper.org.uk" in e["locator"] for e in excluded)
+    assert all(host_is(e["locator"], "moneyhelper.org.uk") for e in excluded)
     assert all(e["status"] == "excluded" for e in excluded)
 
 
 def test_real_manifest_no_longer_lists_moneyhelper_as_fetchable():
     entries = load_manifest()
-    live_moneyhelper = [e for e in entries if "moneyhelper.org.uk" in e.locator]
+    live_moneyhelper = [e for e in entries if host_is(e.locator, "moneyhelper.org.uk")]
     assert live_moneyhelper == []

@@ -1,5 +1,7 @@
 """End-to-end: the three response states over the fixture corpus."""
 
+from conftest import host_is
+
 from finance_engine.models import DISCLAIMER, Abstention, AnswerCard, RoutingEvent
 
 
@@ -18,8 +20,8 @@ def test_personal_rec_question_returns_routing_event(engine):
     response = engine.ask("Which ISA should I open?")
     assert isinstance(response, RoutingEvent)
     assert response.matched
-    assert any("moneyhelper" in link.url for link in response.routing.links)
-    assert any("register.fca.org.uk" in link.url for link in response.routing.links)
+    assert any(host_is(link.url, "moneyhelper.org.uk") for link in response.routing.links)
+    assert any(host_is(link.url, "register.fca.org.uk") for link in response.routing.links)
 
 
 def test_personal_rec_wins_even_when_corpus_could_answer(engine):
