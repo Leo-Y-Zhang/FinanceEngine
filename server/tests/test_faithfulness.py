@@ -48,6 +48,16 @@ def test_whitespace_and_case_insensitive_substring_is_grounded():
     assert v.span is not None
 
 
+def test_case_insensitive_span_survives_characters_that_lowercase_to_two():
+    # "İ".lower() is two characters; the normalised source used to drift out of
+    # step with its offset map, giving a wrong span or an IndexError.
+    p = _passage("İstanbul office.  The   ISA allowance is £20,000 a year.")
+    v = verify("the isa allowance is £20,000 a year.", p)
+    assert v.verdict == "grounded"
+    assert v.span is not None
+    assert p.text[v.span[0]:v.span[1]] == "The   ISA allowance is £20,000 a year."
+
+
 def test_paraphrase_within_source_vocabulary_is_grounded():
     p = _passage(
         "You pay a 25 percent government bonus on Lifetime ISA contributions each year."

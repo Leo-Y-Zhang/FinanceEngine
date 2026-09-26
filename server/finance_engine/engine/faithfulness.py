@@ -95,8 +95,11 @@ def _substring_span(claim: str, source: str) -> tuple[int, int] | None:
             offsets.append(i)
             prev_ws = True
         else:
-            norm_chars.append(ch.lower())
-            offsets.append(i)
+            # One offset per OUTPUT char: a few characters lowercase to two
+            # ("İ" -> "i̇"), and a single entry would shift every later offset.
+            lowered = ch.lower()
+            norm_chars.append(lowered)
+            offsets.extend([i] * len(lowered))
             prev_ws = False
     norm_source = "".join(norm_chars)
     needle = _WS.sub(" ", claim).lower()
