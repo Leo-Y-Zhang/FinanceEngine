@@ -49,7 +49,7 @@ Server (pytest with a coverage floor):
 ```
 cd server && .venv/bin/pytest --cov=finance_engine --cov-report=term-missing
 ```
-288 tests, ~95% coverage observed; floor is `fail_under = 90` in
+293 tests, ~95% coverage observed; floor is `fail_under = 90` in
 `[tool.coverage.report]` (a floor, not a target — the network fetch path is
 deliberately excluded from the unit suite). Fastest useful subset — one
 file, e.g.:
