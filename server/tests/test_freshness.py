@@ -144,3 +144,37 @@ def test_far_future_reference_makes_answer_stale_by_snapshot_age(engine):
     resp = engine.ask("What is the annual ISA allowance?", reference_date=date(2035, 1, 1))
     assert resp.kind == "answer"
     assert resp.freshness.overall == "stale"
+
+
+def test_a_span_of_years_is_not_a_tax_year():
+    # A tax year is two CONSECUTIVE years. A span of years, or a year followed
+    # by a day of the month, used to be read as one and shown to the user as
+    # "2015-16 tax year — check current figure".
+    assert assess("The scheme ran from 2015 to 2025.", _cite(), REF).tax_year is None
+    assert assess("Rates rise between 2020-2030.", _cite(), REF).tax_year is None
+    assert assess("In 2024 - 25% of savers used one.", _cite(), REF).tax_year is None
+    assert (
+        assess("Open from 6 April 2025 to 30 September 2025.", _cite(), REF).tax_year is None
+    )
+
+
+def test_century_rollover_tax_year_is_recognised():
+    assert assess("the 2099-00 allowance", _cite(), REF).tax_year == "2099-00"
+
+
+def test_claim_naming_the_current_year_alongside_a_past_one_is_current():
+    # The claim already states the current year's figure, so it is not out of
+    # date merely because it also mentions last year's.
+    f = assess(
+        "The allowance was £20,000 in 2025 to 2026 and is £20,000 in 2026 to 2027.",
+        _cite("2026-09-01"), REF,
+    )
+    assert f.tax_year == "2026-27"
+    assert f.tax_year_current is True
+    assert f.verdict == "current"
+
+
+def test_a_span_before_a_real_tax_year_does_not_hide_it():
+    f = assess("From 2015 to 2025 it rose; in 2024 to 2025 it was £1,000.", _cite(), REF)
+    assert f.tax_year == "2024-25"
+    assert f.verdict == "stale"

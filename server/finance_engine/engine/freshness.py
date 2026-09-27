@@ -25,16 +25,18 @@ AGING_DAYS = 180
 STALE_DAYS = 365
 
 # "2026 to 2027", "2026/27", "2026/2027", "2026-27", "2026–27".
-_TAX_YEAR = re.compile(r"\b(20\d{2})\s*(?:to|/|-|–|—)\s*(?:20)?\d{2}\b")
+# Only two CONSECUTIVE years are a tax year; `_detect_tax_year_start` checks
+# that, so a span ("2015 to 2025") or a year then a day ("2025 to 30 September")
+# is not read as one; a percentage ("in 2024 - 25% of") is excluded here.
+_TAX_YEAR = re.compile(r"\b(20\d{2})\s*(?:to|/|-|–|—)\s*((?:20)?\d{2})\b(?!\s*%)")
 
 # "6 April 2026 to 5 April 2027" -- GOV.UK's own canonical way of writing a tax
 # year, and the form most likely to appear in the very sources this engine is
 # built to quote. The short pattern above cannot match it: after "to" it needs
 # two digits and finds "5 April", so the whole span reads as no tax year at all
-# and a claim about a PAST year is presented as current. Tried first because it
-# is the more specific shape.
+# and a claim about a PAST year is presented as current.
 _TAX_YEAR_LONG = re.compile(
-    r"\b\d{1,2}\s+April\s+(20\d{2})\s*(?:to|-|–|—)\s*\d{1,2}\s+April\s+20\d{2}\b",
+    r"\b\d{1,2}\s+April\s+(20\d{2})\s*(?:to|-|–|—)\s*\d{1,2}\s+April\s+(20\d{2})\b",
     re.IGNORECASE,
 )
 
@@ -47,8 +49,16 @@ def current_tax_year_start(reference_date: date) -> int:
 
 
 def _detect_tax_year_start(text: str) -> int | None:
-    match = _TAX_YEAR_LONG.search(text) or _TAX_YEAR.search(text)
-    return int(match.group(1)) if match else None
+    """The latest tax year the text names, or None. The latest, because a claim
+    that states the current year's figure is not out of date merely for also
+    mentioning last year's."""
+    starts = [
+        int(m.group(1))
+        for rx in (_TAX_YEAR_LONG, _TAX_YEAR)
+        for m in rx.finditer(text)
+        if int(m.group(2)) % 100 == (int(m.group(1)) + 1) % 100
+    ]
+    return max(starts, default=None)
 
 
 def _parse_iso_date(value: str | None) -> date | None:
